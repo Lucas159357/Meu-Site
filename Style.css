@@ -1,25 +1,16 @@
 /* style.css */
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
   margin: 0;
   padding: 0;
+  font-family: "Arial", sans-serif;
+  height: 100vh;
+  background-color: #1a1a1a;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
   text-align: center;
-  color: #333;
-}
-
-header {
-  background-color: #007acc;
-  color: white;
-  padding: 20px 0;
-}
-
-main {
-  padding: 40px 20px;
-}
-
-footer {
-  background-color: #ddd;
-  padding: 10px;
-  font-size: 14px;
 }
