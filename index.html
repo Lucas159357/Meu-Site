@@ -1,38 +1,40 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Login - Barbearia Pedro</title>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
-  </head>
-  <body>
-    <h1>Bem-vindo à Barbearia Pedro</h1>
-    <button onclick="loginGoogle()">Entrar com Google</button>
+<head>
+  <meta charset="UTF-8" />
+  <title>Login - Barbearia Pedro Rodrigues</title>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+</head>
+<body>
+  <h1>Bem-vindo à Barbearia Pedro Rodrigues</h1>
+  <button onclick="loginGoogle()">Entrar com Google</button>
 
-    <script>
-      // 🔧 Substitua com suas credenciais Firebase
-      const firebaseConfig = {
-        apiKey: "SUA_API_KEY",
-        authDomain: "SEU_PROJETO.firebaseapp.com",
-        projectId: "SEU_PROJETO",
-        appId: "SEU_APP_ID"
-      };
+  <script>
+    // 🔐 Configuração do Firebase (vinda do seu projeto)
+    const firebaseConfig = {
+      apiKey: "AIzaSyAY-Win6vQEHP1XR_fG3NOg0PAkNPAcxSg",
+      authDomain: "banco-de-dados-bd2a6.firebaseapp.com",
+      projectId: "banco-de-dados-bd2a6",
+      appId: "1:859895156791:web", // (Você pode completar se tiver o appId)
+    };
 
-      firebase.initializeApp(firebaseConfig);
-      const auth = firebase.auth();
+    // Inicializar Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
 
-      function loginGoogle() {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider)
-          .then(result => {
-            alert("Login bem-sucedido! Bem-vindo, " + result.user.displayName);
-            // Redirecionar ou salvar dados
-          })
-          .catch(error => {
-            alert("Erro no login: " + error.message);
-          });
-      }
-    </script>
-  </body>
+    function loginGoogle() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .then(result => {
+          const user = result.user;
+          alert("Bem-vindo, " + user.displayName + "!");
+          // Aqui você pode redirecionar ou salvar info no banco
+        })
+        .catch(error => {
+          alert("Erro no login: " + error.message);
+        });
+    }
+  </script>
+</body>
 </html>
