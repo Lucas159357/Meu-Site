@@ -209,6 +209,13 @@
       width: 100%;
       margin-top: 0;
     }
+    .perfil-opcoes {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 15px;
+      margin-top: 10px;
+    }
     .close-modal {
       position: absolute;
       top: 6px;
@@ -237,7 +244,79 @@
       font-size: 1em;
       word-break: break-word;
     }
-
+    /* Modal de solicitações */
+    .modal-solic {
+      display: none;
+      position: fixed;
+      z-index: 20;
+      left: 0; top: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.7);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-solic-content {
+      background: #333;
+      padding: 20px 10px 10px 10px;
+      border-radius: 10px;
+      text-align: left;
+      min-width: 300px;
+      max-width: 95vw;
+      box-shadow: 0 0 15px #111;
+      position: relative;
+      width: 380px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .modal-solic-content h3 {
+      color: #00c853;
+      margin-top: 0;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+    .close-modal-solic {
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      color: #fff;
+      font-size: 1.1em;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0 2px;
+      line-height: 1;
+      z-index: 2;
+      height: 28px;
+      width: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .close-modal-solic:hover {
+      color: #00c853;
+      background: rgba(0,0,0,0.08);
+      border-radius: 50%;
+    }
+    .solicitacao-item {
+      background: #222;
+      border-radius: 7px;
+      margin-bottom: 12px;
+      padding: 12px 10px;
+      color: #fff;
+      font-size: 1em;
+      box-shadow: 0 2px 8px #1118;
+    }
+    .solicitacao-item strong {
+      color: #00c853;
+    }
+    .solicitacao-servicos {
+      margin: 6px 0 3px 0;
+      font-size: 0.98em;
+    }
+    .solicitacao-status {
+      font-size: 0.95em;
+      color: #b2ff59;
+    }
     /* RESPONSIVIDADE */
     @media (max-width: 500px) {
       header {
@@ -281,7 +360,8 @@
         height: 22px;
         margin-left: 6px;
       }
-      .modal-content {
+      .modal-content,
+      .modal-solic-content {
         min-width: unset;
         width: 95vw;
         max-width: 99vw;
@@ -290,14 +370,16 @@
       .modal-content input[type="password"] {
         font-size: 0.95em;
       }
-      .close-modal {
+      .close-modal,
+      .close-modal-solic {
         font-size: 1em;
         top: 4px;
         right: 4px;
         height: 24px;
         width: 24px;
       }
-      .modal-content h3 {
+      .modal-content h3,
+      .modal-solic-content h3 {
         margin-top: 10px;
         font-size: 1em;
         padding-top: 2px;
@@ -365,10 +447,24 @@
   <div class="modal" id="modalPerfil">
     <div class="modal-content">
       <button class="close-modal" onclick="fecharPerfil()" aria-label="Fechar">&times;</button>
-      <h3>Alterar Senha</h3>
+      <h3>Perfil</h3>
+      <div class="perfil-opcoes">
+        <button onclick="abrirSolicitacoes()" style="background:#00c853;color:#222;font-weight:bold;"><i class="fa-solid fa-list"></i> Ver Solicitações</button>
+      </div>
       <input type="password" id="novaSenha" placeholder="Nova senha" />
       <button onclick="alterarSenha()">Alterar senha</button>
       <div id="perfil-mensagem"></div>
+    </div>
+  </div>
+
+  <!-- Modal de solicitações -->
+  <div class="modal-solic" id="modalSolicitacoes">
+    <div class="modal-solic-content">
+      <button class="close-modal-solic" onclick="fecharSolicitacoes()" aria-label="Fechar">&times;</button>
+      <h3>Minhas Solicitações</h3>
+      <div id="lista-solicitacoes">
+        <div style="text-align:center;color:#fff;">Carregando...</div>
+      </div>
     </div>
   </div>
 
@@ -501,6 +597,54 @@
         .catch((error) => {
           mensagem.textContent = 'Erro: ' + error.message;
           mensagem.style.color = '#ff5252';
+        });
+    }
+
+    // Modal de solicitações
+    function abrirSolicitacoes() {
+      document.getElementById('modalSolicitacoes').style.display = 'flex';
+      carregarSolicitacoes();
+    }
+    function fecharSolicitacoes() {
+      document.getElementById('modalSolicitacoes').style.display = 'none';
+    }
+
+    function carregarSolicitacoes() {
+      const lista = document.getElementById('lista-solicitacoes');
+      lista.innerHTML = '<div style="text-align:center;color:#fff;">Carregando...</div>';
+      const user = auth.currentUser;
+      if (!user) {
+        lista.innerHTML = '<div style="color:#ff5252;">Usuário não autenticado.</div>';
+        return;
+      }
+      db.collection("solicitacoes")
+        .where("email", "==", user.email)
+        .orderBy("dataCriacao", "desc")
+        .get()
+        .then((querySnapshot) => {
+          if (querySnapshot.empty) {
+            lista.innerHTML = '<div style="color:#fff;text-align:center;">Nenhuma solicitação encontrada.</div>';
+            return;
+          }
+          let html = "";
+          querySnapshot.forEach((doc) => {
+            const s = doc.data();
+            html += `
+              <div class="solicitacao-item">
+                <div><strong>Barbeiro:</strong> ${s.barbeiro}</div>
+                <div class="solicitacao-servicos"><strong>Serviços:</strong> ${s.servicos.map(serv => serv.nome + " (R$ " + serv.preco + ",00)").join(", ")}</div>
+                <div><strong>Total:</strong> R$ ${s.valorTotal},00</div>
+                <div class="solicitacao-status"><strong>Status:</strong> ${s.status || "pendente"}</div>
+                <div style="font-size:0.9em;color:#aaa;margin-top:3px;">
+                  ${s.dataCriacao && s.dataCriacao.toDate ? s.dataCriacao.toDate().toLocaleString("pt-BR") : ""}
+                </div>
+              </div>
+            `;
+          });
+          lista.innerHTML = html;
+        })
+        .catch((error) => {
+          lista.innerHTML = '<div style="color:#ff5252;">Erro ao carregar solicitações: ' + error.message + '</div>';
         });
     }
   </script>
