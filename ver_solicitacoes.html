@@ -105,8 +105,8 @@
       align-items: center;
     }
     .modal-content {
-      background: #222;
-      padding: 28px 22px 18px 22px;
+      background: #181818;
+      padding: 28px 18px 18px 18px;
       border-radius: 16px;
       text-align: center;
       min-width: 300px;
@@ -125,23 +125,29 @@
     }
     .modal-content label {
       display: block;
-      color: #b2ff59;
+      color: #00ff6a;
       text-align: left;
       margin-top: 12px;
       margin-bottom: 3px;
       font-size: 1em;
       font-weight: bold;
     }
+    .modal-status-label {
+      color: #00ff6a;
+      text-align: left;
+      font-size: 1em;
+      font-weight: bold;
+      margin-bottom: 2px;
+    }
     .modal-status-value {
-      background: #222;
-      color: #fff;
+      background: #181818;
+      color: #00ff6a;
       border-radius: 6px;
       padding: 8px 0;
       margin-bottom: 14px;
-      font-size: 1.05em;
+      font-size: 1.13em;
       font-weight: bold;
       letter-spacing: 0.5px;
-      box-shadow: 0 1px 0 #333 inset;
       border: none;
       width: 100%;
       text-align: center;
@@ -150,45 +156,49 @@
       margin-bottom: 12px;
     }
     .servico-edit-item {
-      background: #181818;
-      border-radius: 8px;
-      padding: 12px 8px;
-      margin-bottom: 10px;
+      background: #222;
+      border-radius: 10px;
+      padding: 14px 14px 10px 14px;
+      margin-bottom: 15px;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
+      flex-direction: column;
+      align-items: flex-start;
       box-shadow: 0 1px 0 #333 inset;
+      position: relative;
     }
     .servico-edit-nome {
-      color: #b2ff59;
+      color: #00ff6a;
       font-weight: bold;
-      font-size: 1.09em;
-      margin-right: 10px;
+      font-size: 1.12em;
+      margin-bottom: 2px;
+      text-align: left;
       letter-spacing: 0.2px;
     }
     .servico-edit-preco {
       color: #fff;
-      font-size: 1.01em;
-      margin-right: 10px;
-      margin-left: 10px;
+      font-size: 1.04em;
+      margin-bottom: 10px;
+      text-align: left;
     }
     .remover-servico-btn {
       background: #ff5252;
       color: #fff;
       border: none;
       border-radius: 8px;
-      padding: 12px 28px;
-      font-size: 1.1em;
+      padding: 10px 0;
+      font-size: 1.07em;
       cursor: pointer;
       font-weight: bold;
+      width: 100%;
+      margin: 0;
       transition: background 0.18s;
-      margin-left: 16px;
+      display: block;
     }
     .remover-servico-btn:hover {
       background: #c62828;
     }
     .add-servico-btn {
-      background: #00c853;
+      background: #00ff6a;
       color: #222;
       border: none;
       border-radius: 7px;
@@ -252,6 +262,13 @@
       color: #b2ff59;
       min-height: 18px;
     }
+    @media (max-width: 500px) {
+      .container { padding: 18px 2vw; width: 99vw; }
+      .solicitacao-bloco { padding: 10px 7px; font-size: 1em; }
+      .voltar-btn { padding: 8px 10px; font-size: 0.97em; }
+      .modal-content { padding: 16px 4vw 12px 4vw; min-width: unset; max-width: 99vw; }
+      .close-modal { font-size: 1em; height: 28px; width: 28px; right: 6px; top: 6px; }
+    }
   </style>
 </head>
 <body>
@@ -270,7 +287,7 @@
     <div class="modal-content">
       <button class="close-modal" onclick="fecharModalSolicitacao()" aria-label="Fechar">&times;</button>
       <div class="modal-title" id="modalSolicitacaoTitulo">Editar Solicitação</div>
-      <label>Status</label>
+      <div class="modal-status-label">Status</div>
       <div class="modal-status-value" id="statusSolicitacaoLabel"></div>
       <div id="servicosEdit" class="servico-edit-lista"></div>
       <label for="selectAdicionarServico">Adicionar serviço</label>
@@ -371,7 +388,6 @@
       solicitacaoEditIdx = idx;
       const s = listaSolicitacoes[idx];
       document.getElementById("modalSolicitacaoTitulo").textContent = "Editar Solicitação";
-      // Mostra o status apenas como texto
       document.getElementById("statusSolicitacaoLabel").textContent =
         s.status ? s.status.charAt(0).toUpperCase() + s.status.slice(1) : "Pendente";
       document.getElementById("modalSolicitacaoMsg").textContent = "";
@@ -390,8 +406,8 @@
       servicos.forEach((sv, idx) => {
         html += `
           <div class="servico-edit-item" data-idx="${idx}">
-            <span class="servico-edit-nome">${sv.nome}</span>
-            <span class="servico-edit-preco">R$ ${sv.preco}</span>
+            <div class="servico-edit-nome">${sv.nome}</div>
+            <div class="servico-edit-preco">R$ ${sv.preco}</div>
             <button type="button" class="remover-servico-btn" onclick="removerServicoEdit(${idx});event.stopPropagation();">Remover</button>
           </div>
         `;
