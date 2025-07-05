@@ -4,10 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Alterar Serviços - Barbearia Pedro Rodrigues</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -141,6 +138,16 @@
         border-radius: 5px;
         font-size: 1em;
       }
+      .btn-excluir {
+        background: #ff5252;
+        color: #fff;
+        margin-top: 8px;
+        margin-bottom: 0;
+        font-weight: bold;
+      }
+      .btn-excluir:hover {
+        background: #c62828;
+      }
       .close-modal {
         position: absolute;
         right: 10px;
@@ -247,6 +254,7 @@
           autocomplete="off"
         />
         <button id="btnSalvarServico" onclick="salvarServico()">Salvar</button>
+        <button id="btnExcluirServico" class="btn-excluir" style="display:none;" onclick="excluirServico()">Excluir</button>
         <div class="modal-msg" id="modalServicoMsg"></div>
       </div>
     </div>
@@ -326,6 +334,7 @@
         document.getElementById("modalServicoMsg").textContent = "";
         document.getElementById("modalServico").style.display = "flex";
         document.getElementById("btnSalvarServico").textContent = "Salvar";
+        document.getElementById("btnExcluirServico").style.display = "block";
       }
 
       function abrirNovoServico() {
@@ -337,6 +346,7 @@
         document.getElementById("modalServicoMsg").textContent = "";
         document.getElementById("modalServico").style.display = "flex";
         document.getElementById("btnSalvarServico").textContent = "Adicionar";
+        document.getElementById("btnExcluirServico").style.display = "none";
       }
 
       function fecharModalServico() {
@@ -380,6 +390,30 @@
           })
           .catch((error) => {
             msg.textContent = "Erro ao salvar: " + error.message;
+            msg.style.color = "#ff5252";
+          });
+      }
+
+      function excluirServico() {
+        if (servicoEditIdx === null) return;
+        const msg = document.getElementById("modalServicoMsg");
+        if (!confirm("Tem certeza que deseja excluir este serviço?")) return;
+
+        servicos.splice(servicoEditIdx, 1);
+
+        db.collection("servicos")
+          .doc("servicos")
+          .set({ lista: servicos })
+          .then(() => {
+            msg.textContent = "Serviço excluído com sucesso!";
+            msg.style.color = "#b2ff59";
+            setTimeout(() => {
+              fecharModalServico();
+              carregarServicos();
+            }, 800);
+          })
+          .catch((error) => {
+            msg.textContent = "Erro ao excluir: " + error.message;
             msg.style.color = "#ff5252";
           });
       }
