@@ -77,6 +77,32 @@
         margin-bottom: 30px;
         font-size: 1.5em;
       }
+      .bloco-barbeiros {
+        background: #444;
+        border-radius: 10px;
+        margin: 0 0 22px 0;
+        padding: 18px 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        box-shadow: 0 2px 8px #1118;
+      }
+      .bloco-barbeiros label {
+        font-size: 1.2em;
+        color: #00c853;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+      .bloco-barbeiros select {
+        width: 100%;
+        padding: 10px;
+        border-radius: 6px;
+        border: none;
+        font-size: 1.1em;
+        background: #222;
+        color: #fff;
+        outline: none;
+      }
       .servico {
         background: #444;
         border-radius: 10px;
@@ -254,6 +280,14 @@
     </header>
     <div class="container">
       <h1>Escolha seu serviço</h1>
+      <!-- BLOCO DE BARBEIROS -->
+      <div class="bloco-barbeiros">
+        <label for="selectBarbeiro">Barbeiros</label>
+        <select id="selectBarbeiro">
+          <option value="">Selecione o barbeiro</option>
+        </select>
+      </div>
+      <!-- LISTA DE SERVIÇOS -->
       <div id="servicos-lista"></div>
       <div class="botoes">
         <button onclick="logout()">Sair</button>
@@ -288,6 +322,22 @@
       firebase.initializeApp(firebaseConfig);
       const auth = firebase.auth();
       const db = firebase.firestore();
+
+      // Carregar barbeiros do documento barbeiros/barbeiros
+      function carregarBarbeiros() {
+        const select = document.getElementById('selectBarbeiro');
+        select.innerHTML = '<option value="">Selecione o barbeiro</option>';
+        db.collection('barbeiros').doc('barbeiros').get().then(doc => {
+          if (doc.exists && Array.isArray(doc.data().lista)) {
+            doc.data().lista.forEach((b, idx) => {
+              const option = document.createElement('option');
+              option.value = b.nome;
+              option.textContent = b.nome;
+              select.appendChild(option);
+            });
+          }
+        });
+      }
 
       // Carregar serviços do documento único servicos/servicos
       let servicosFirestore = [];
@@ -338,6 +388,14 @@
 
       function enviar() {
         const mensagem = document.getElementById("mensagem");
+        const selectBarbeiro = document.getElementById("selectBarbeiro");
+        const barbeiro = selectBarbeiro.value;
+
+        if (!barbeiro) {
+          mensagem.textContent = "Selecione o barbeiro!";
+          mensagem.style.color = "#ff5252";
+          return;
+        }
         if (servicosSelecionados.length === 0) {
           mensagem.textContent = "Selecione pelo menos um serviço!";
           mensagem.style.color = "#ff5252";
@@ -356,6 +414,7 @@
 
         const solicitacao = {
           email: user.email,
+          barbeiro: barbeiro,
           servicos: selecionados.map(s => ({ nome: s.nome, preco: s.preco })),
           valorTotal: valorTotal,
           status: "pendente",
@@ -369,6 +428,7 @@
             mensagem.style.color = "#b2ff59";
             servicosSelecionados = [];
             carregarServicos();
+            selectBarbeiro.selectedIndex = 0;
           })
           .catch((error) => {
             mensagem.textContent = "Erro ao enviar solicitação: " + error.message;
@@ -418,7 +478,10 @@
         }
       });
 
-      window.onload = carregarServicos;
+      window.onload = function() {
+        carregarBarbeiros();
+        carregarServicos();
+      };
     </script>
   </body>
 </html>
