@@ -437,6 +437,7 @@
         }
       }
 
+      // NOVA FUNÇÃO ENVIAR: salva na lista do documento do barbeiro em "solicitacoes"
       function enviar() {
         const mensagem = document.getElementById("mensagem");
         const selectBarbeiro = document.getElementById("selectBarbeiro");
@@ -453,37 +454,46 @@
           return;
         }
 
-        // Pega o email do usuário logado do localStorage
         const emailUsuario = usuarioLogado.email;
-
-        const selecionados = servicosSelecionados.map(
-          (idx) => servicosFirestore[idx]
-        );
+        const selecionados = servicosSelecionados.map(idx => servicosFirestore[idx]);
         const valorTotal = selecionados.reduce((acc, s) => acc + s.preco, 0);
 
         const solicitacao = {
           email: emailUsuario,
           barbeiro: barbeiro,
-          servicos: selecionados.map((s) => ({ nome: s.nome, preco: s.preco })),
+          servicos: selecionados.map(s => ({ nome: s.nome, preco: s.preco })),
           valorTotal: valorTotal,
           status: "pendente",
-          dataCriacao: firebase.firestore.FieldValue.serverTimestamp(),
+          dataCriacao: new Date().toISOString()
         };
 
-        db.collection("solicitacoes")
-          .add(solicitacao)
-          .then(() => {
-            mensagem.textContent = "Solicitação enviada com sucesso!";
-            mensagem.style.color = "#b2ff59";
-            servicosSelecionados = [];
-            carregarServicos();
-            selectBarbeiro.selectedIndex = 0;
-          })
-          .catch((error) => {
-            mensagem.textContent =
-              "Erro ao enviar solicitação: " + error.message;
-            mensagem.style.color = "#ff5252";
-          });
+        // Limpa o nome do barbeiro para usar como ID de documento
+        const barbeiroId = barbeiro.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
+        const docRef = db.collection("solicitacoes").doc(barbeiroId);
+
+        docRef.get().then(doc => {
+          let lista = [];
+          if (doc.exists && Array.isArray(doc.data().lista)) {
+            lista = doc.data().lista;
+          }
+          lista.push(solicitacao);
+
+          docRef.set({ lista: lista })
+            .then(() => {
+              mensagem.textContent = "Solicitação enviada com sucesso!";
+              mensagem.style.color = "#b2ff59";
+              servicosSelecionados = [];
+              carregarServicos();
+              selectBarbeiro.selectedIndex = 0;
+            })
+            .catch((error) => {
+              mensagem.textContent = "Erro ao enviar solicitação: " + error.message;
+              mensagem.style.color = "#ff5252";
+            });
+        }).catch((error) => {
+          mensagem.textContent = "Erro ao buscar solicitações: " + error.message;
+          mensagem.style.color = "#ff5252";
+        });
       }
 
       // Modal perfil dinâmico
