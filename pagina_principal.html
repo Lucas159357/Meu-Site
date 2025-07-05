@@ -1,77 +1,136 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Página Principal - Barbearia Pedro</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background: #222;
-        color: #fff;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        min-height: 100vh;
-      }
-      .container {
-        background: #333;
-        padding: 40px;
-        border-radius: 10px;
-        margin-top: 60px;
-        text-align: center;
-        width: 350px;
-      }
-      h1 {
-        color: #00c853;
-      }
-      button {
-        padding: 10px 20px;
-        margin-top: 20px;
-        background: #007acc;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-      }
-      button:hover {
-        background: #005fa3;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <h1>Bem-vindo à Barbearia Pedro!</h1>
-      <p>Você fez login com sucesso.</p>
-      <button onclick="logout()">Sair</button>
+<head>
+  <meta charset="UTF-8" />
+  <title>Página Principal - Barbearia Pedro</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #222;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      background: #333;
+      padding: 40px 30px;
+      border-radius: 10px;
+      margin-top: 40px;
+      text-align: center;
+      width: 350px;
+      box-shadow: 0 0 10px #111;
+    }
+    h1 {
+      color: #00c853;
+      margin-bottom: 30px;
+    }
+    .servico {
+      background: #444;
+      border-radius: 10px;
+      margin: 18px 0;
+      padding: 25px 15px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      box-shadow: 0 2px 8px #1118;
+      transition: background 0.2s;
+    }
+    .servico:hover {
+      background: #555;
+    }
+    .icone-servico {
+      font-size: 2.5em;
+      width: 56px;
+      text-align: center;
+      color: #00c853;
+    }
+    .info-servico {
+      text-align: left;
+    }
+    .nome-servico {
+      font-size: 1.3em;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .preco-servico {
+      font-size: 1.1em;
+      color: #b2ff59;
+    }
+    button {
+      padding: 10px 20px;
+      margin-top: 30px;
+      background: #007acc;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #005fa3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Escolha seu serviço</h1>
+    <div class="servico">
+      <span class="icone-servico"><i class="fa-solid fa-scissors"></i></span>
+      <div class="info-servico">
+        <div class="nome-servico">Corte</div>
+        <div class="preco-servico">R$ 30,00</div>
+      </div>
     </div>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-    <script>
-      // Repita a configuração do Firebase
-      const firebaseConfig = {
-        apiKey: "AIzaSyAY-Win6vQEHP1XR_fG3NOg0PAkNPAcxSg",
-        authDomain: "banco-de-dados-bd2a6.firebaseapp.com",
-        projectId: "banco-de-dados-bd2a6",
-        appId: "1:859895156791:web",
-      };
-      firebase.initializeApp(firebaseConfig);
-      const auth = firebase.auth();
+    <div class="servico">
+      <span class="icone-servico"><i class="fa-solid fa-beard"></i></span>
+      <div class="info-servico">
+        <div class="nome-servico">Barba</div>
+        <div class="preco-servico">R$ 30,00</div>
+      </div>
+    </div>
+    <div class="servico">
+      <span class="icone-servico"><i class="fa-solid fa-user-scissors"></i></span>
+      <div class="info-servico">
+        <div class="nome-servico">Corte e Barba</div>
+        <div class="preco-servico">R$ 50,00</div>
+      </div>
+    </div>
+    <div class="servico">
+      <span class="icone-servico"><i class="fa-solid fa-comb"></i></span>
+      <div class="info-servico">
+        <div class="nome-servico">Acabamentos</div>
+        <div class="preco-servico">R$ 5,00</div>
+      </div>
+    </div>
+    <button onclick="logout()">Sair</button>
+  </div>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script>
+    // Repita a configuração do Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyAY-Win6vQEHP1XR_fG3NOg0PAkNPAcxSg",
+      authDomain: "banco-de-dados-bd2a6.firebaseapp.com",
+      projectId: "banco-de-dados-bd2a6",
+      appId: "1:859895156791:web",
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
 
-      // Função de logout
-      function logout() {
-        auth.signOut().then(() => {
-          window.location.href = "index.html"; // Volta para a página de login
-        });
-      }
-
-      // Protege a página: só permite acesso se estiver logado
-      auth.onAuthStateChanged((user) => {
-        if (!user) {
-          window.location.href = "index.html";
-        }
+    function logout() {
+      auth.signOut().then(() => {
+        window.location.href = "index.html";
       });
-    </script>
-  </body>
+    }
+    auth.onAuthStateChanged((user) => {
+      if (!user) {
+        window.location.href = "index.html";
+      }
+    });
+  </script>
+</body>
 </html>
