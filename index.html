@@ -61,14 +61,19 @@
       const email = document.getElementById("email").value;
       const senha = document.getElementById("senha").value;
       const mensagem = document.getElementById("mensagem");
-
-      auth.signInWithEmailAndPassword(email, senha)
-        .then(userCredential => {
+    
+      auth
+        .signInWithEmailAndPassword(email, senha)
+        .then((userCredential) => {
           const user = userCredential.user;
           mensagem.textContent = "Bem-vindo, " + user.email;
           mensagem.style.color = "lightgreen";
+          // Aguarda 1 segundo e redireciona para a próxima página
+          setTimeout(() => {
+            window.location.href = "pagina_principal.html"; // Troque pelo nome da sua próxima página
+          }, 1000);
         })
-        .catch(error => {
+        .catch((error) => {
           mensagem.textContent = "Erro: " + error.message;
           mensagem.style.color = "red";
         });
