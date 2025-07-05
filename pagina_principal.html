@@ -6,7 +6,7 @@
     <title>Página Principal - Barbearia Pedro Rodrigues</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <style>
-      /* Mantenha TODO o seu CSS igual */
+      /* ... Seu CSS permanece igual ... */
       body {
         font-family: Arial, sans-serif;
         background: #222;
@@ -289,34 +289,36 @@
       const auth = firebase.auth();
       const db = firebase.firestore();
 
-      // Carregar serviços do Firestore
+      // Carregar serviços do documento único servicos/servicos
       let servicosFirestore = [];
       let servicosSelecionados = [];
       function carregarServicos() {
         const lista = document.getElementById('servicos-lista');
         lista.innerHTML = '';
-        db.collection('servicos').get().then(snapshot => {
-          servicosFirestore = [];
-          servicosSelecionados = [];
-          snapshot.forEach((doc, idx) => {
-            const s = doc.data();
-            servicosFirestore.push({ id: doc.id, nome: s.nome, preco: s.preco });
-            const div = document.createElement('div');
-            div.className = 'servico';
-            div.setAttribute('data-idx', idx);
-            div.onclick = function() { toggleServico(idx); };
-            div.innerHTML = `
-              <span class="icone-servico"><i class="fa-solid fa-scissors"></i></span>
-              <div class="info-servico">
-                <div class="nome-servico">${s.nome}</div>
-                <div class="preco-servico">R$ ${s.preco},00</div>
-              </div>
-              <div class="checkbox-custom" id="check-${idx}">
-                <i class="fa-solid fa-check"></i>
-              </div>
-            `;
-            lista.appendChild(div);
-          });
+        db.collection('servicos').doc('servicos').get().then(doc => {
+          if (doc.exists && Array.isArray(doc.data().lista)) {
+            servicosFirestore = doc.data().lista;
+            servicosSelecionados = [];
+            servicosFirestore.forEach((s, idx) => {
+              const div = document.createElement('div');
+              div.className = 'servico';
+              div.setAttribute('data-idx', idx);
+              div.onclick = function() { toggleServico(idx); };
+              div.innerHTML = `
+                <span class="icone-servico"><i class="fa-solid fa-scissors"></i></span>
+                <div class="info-servico">
+                  <div class="nome-servico">${s.nome}</div>
+                  <div class="preco-servico">R$ ${s.preco},00</div>
+                </div>
+                <div class="checkbox-custom" id="check-${idx}">
+                  <i class="fa-solid fa-check"></i>
+                </div>
+              `;
+              lista.appendChild(div);
+            });
+          } else {
+            lista.innerHTML = '<div style="color:#ff5252;">Nenhum serviço cadastrado!</div>';
+          }
         });
       }
 
