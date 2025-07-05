@@ -372,8 +372,10 @@
     </div>
   </div>
 
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script>
     // Firebase config
     const firebaseConfig = {
@@ -384,6 +386,7 @@
     };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+    const db = firebase.firestore();
 
     function logout() {
       auth.signOut().then(() => {
@@ -396,9 +399,22 @@
       }
     });
 
+    // Lista de serviços com preços
+    const servicos = [
+      { nome: "Corte", preco: 30 },
+      { nome: "Barba", preco: 30 },
+      { nome: "Corte e Barba", preco: 50 },
+      { nome: "Acabamentos", preco: 5 }
+    ];
+
+    // Mapeamento de emails para nomes de barbeiros
+    const nomesBarbeiros = {
+      "lucas.alexandre.sf@gmail.com": "Lucas"
+      // Adicione outros emails e nomes aqui se desejar
+    };
+
     // Seleção dos serviços
     const servicosSelecionados = [false, false, false, false];
-    const nomesServicos = ["Corte", "Barba", "Corte e Barba", "Acabamentos"];
 
     function toggleServico(div, idx) {
       servicosSelecionados[idx] = !servicosSelecionados[idx];
@@ -408,18 +424,55 @@
 
     function enviar() {
       const selecionados = servicosSelecionados
-        .map((sel, idx) => (sel ? nomesServicos[idx] : null))
+        .map((sel, idx) => sel ? servicos[idx] : null)
         .filter(Boolean);
 
       const mensagem = document.getElementById("mensagem");
       if (selecionados.length === 0) {
         mensagem.textContent = "Selecione pelo menos um serviço!";
         mensagem.style.color = "#ff5252";
-      } else {
-        mensagem.textContent =
-          "Serviços selecionados: " + selecionados.join(", ");
-        mensagem.style.color = "#b2ff59";
+        return;
       }
+
+      // Calcular valor total
+      const valorTotal = selecionados.reduce((acc, servico) => acc + servico.preco, 0);
+
+      // Obter usuário atual
+      const user = auth.currentUser;
+      if (!user) {
+        mensagem.textContent = "Usuário não autenticado.";
+        mensagem.style.color = "#ff5252";
+        return;
+      }
+
+      // Obter nome do barbeiro baseado no email
+      let nomeBarbeiro = nomesBarbeiros[user.email] || user.email;
+
+      // Criar objeto da solicitação
+      const solicitacao = {
+        barbeiro: nomeBarbeiro,
+        email: user.email,
+        servicos: selecionados.map(s => ({ nome: s.nome, preco: s.preco })),
+        valorTotal: valorTotal,
+        status: "pendente", // status inicial para validação futura
+        dataCriacao: firebase.firestore.FieldValue.serverTimestamp()
+      };
+
+      // Enviar para Firestore
+      db.collection("solicitacoes")
+        .add(solicitacao)
+        .then(() => {
+          mensagem.textContent = "Solicitação enviada com sucesso!";
+          mensagem.style.color = "#b2ff59";
+          // Limpar seleção
+          servicosSelecionados.fill(false);
+          document.querySelectorAll('.servico.selected').forEach(el => el.classList.remove('selected'));
+          document.querySelectorAll('.checkbox-custom.checked').forEach(el => el.classList.remove('checked'));
+        })
+        .catch((error) => {
+          mensagem.textContent = "Erro ao enviar solicitação: " + error.message;
+          mensagem.style.color = "#ff5252";
+        });
     }
 
     // Modal perfil
