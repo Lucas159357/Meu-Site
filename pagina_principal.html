@@ -218,20 +218,11 @@
       max-width: 340px;
       overflow: hidden;
     }
-    .modal-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 15px;
-    }
-    .modal-header h3 {
-      color: #00c853;
-      margin: 0;
-      font-size: 1.15em;
-      padding-top: 4px;
-      font-weight: bold;
-    }
     .close-modal {
+      position: absolute;
+      left: 50%;
+      top: 10px;
+      transform: translateX(-50%);
       color: #fff;
       background: none;
       border: none;
@@ -250,6 +241,13 @@
     .close-modal:hover {
       color: #00c853;
       background: rgba(0,0,0,0.08);
+    }
+    .modal-content h3 {
+      color: #00c853;
+      margin: 32px 0 15px 0;
+      font-size: 1.15em;
+      padding-top: 4px;
+      font-weight: bold;
     }
     .modal-content input[type="password"] {
       width: 90%;
@@ -294,10 +292,12 @@
         height: 28px;
         width: 28px;
         padding: 0 4px;
+        top: 6px;
       }
-      .modal-header h3 {
+      .modal-content h3 {
         font-size: 1em;
         padding-top: 2px;
+        margin-top: 28px;
       }
     }
   </style>
@@ -331,10 +331,8 @@
   <!-- Modal do perfil -->
   <div class="modal" id="modalPerfil">
     <div class="modal-content">
-      <div class="modal-header">
-        <h3>Perfil</h3>
-        <button class="close-modal" onclick="fecharPerfil()" aria-label="Fechar">&times;</button>
-      </div>
+      <button class="close-modal" onclick="fecharPerfil()" aria-label="Fechar">&times;</button>
+      <h3>Perfil</h3>
       <div id="perfil-opcoes"></div>
       <div id="perfil-mensagem"></div>
     </div>
@@ -475,8 +473,7 @@
           selectBarbeiro.selectedIndex = 0;
         })
         .catch((error) => {
-          mensagem.textContent =
-            "Erro ao enviar solicitação: " + error.message;
+          mensagem.textContent = "Erro ao enviar solicitação: " + error.message;
           mensagem.style.color = "#ff5252";
         });
     }
