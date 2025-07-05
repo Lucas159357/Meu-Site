@@ -117,23 +117,15 @@
       const lista = document.getElementById('usuarios-lista');
       lista.innerHTML = '<div style="color:#fff;text-align:center;">Carregando...</div>';
 
-      db.collection('usuarios').doc('usuarios').get().then(doc => {
-        if (doc.exists && Array.isArray(doc.data().lista)) {
-          const usuarios = doc.data().lista;
-          if (usuarios.length === 0) {
-            lista.innerHTML = '<div style="color:#fff;text-align:center;">Nenhum usuário encontrado.</div>';
-            return;
+        db.collection('usuarios').doc('usuarios').get().then(doc => {
+          if (doc.exists && Array.isArray(doc.data().lista)) {
+            const usuarios = doc.data().lista;
+            // Exiba os usuários aqui
+            usuarios.forEach(u => {
+              console.log(u.email, u.nome, u.senha);
+            });
           }
-          let html = "";
-          usuarios.forEach(u => {
-            html += `
-              <div class="usuario-item">
-                <div class="usuario-email"><i class="fa fa-envelope"></i> ${u.email || '(sem email)'}</div>
-                <div class="usuario-nome"><i class="fa fa-user"></i> ${u.nome || '(sem nome)'}</div>
-                <div class="usuario-senha"><i class="fa fa-key"></i> ${u.senha ? u.senha : '(sem senha)'}</div>
-              </div>
-            `;
-          });
+        });
           lista.innerHTML = html;
         } else {
           lista.innerHTML = '<div style="color:#fff;text-align:center;">Nenhum usuário encontrado.</div>';
