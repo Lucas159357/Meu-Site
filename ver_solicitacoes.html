@@ -136,7 +136,7 @@
         d.getMinutes().toString().padStart(2, '0')}`;
     }
 
-    // Função para gerar o ID do documento igual ao usado nas solicitações
+    // Função para gerar o ID do documento igual ao nome do usuário logado
     function nomeParaId(nome) {
       return nome
         .normalize("NFD")
@@ -148,6 +148,7 @@
       const listaDiv = document.getElementById("solicitacoes-lista");
       listaDiv.innerHTML = '<div style="color:#fff;text-align:center;">Carregando...</div>';
 
+      // O ID do documento é o nome do usuário logado (tratado)
       const meuDocId = nomeParaId(usuarioLogado.nome);
 
       db.collection("solicitacoes").doc(meuDocId).get().then(doc => {
