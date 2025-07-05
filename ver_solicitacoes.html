@@ -105,15 +105,23 @@
       align-items: center;
     }
     .modal-content {
-      background: #333;
-      padding: 30px 25px 20px 25px;
-      border-radius: 10px;
+      background: #222;
+      padding: 28px 22px 18px 22px;
+      border-radius: 16px;
       text-align: center;
       min-width: 300px;
       box-shadow: 0 0 15px #111;
       position: relative;
-      width: 90vw;
+      width: 94vw;
       max-width: 340px;
+    }
+    .modal-title {
+      color: #00c853;
+      font-size: 1.3em;
+      margin-bottom: 18px;
+      margin-top: 0;
+      font-weight: bold;
+      letter-spacing: 0.5px;
     }
     .modal-content label {
       display: block;
@@ -122,57 +130,59 @@
       margin-top: 12px;
       margin-bottom: 3px;
       font-size: 1em;
+      font-weight: bold;
     }
-    .modal-content select {
-      width: 96%;
-      padding: 8px;
-      margin-bottom: 8px;
-      border-radius: 6px;
-      border: none;
-      font-size: 1em;
+    .modal-status-value {
       background: #222;
       color: #fff;
-      outline: none;
-    }
-    .modal-content button {
+      border-radius: 6px;
+      padding: 8px 0;
+      margin-bottom: 14px;
+      font-size: 1.05em;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      box-shadow: 0 1px 0 #333 inset;
+      border: none;
       width: 100%;
-      margin-top: 10px;
-      padding: 10px 0;
-      border-radius: 5px;
-      font-size: 1em;
+      text-align: center;
     }
     .servico-edit-lista {
       margin-bottom: 12px;
     }
     .servico-edit-item {
-      background: #222;
-      border-radius: 6px;
-      padding: 7px 5px 2px 5px;
-      margin-bottom: 7px;
+      background: #181818;
+      border-radius: 8px;
+      padding: 12px 8px;
+      margin-bottom: 10px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      box-shadow: 0 1px 0 #333 inset;
     }
     .servico-edit-nome {
       color: #b2ff59;
       font-weight: bold;
-      font-size: 1em;
+      font-size: 1.09em;
+      margin-right: 10px;
+      letter-spacing: 0.2px;
     }
     .servico-edit-preco {
       color: #fff;
-      font-size: 1em;
-      margin-left: 10px;
+      font-size: 1.01em;
       margin-right: 10px;
+      margin-left: 10px;
     }
     .remover-servico-btn {
       background: #ff5252;
       color: #fff;
       border: none;
-      border-radius: 4px;
-      padding: 5px 8px;
-      font-size: 0.97em;
+      border-radius: 8px;
+      padding: 12px 28px;
+      font-size: 1.1em;
       cursor: pointer;
-      margin-left: 8px;
+      font-weight: bold;
+      transition: background 0.18s;
+      margin-left: 16px;
     }
     .remover-servico-btn:hover {
       background: #c62828;
@@ -181,16 +191,36 @@
       background: #00c853;
       color: #222;
       border: none;
-      border-radius: 4px;
-      padding: 6px 10px;
-      font-size: 1em;
+      border-radius: 7px;
+      padding: 12px 0;
+      font-size: 1.12em;
       cursor: pointer;
-      margin-top: 4px;
-      margin-bottom: 4px;
+      margin-top: 10px;
+      margin-bottom: 10px;
       font-weight: bold;
+      width: 100%;
+      transition: background 0.18s, color 0.18s;
     }
     .add-servico-btn:hover {
       background: #009e46;
+      color: #fff;
+    }
+    .salvar-btn {
+      background: #fff;
+      color: #222;
+      border: none;
+      border-radius: 7px;
+      padding: 12px 0;
+      font-size: 1.12em;
+      cursor: pointer;
+      margin-top: 6px;
+      font-weight: bold;
+      width: 100%;
+      transition: background 0.18s, color 0.18s;
+      box-shadow: 0 1px 0 #333 inset;
+    }
+    .salvar-btn:hover {
+      background: #00c853;
       color: #fff;
     }
     .close-modal {
@@ -216,24 +246,11 @@
       color: #00c853;
       background: rgba(0,0,0,0.08);
     }
-    .modal-title {
-      color: #00c853;
-      font-size: 1.2em;
-      margin-bottom: 12px;
-      margin-top: 0;
-    }
     .modal-msg {
       margin-top: 8px;
       font-size: 1em;
       color: #b2ff59;
       min-height: 18px;
-    }
-    @media (max-width: 500px) {
-      .container { padding: 18px 2vw; width: 99vw; }
-      .solicitacao-bloco { padding: 10px 7px; font-size: 1em; }
-      .voltar-btn { padding: 8px 10px; font-size: 0.97em; }
-      .modal-content { padding: 16px 4vw 12px 4vw; min-width: unset; max-width: 99vw; }
-      .close-modal { font-size: 1em; height: 28px; width: 28px; right: 6px; top: 6px; }
     }
   </style>
 </head>
@@ -253,17 +270,13 @@
     <div class="modal-content">
       <button class="close-modal" onclick="fecharModalSolicitacao()" aria-label="Fechar">&times;</button>
       <div class="modal-title" id="modalSolicitacaoTitulo">Editar Solicitação</div>
-      <label for="statusSolicitacao">Status</label>
-      <select id="statusSolicitacao">
-        <option value="pendente">Pendente</option>
-        <option value="concluido">Concluído</option>
-        <option value="cancelado">Cancelado</option>
-      </select>
+      <label>Status</label>
+      <div class="modal-status-value" id="statusSolicitacaoLabel"></div>
       <div id="servicosEdit" class="servico-edit-lista"></div>
       <label for="selectAdicionarServico">Adicionar serviço</label>
       <select id="selectAdicionarServico"></select>
       <button class="add-servico-btn" onclick="adicionarServicoEdit()">+ Adicionar Serviço</button>
-      <button onclick="salvarSolicitacaoEditada()">Salvar Alteração</button>
+      <button class="salvar-btn" onclick="salvarSolicitacaoEditada()">Salvar Alteração</button>
       <div class="modal-msg" id="modalSolicitacaoMsg"></div>
     </div>
   </div>
@@ -338,7 +351,7 @@
               <div class="solicitacao-item" onclick="abrirEditarSolicitacao(${idx})">
                 <div class="solicitacao-data"><i class="fa fa-calendar"></i> ${formatarData(s.dataCriacao)}</div>
                 <div class="solicitacao-servicos"><i class="fa fa-scissors"></i> 
-                  ${Array.isArray(s.servicos) ? s.servicos.map(sv => `${sv.nome} (R$ ${sv.preco})`).join(", ") : ""}
+                  ${Array.isArray(s.servicos) ? s.servicos.map(sv => `<b>${sv.nome}</b> <span style="color:#fff;">R$ ${sv.preco}</span>`).join(" ") : ""}
                 </div>
                 <div>Total: <b>R$ ${s.valorTotal}</b></div>
                 <div class="solicitacao-status solicitacao-${(s.status||'pendente').toLowerCase()}">
@@ -358,7 +371,9 @@
       solicitacaoEditIdx = idx;
       const s = listaSolicitacoes[idx];
       document.getElementById("modalSolicitacaoTitulo").textContent = "Editar Solicitação";
-      document.getElementById("statusSolicitacao").value = s.status || "pendente";
+      // Mostra o status apenas como texto
+      document.getElementById("statusSolicitacaoLabel").textContent =
+        s.status ? s.status.charAt(0).toUpperCase() + s.status.slice(1) : "Pendente";
       document.getElementById("modalSolicitacaoMsg").textContent = "";
       renderServicosEdit(s.servicos || []);
       renderSelectAdicionarServico(s.servicos || []);
@@ -387,7 +402,6 @@
     function renderSelectAdicionarServico(servicosAtuais) {
       const select = document.getElementById("selectAdicionarServico");
       select.innerHTML = "";
-      // Só mostra serviços que ainda não estão na solicitação
       const nomesAtuais = servicosAtuais.map(sv => sv.nome);
       servicosGlobais.forEach(sv => {
         if (!nomesAtuais.includes(sv.nome)) {
@@ -404,7 +418,6 @@
       const select = document.getElementById("selectAdicionarServico");
       const nomeServico = select.value;
       if (!nomeServico) return;
-      // Busca o serviço global pelo nome
       const sv = servicosGlobais.find(sv => sv.nome === nomeServico);
       if (!sv) return;
       const s = listaSolicitacoes[solicitacaoEditIdx];
@@ -426,9 +439,7 @@
     function salvarSolicitacaoEditada() {
       if (solicitacaoEditIdx === null) return;
       const msg = document.getElementById("modalSolicitacaoMsg");
-      const novoStatus = document.getElementById("statusSolicitacao").value;
       const s = listaSolicitacoes[solicitacaoEditIdx];
-      s.status = novoStatus;
       // Valor total recalculado
       s.valorTotal = Array.isArray(s.servicos) ? s.servicos.reduce((acc, sv) => acc + sv.preco, 0) : 0;
 
