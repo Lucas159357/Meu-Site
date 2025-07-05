@@ -190,6 +190,8 @@
     .modal-content h3 {
       color: #00c853;
       margin-bottom: 15px;
+      margin-top: 0;
+      font-size: 1.2em;
     }
     .modal-content input[type="password"] {
       width: 90%;
@@ -208,12 +210,20 @@
     }
     .close-modal {
       position: absolute;
-      top: 10px; right: 15px;
+      top: 10px; 
+      right: 15px;
       color: #fff;
       font-size: 1.3em;
       background: none;
       border: none;
       cursor: pointer;
+      padding: 0 6px;
+      line-height: 1;
+      z-index: 2;
+      transition: color 0.2s;
+    }
+    .close-modal:hover {
+      color: #00c853;
     }
     #perfil-mensagem {
       margin-top: 10px;
@@ -272,6 +282,16 @@
       }
       .modal-content input[type="password"] {
         font-size: 0.95em;
+      }
+      .close-modal {
+        font-size: 1em;
+        top: 8px;
+        right: 10px;
+        padding: 0 2px;
+      }
+      .modal-content h3 {
+        margin-top: 12px;
+        font-size: 1.1em;
       }
     }
   </style>
