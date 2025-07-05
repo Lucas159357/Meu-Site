@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Página Principal - Barbearia Pedro Rodrigues</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <style>
@@ -33,6 +34,7 @@
       text-shadow: 1px 1px 6px #111;
       margin: 0 auto;
       text-align: center;
+      word-break: break-word;
     }
     .perfil-btn {
       position: absolute;
@@ -67,10 +69,12 @@
       text-align: center;
       width: 350px;
       box-shadow: 0 0 10px #111;
+      max-width: 95vw;
     }
     h1 {
       color: #00c853;
       margin-bottom: 30px;
+      font-size: 1.5em;
     }
     .servico {
       background: #444;
@@ -94,6 +98,7 @@
       width: 56px;
       text-align: center;
       color: #00c853;
+      flex-shrink: 0;
     }
     .info-servico {
       text-align: left;
@@ -120,6 +125,7 @@
       cursor: pointer;
       margin-left: 10px;
       transition: background 0.2s;
+      flex-shrink: 0;
     }
     .checkbox-custom.checked {
       background: #00c853;
@@ -137,6 +143,7 @@
       justify-content: center;
       gap: 15px;
       margin-top: 30px;
+      flex-wrap: wrap;
     }
     button:not(.perfil-btn) {
       padding: 10px 22px;
@@ -147,6 +154,7 @@
       cursor: pointer;
       font-size: 1em;
       transition: background 0.2s;
+      margin-bottom: 8px;
     }
     button:not(.perfil-btn):hover {
       background: #005fa3;
@@ -155,6 +163,7 @@
       margin-top: 20px;
       color: #fff;
       font-size: 1.1em;
+      word-break: break-word;
     }
     /* Modal perfil */
     .modal {
@@ -175,6 +184,8 @@
       min-width: 300px;
       box-shadow: 0 0 15px #111;
       position: relative;
+      width: 90vw;
+      max-width: 340px;
     }
     .modal-content h3 {
       color: #00c853;
@@ -207,6 +218,61 @@
     #perfil-mensagem {
       margin-top: 10px;
       font-size: 1em;
+      word-break: break-word;
+    }
+
+    /* RESPONSIVIDADE */
+    @media (max-width: 500px) {
+      header {
+        margin-top: 18px;
+        margin-bottom: 4px;
+      }
+      .titulo-barbearia {
+        font-size: 1.1em;
+        padding-right: 58px;
+      }
+      .perfil-btn {
+        right: 10px;
+        width: 38px;
+        height: 38px;
+      }
+      .perfil-btn i {
+        font-size: 1.2em;
+      }
+      .container {
+        padding: 18px 5vw;
+        width: 98vw;
+        min-width: unset;
+        max-width: 99vw;
+      }
+      .servico {
+        gap: 10px;
+        padding: 12px 6px;
+      }
+      .icone-servico {
+        font-size: 1.5em;
+        width: 36px;
+      }
+      .nome-servico {
+        font-size: 1em;
+      }
+      .preco-servico {
+        font-size: 0.95em;
+      }
+      .checkbox-custom {
+        width: 22px;
+        height: 22px;
+        margin-left: 6px;
+      }
+      .modal-content {
+        min-width: unset;
+        width: 95vw;
+        max-width: 99vw;
+        padding: 20px 6vw 15px 6vw;
+      }
+      .modal-content input[type="password"] {
+        font-size: 0.95em;
+      }
     }
   </style>
 </head>
