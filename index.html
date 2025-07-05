@@ -26,6 +26,10 @@
       width: 100%;
       padding: 10px;
       margin: 10px 0;
+      border-radius: 6px;
+      border: none;
+      background: #222;
+      color: #fff;
     }
     button {
       padding: 10px;
@@ -33,15 +37,26 @@
       color: white;
       border: none;
       width: 100%;
+      border-radius: 6px;
       cursor: pointer;
+      font-size: 1em;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #005fa3;
+    }
+    #mensagem {
+      margin-top: 12px;
+      min-height: 22px;
+      font-size: 1.05em;
     }
   </style>
 </head>
 <body>
   <div class="login-box">
     <h2>Login</h2>
-    <input type="email" id="email" placeholder="Seu email" />
-    <input type="password" id="senha" placeholder="Sua senha" />
+    <input type="email" id="email" placeholder="Seu email" autocomplete="username" />
+    <input type="password" id="senha" placeholder="Sua senha" autocomplete="current-password" />
     <button onclick="loginBanco()">Entrar</button>
     <p id="mensagem"></p>
   </div>
@@ -61,6 +76,12 @@
       const email = document.getElementById("email").value.trim();
       const senha = document.getElementById("senha").value;
       const mensagem = document.getElementById("mensagem");
+
+      if (!email || !senha) {
+        mensagem.textContent = "Preencha email e senha!";
+        mensagem.style.color = "orange";
+        return;
+      }
 
       mensagem.textContent = "Verificando...";
       mensagem.style.color = "#fff";
