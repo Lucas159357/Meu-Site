@@ -6,7 +6,6 @@
     <title>Página Principal - Barbearia Pedro Rodrigues</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <style>
-      /* ... Seu CSS permanece igual ... */
       body {
         font-family: Arial, sans-serif;
         background: #222;
@@ -350,7 +349,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <script>
       // Proteção: só entra se estiver logado pelo localStorage
-      const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
+      let usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
       if (!usuarioLogado) {
         window.location.href = "index.html";
       }
@@ -522,6 +521,8 @@
       function fecharPerfil() {
         document.getElementById("modalPerfil").style.display = "none";
       }
+
+      // ALTERAR SENHA NO FIRESTORE
       function alterarSenha() {
         const novaSenha = document.getElementById("novaSenha").value;
         const mensagem = document.getElementById("perfil-mensagem");
@@ -530,9 +531,37 @@
           mensagem.style.color = "#ff5252";
           return;
         }
-        // Aqui você pode implementar a alteração de senha no Firestore, se desejar
-        mensagem.textContent = "Função de alteração de senha não implementada.";
-        mensagem.style.color = "#ff5252";
+
+        db.collection('usuarios').doc('usuarios').get().then(doc => {
+          if (doc.exists && Array.isArray(doc.data().lista)) {
+            let usuarios = doc.data().lista;
+            const idx = usuarios.findIndex(u => u.email === usuarioLogado.email);
+            if (idx >= 0) {
+              usuarios[idx].senha = novaSenha;
+              db.collection('usuarios').doc('usuarios').set({ lista: usuarios })
+                .then(() => {
+                  mensagem.textContent = "Senha alterada com sucesso!";
+                  mensagem.style.color = "#b2ff59";
+                  // Atualiza localStorage
+                  usuarioLogado.senha = novaSenha;
+                  localStorage.setItem("usuarioLogado", JSON.stringify(usuarioLogado));
+                })
+                .catch(error => {
+                  mensagem.textContent = "Erro ao salvar: " + error.message;
+                  mensagem.style.color = "#ff5252";
+                });
+            } else {
+              mensagem.textContent = "Usuário não encontrado!";
+              mensagem.style.color = "#ff5252";
+            }
+          } else {
+            mensagem.textContent = "Base de usuários não encontrada!";
+            mensagem.style.color = "#ff5252";
+          }
+        }).catch(error => {
+          mensagem.textContent = "Erro: " + error.message;
+          mensagem.style.color = "#ff5252";
+        });
       }
 
       function logout() {
