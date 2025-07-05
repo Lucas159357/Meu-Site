@@ -123,7 +123,7 @@
       margin-bottom: 3px;
       font-size: 1em;
     }
-    .modal-content input, .modal-content select {
+    .modal-content select {
       width: 96%;
       padding: 8px;
       margin-bottom: 8px;
@@ -141,31 +141,40 @@
       border-radius: 5px;
       font-size: 1em;
     }
-    .servico-edit-bloco {
+    .servico-edit-lista {
+      margin-bottom: 12px;
+    }
+    .servico-edit-item {
       background: #222;
       border-radius: 6px;
       padding: 7px 5px 2px 5px;
-      margin-bottom: 10px;
-      margin-top: 6px;
+      margin-bottom: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
-    .servico-edit-bloco input {
-      width: 44%;
-      margin-right: 4px;
-      margin-bottom: 4px;
-      display: inline-block;
+    .servico-edit-nome {
+      color: #b2ff59;
+      font-weight: bold;
+      font-size: 1em;
     }
-    .servico-edit-bloco .remover-servico-btn {
+    .servico-edit-preco {
+      color: #fff;
+      font-size: 1em;
+      margin-left: 10px;
+      margin-right: 10px;
+    }
+    .remover-servico-btn {
       background: #ff5252;
       color: #fff;
       border: none;
       border-radius: 4px;
       padding: 5px 8px;
-      font-size: 0.95em;
+      font-size: 0.97em;
       cursor: pointer;
-      margin-left: 2px;
-      margin-bottom: 4px;
+      margin-left: 8px;
     }
-    .servico-edit-bloco .remover-servico-btn:hover {
+    .remover-servico-btn:hover {
       background: #c62828;
     }
     .add-servico-btn {
@@ -250,7 +259,9 @@
         <option value="concluido">Concluído</option>
         <option value="cancelado">Cancelado</option>
       </select>
-      <div id="servicosEdit"></div>
+      <div id="servicosEdit" class="servico-edit-lista"></div>
+      <label for="selectAdicionarServico">Adicionar serviço</label>
+      <select id="selectAdicionarServico"></select>
       <button class="add-servico-btn" onclick="adicionarServicoEdit()">+ Adicionar Serviço</button>
       <button onclick="salvarSolicitacaoEditada()">Salvar Alteração</button>
       <div class="modal-msg" id="modalSolicitacaoMsg"></div>
@@ -275,6 +286,7 @@
 
     let listaSolicitacoes = [];
     let solicitacaoEditIdx = null;
+    let servicosGlobais = [];
 
     function voltar() {
       window.history.back();
@@ -296,36 +308,49 @@
         .replace(/[^a-zA-Z0-9]/g, "_");
     }
 
+    function carregarServicosGlobais(callback) {
+      db.collection("servicos").doc("servicos").get().then(doc => {
+        if (doc.exists && Array.isArray(doc.data().lista)) {
+          servicosGlobais = doc.data().lista;
+        } else {
+          servicosGlobais = [];
+        }
+        if (callback) callback();
+      });
+    }
+
     function carregarSolicitacoes() {
       const listaDiv = document.getElementById("solicitacoes-lista");
       listaDiv.innerHTML = '<div style="color:#fff;text-align:center;">Carregando...</div>';
 
       const meuDocId = nomeParaId(usuarioLogado.nome);
 
-      db.collection("solicitacoes").doc(meuDocId).get().then(doc => {
-        if (!doc.exists || !Array.isArray(doc.data().lista) || doc.data().lista.length === 0) {
-          listaDiv.innerHTML = '<div style="color:#fff;text-align:center;">Nenhuma solicitação encontrada.</div>';
-          return;
-        }
-        listaSolicitacoes = doc.data().lista;
-        let html = `<div class="solicitacao-bloco">
-          <div class="solicitacao-barbeiro"><i class="fa fa-user"></i> ${usuarioLogado.nome}</div>
-          ${listaSolicitacoes.map((s, idx) => `
-            <div class="solicitacao-item" onclick="abrirEditarSolicitacao(${idx})">
-              <div class="solicitacao-data"><i class="fa fa-calendar"></i> ${formatarData(s.dataCriacao)}</div>
-              <div class="solicitacao-servicos"><i class="fa fa-scissors"></i> 
-                ${Array.isArray(s.servicos) ? s.servicos.map(sv => `${sv.nome} (R$ ${sv.preco})`).join(", ") : ""}
+      carregarServicosGlobais(() => {
+        db.collection("solicitacoes").doc(meuDocId).get().then(doc => {
+          if (!doc.exists || !Array.isArray(doc.data().lista) || doc.data().lista.length === 0) {
+            listaDiv.innerHTML = '<div style="color:#fff;text-align:center;">Nenhuma solicitação encontrada.</div>';
+            return;
+          }
+          listaSolicitacoes = doc.data().lista;
+          let html = `<div class="solicitacao-bloco">
+            <div class="solicitacao-barbeiro"><i class="fa fa-user"></i> ${usuarioLogado.nome}</div>
+            ${listaSolicitacoes.map((s, idx) => `
+              <div class="solicitacao-item" onclick="abrirEditarSolicitacao(${idx})">
+                <div class="solicitacao-data"><i class="fa fa-calendar"></i> ${formatarData(s.dataCriacao)}</div>
+                <div class="solicitacao-servicos"><i class="fa fa-scissors"></i> 
+                  ${Array.isArray(s.servicos) ? s.servicos.map(sv => `${sv.nome} (R$ ${sv.preco})`).join(", ") : ""}
+                </div>
+                <div>Total: <b>R$ ${s.valorTotal}</b></div>
+                <div class="solicitacao-status solicitacao-${(s.status||'pendente').toLowerCase()}">
+                  Status: ${s.status ? s.status.charAt(0).toUpperCase() + s.status.slice(1) : "Pendente"}
+                </div>
               </div>
-              <div>Total: <b>R$ ${s.valorTotal}</b></div>
-              <div class="solicitacao-status solicitacao-${(s.status||'pendente').toLowerCase()}">
-                Status: ${s.status ? s.status.charAt(0).toUpperCase() + s.status.slice(1) : "Pendente"}
-              </div>
-            </div>
-          `).join("")}
-        </div>`;
-        listaDiv.innerHTML = html;
-      }).catch(error => {
-        listaDiv.innerHTML = '<div style="color:#ff5252;">Erro ao carregar solicitações: ' + error.message + '</div>';
+            `).join("")}
+          </div>`;
+          listaDiv.innerHTML = html;
+        }).catch(error => {
+          listaDiv.innerHTML = '<div style="color:#ff5252;">Erro ao carregar solicitações: ' + error.message + '</div>';
+        });
       });
     }
 
@@ -336,6 +361,7 @@
       document.getElementById("statusSolicitacao").value = s.status || "pendente";
       document.getElementById("modalSolicitacaoMsg").textContent = "";
       renderServicosEdit(s.servicos || []);
+      renderSelectAdicionarServico(s.servicos || []);
       document.getElementById("modalSolicitacao").style.display = "flex";
     }
 
@@ -348,22 +374,44 @@
       let html = "";
       servicos.forEach((sv, idx) => {
         html += `
-          <div class="servico-edit-bloco" data-idx="${idx}">
-            <input type="text" placeholder="Nome" value="${sv.nome || ''}" id="editNomeServico${idx}" />
-            <input type="number" placeholder="Preço" min="0" value="${sv.preco || ''}" id="editPrecoServico${idx}" />
-            <button type="button" class="remover-servico-btn" onclick="removerServicoEdit(${idx})">Remover</button>
+          <div class="servico-edit-item" data-idx="${idx}">
+            <span class="servico-edit-nome">${sv.nome}</span>
+            <span class="servico-edit-preco">R$ ${sv.preco}</span>
+            <button type="button" class="remover-servico-btn" onclick="removerServicoEdit(${idx});event.stopPropagation();">Remover</button>
           </div>
         `;
       });
       div.innerHTML = html;
     }
 
+    function renderSelectAdicionarServico(servicosAtuais) {
+      const select = document.getElementById("selectAdicionarServico");
+      select.innerHTML = "";
+      // Só mostra serviços que ainda não estão na solicitação
+      const nomesAtuais = servicosAtuais.map(sv => sv.nome);
+      servicosGlobais.forEach(sv => {
+        if (!nomesAtuais.includes(sv.nome)) {
+          const option = document.createElement("option");
+          option.value = sv.nome;
+          option.textContent = `${sv.nome} (R$ ${sv.preco})`;
+          select.appendChild(option);
+        }
+      });
+    }
+
     function adicionarServicoEdit() {
       if (solicitacaoEditIdx === null) return;
+      const select = document.getElementById("selectAdicionarServico");
+      const nomeServico = select.value;
+      if (!nomeServico) return;
+      // Busca o serviço global pelo nome
+      const sv = servicosGlobais.find(sv => sv.nome === nomeServico);
+      if (!sv) return;
       const s = listaSolicitacoes[solicitacaoEditIdx];
       if (!Array.isArray(s.servicos)) s.servicos = [];
-      s.servicos.push({ nome: "", preco: 0 });
+      s.servicos.push({ nome: sv.nome, preco: sv.preco });
       renderServicosEdit(s.servicos);
+      renderSelectAdicionarServico(s.servicos);
     }
 
     function removerServicoEdit(idx) {
@@ -372,6 +420,7 @@
       if (!Array.isArray(s.servicos)) s.servicos = [];
       s.servicos.splice(idx, 1);
       renderServicosEdit(s.servicos);
+      renderSelectAdicionarServico(s.servicos);
     }
 
     function salvarSolicitacaoEditada() {
@@ -380,24 +429,8 @@
       const novoStatus = document.getElementById("statusSolicitacao").value;
       const s = listaSolicitacoes[solicitacaoEditIdx];
       s.status = novoStatus;
-
-      // Atualiza serviços
-      const novosServicos = [];
-      if (Array.isArray(s.servicos)) {
-        for (let i = 0; i < s.servicos.length; i++) {
-          const nome = document.getElementById("editNomeServico"+i).value.trim();
-          const preco = Number(document.getElementById("editPrecoServico"+i).value);
-          if (!nome || isNaN(preco) || preco < 0) {
-            msg.textContent = "Preencha todos os nomes e preços dos serviços!";
-            msg.style.color = "#ff5252";
-            return;
-          }
-          novosServicos.push({ nome, preco });
-        }
-      }
-      s.servicos = novosServicos;
-      // Atualiza valor total
-      s.valorTotal = novosServicos.reduce((acc, sv) => acc + sv.preco, 0);
+      // Valor total recalculado
+      s.valorTotal = Array.isArray(s.servicos) ? s.servicos.reduce((acc, sv) => acc + sv.preco, 0) : 0;
 
       const meuDocId = nomeParaId(usuarioLogado.nome);
       db.collection("solicitacoes").doc(meuDocId).set({ lista: listaSolicitacoes })
