@@ -191,7 +191,8 @@
       color: #00c853;
       margin-bottom: 15px;
       margin-top: 0;
-      font-size: 1.2em;
+      font-size: 1.15em;
+      padding-top: 4px;
     }
     .modal-content input[type="password"] {
       width: 90%;
@@ -210,20 +211,26 @@
     }
     .close-modal {
       position: absolute;
-      top: 10px; 
-      right: 15px;
+      top: 6px;
+      right: 8px;
       color: #fff;
-      font-size: 1.3em;
+      font-size: 1.1em;
       background: none;
       border: none;
       cursor: pointer;
-      padding: 0 6px;
+      padding: 0 2px;
       line-height: 1;
       z-index: 2;
-      transition: color 0.2s;
+      height: 28px;
+      width: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .close-modal:hover {
       color: #00c853;
+      background: rgba(0,0,0,0.08);
+      border-radius: 50%;
     }
     #perfil-mensagem {
       margin-top: 10px;
@@ -285,13 +292,15 @@
       }
       .close-modal {
         font-size: 1em;
-        top: 8px;
-        right: 10px;
-        padding: 0 2px;
+        top: 4px;
+        right: 4px;
+        height: 24px;
+        width: 24px;
       }
       .modal-content h3 {
-        margin-top: 12px;
-        font-size: 1.1em;
+        margin-top: 10px;
+        font-size: 1em;
+        padding-top: 2px;
       }
     }
   </style>
@@ -355,7 +364,7 @@
   <!-- Modal do perfil -->
   <div class="modal" id="modalPerfil">
     <div class="modal-content">
-      <button class="close-modal" onclick="fecharPerfil()">&times;</button>
+      <button class="close-modal" onclick="fecharPerfil()" aria-label="Fechar">&times;</button>
       <h3>Alterar Senha</h3>
       <input type="password" id="novaSenha" placeholder="Nova senha" />
       <button onclick="alterarSenha()">Alterar senha</button>
