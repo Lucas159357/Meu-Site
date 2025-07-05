@@ -141,6 +141,49 @@
       border-radius: 5px;
       font-size: 1em;
     }
+    .servico-edit-bloco {
+      background: #222;
+      border-radius: 6px;
+      padding: 7px 5px 2px 5px;
+      margin-bottom: 10px;
+      margin-top: 6px;
+    }
+    .servico-edit-bloco input {
+      width: 44%;
+      margin-right: 4px;
+      margin-bottom: 4px;
+      display: inline-block;
+    }
+    .servico-edit-bloco .remover-servico-btn {
+      background: #ff5252;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 5px 8px;
+      font-size: 0.95em;
+      cursor: pointer;
+      margin-left: 2px;
+      margin-bottom: 4px;
+    }
+    .servico-edit-bloco .remover-servico-btn:hover {
+      background: #c62828;
+    }
+    .add-servico-btn {
+      background: #00c853;
+      color: #222;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 10px;
+      font-size: 1em;
+      cursor: pointer;
+      margin-top: 4px;
+      margin-bottom: 4px;
+      font-weight: bold;
+    }
+    .add-servico-btn:hover {
+      background: #009e46;
+      color: #fff;
+    }
     .close-modal {
       position: absolute;
       right: 10px;
@@ -207,6 +250,8 @@
         <option value="concluido">Concluído</option>
         <option value="cancelado">Cancelado</option>
       </select>
+      <div id="servicosEdit"></div>
+      <button class="add-servico-btn" onclick="adicionarServicoEdit()">+ Adicionar Serviço</button>
       <button onclick="salvarSolicitacaoEditada()">Salvar Alteração</button>
       <div class="modal-msg" id="modalSolicitacaoMsg"></div>
     </div>
@@ -290,6 +335,7 @@
       document.getElementById("modalSolicitacaoTitulo").textContent = "Editar Solicitação";
       document.getElementById("statusSolicitacao").value = s.status || "pendente";
       document.getElementById("modalSolicitacaoMsg").textContent = "";
+      renderServicosEdit(s.servicos || []);
       document.getElementById("modalSolicitacao").style.display = "flex";
     }
 
@@ -297,11 +343,61 @@
       document.getElementById("modalSolicitacao").style.display = "none";
     }
 
+    function renderServicosEdit(servicos) {
+      const div = document.getElementById("servicosEdit");
+      let html = "";
+      servicos.forEach((sv, idx) => {
+        html += `
+          <div class="servico-edit-bloco" data-idx="${idx}">
+            <input type="text" placeholder="Nome" value="${sv.nome || ''}" id="editNomeServico${idx}" />
+            <input type="number" placeholder="Preço" min="0" value="${sv.preco || ''}" id="editPrecoServico${idx}" />
+            <button type="button" class="remover-servico-btn" onclick="removerServicoEdit(${idx})">Remover</button>
+          </div>
+        `;
+      });
+      div.innerHTML = html;
+    }
+
+    function adicionarServicoEdit() {
+      if (solicitacaoEditIdx === null) return;
+      const s = listaSolicitacoes[solicitacaoEditIdx];
+      if (!Array.isArray(s.servicos)) s.servicos = [];
+      s.servicos.push({ nome: "", preco: 0 });
+      renderServicosEdit(s.servicos);
+    }
+
+    function removerServicoEdit(idx) {
+      if (solicitacaoEditIdx === null) return;
+      const s = listaSolicitacoes[solicitacaoEditIdx];
+      if (!Array.isArray(s.servicos)) s.servicos = [];
+      s.servicos.splice(idx, 1);
+      renderServicosEdit(s.servicos);
+    }
+
     function salvarSolicitacaoEditada() {
       if (solicitacaoEditIdx === null) return;
       const msg = document.getElementById("modalSolicitacaoMsg");
       const novoStatus = document.getElementById("statusSolicitacao").value;
-      listaSolicitacoes[solicitacaoEditIdx].status = novoStatus;
+      const s = listaSolicitacoes[solicitacaoEditIdx];
+      s.status = novoStatus;
+
+      // Atualiza serviços
+      const novosServicos = [];
+      if (Array.isArray(s.servicos)) {
+        for (let i = 0; i < s.servicos.length; i++) {
+          const nome = document.getElementById("editNomeServico"+i).value.trim();
+          const preco = Number(document.getElementById("editPrecoServico"+i).value);
+          if (!nome || isNaN(preco) || preco < 0) {
+            msg.textContent = "Preencha todos os nomes e preços dos serviços!";
+            msg.style.color = "#ff5252";
+            return;
+          }
+          novosServicos.push({ nome, preco });
+        }
+      }
+      s.servicos = novosServicos;
+      // Atualiza valor total
+      s.valorTotal = novosServicos.reduce((acc, sv) => acc + sv.preco, 0);
 
       const meuDocId = nomeParaId(usuarioLogado.nome);
       db.collection("solicitacoes").doc(meuDocId).set({ lista: listaSolicitacoes })
