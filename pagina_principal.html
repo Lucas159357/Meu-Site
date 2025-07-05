@@ -312,9 +312,8 @@
   <div class="modal" id="modalPerfil">
     <div class="modal-content">
       <button class="close-modal" onclick="fecharPerfil()" aria-label="Fechar">&times;</button>
-      <h3>Alterar Senha</h3>
-      <input type="password" id="novaSenha" placeholder="Nova senha" />
-      <button onclick="alterarSenha()">Alterar senha</button>
+      <h3>Perfil</h3>
+      <div id="perfil-opcoes"></div>
       <div id="perfil-mensagem"></div>
     </div>
   </div>
@@ -335,20 +334,20 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // Carregar barbeiros do documento barbeiros/barbeiros
+    // Carregar barbeiros de vários documentos (cada barbeiro é um documento)
     function carregarBarbeiros() {
       const select = document.getElementById('selectBarbeiro');
-      // Limpa opções antigas, exceto o primeiro
       select.innerHTML = '<option value="">Selecione o barbeiro</option>';
-      db.collection('barbeiros').doc('barbeiros').get().then(doc => {
-        if (doc.exists && Array.isArray(doc.data().lista)) {
-          doc.data().lista.forEach((b) => {
+      db.collection('barbeiros').get().then(snapshot => {
+        snapshot.forEach(doc => {
+          const b = doc.data();
+          if (b.nome) {
             const option = document.createElement('option');
             option.value = b.nome;
             option.textContent = b.nome;
             select.appendChild(option);
-          });
-        }
+          }
+        });
       });
     }
 
@@ -449,12 +448,44 @@
         });
     }
 
-    // Modal perfil
+    // Modal perfil com opções administrativas para o email do Lucas
     function abrirPerfil() {
       document.getElementById("modalPerfil").style.display = "flex";
-      document.getElementById("novaSenha").value = "";
       document.getElementById("perfil-mensagem").textContent = "";
+
+      const user = auth.currentUser;
+      const opcoesDiv = document.getElementById("perfil-opcoes");
+      opcoesDiv.innerHTML = "";
+
+      if (user && user.email === "lucas.alexandre.sf@gmail.com") {
+        opcoesDiv.innerHTML = `
+          <button onclick="alterarBarbeiros()" style="width:100%;margin-bottom:8px;">Alterar Barbeiros</button>
+          <button onclick="alterarServicos()" style="width:100%;margin-bottom:8px;">Alterar Serviços</button>
+          <button onclick="alterarUsuarios()" style="width:100%;margin-bottom:8px;">Alterar Usuários</button>
+          <button onclick="mostrarCampoSenha()" style="width:100%;">Alterar Senha</button>
+        `;
+      } else {
+        opcoesDiv.innerHTML = `
+          <button onclick="mostrarCampoSenha()" style="width:100%;">Alterar Senha</button>
+        `;
+      }
     }
+
+    function mostrarCampoSenha() {
+      const opcoesDiv = document.getElementById("perfil-opcoes");
+      if (!document.getElementById("novaSenha")) {
+        opcoesDiv.innerHTML += `
+          <input type="password" id="novaSenha" placeholder="Nova senha" style="width:100%;margin-top:10px;" />
+          <button onclick="alterarSenha()" style="width:100%;">Confirmar Nova Senha</button>
+        `;
+      }
+    }
+
+    // Funções administrativas (exemplo: só alertas)
+    function alterarBarbeiros() { alert("Função de alterar barbeiros (implementar)."); }
+    function alterarServicos() { alert("Função de alterar serviços (implementar)."); }
+    function alterarUsuarios() { alert("Função de alterar usuários (implementar)."); }
+
     function fecharPerfil() {
       document.getElementById("modalPerfil").style.display = "none";
     }
