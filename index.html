@@ -68,7 +68,7 @@
       db.collection('usuarios').doc('usuarios').get().then(doc => {
         if (doc.exists && Array.isArray(doc.data().lista)) {
           const usuarios = doc.data().lista;
-          // Procura se existe usuário com email e senha iguais
+          // Procura usuário com email e senha iguais
           const user = usuarios.find(u => u.email === email && u.senha === senha);
           if (user) {
             mensagem.textContent = "Bem-vindo, " + (user.nome || user.email);
