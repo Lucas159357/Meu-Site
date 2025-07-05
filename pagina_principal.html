@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Página Principal - Barbearia Pedro Rodrigues</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -16,11 +16,54 @@
       align-items: center;
       min-height: 100vh;
     }
+    header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 32px;
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .titulo-barbearia {
+      color: #00c853;
+      letter-spacing: 2px;
+      font-size: 2em;
+      font-family: 'Arial Black', Arial, sans-serif;
+      text-shadow: 1px 1px 6px #111;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .perfil-btn {
+      position: absolute;
+      right: 30px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #00c853;
+      border: none;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #1118;
+      transition: background 0.2s;
+      outline: none;
+    }
+    .perfil-btn:hover {
+      background: #009e46;
+    }
+    .perfil-btn i {
+      color: #fff;
+      font-size: 1.7em;
+    }
     .container {
       background: #333;
       padding: 40px 30px;
       border-radius: 10px;
-      margin-top: 40px;
+      margin-top: 20px;
       text-align: center;
       width: 350px;
       box-shadow: 0 0 10px #111;
@@ -95,7 +138,7 @@
       gap: 15px;
       margin-top: 30px;
     }
-    button {
+    button:not(.perfil-btn) {
       padding: 10px 22px;
       background: #007acc;
       color: white;
@@ -105,7 +148,7 @@
       font-size: 1em;
       transition: background 0.2s;
     }
-    button:hover {
+    button:not(.perfil-btn):hover {
       background: #005fa3;
     }
     #mensagem {
@@ -113,22 +156,66 @@
       color: #fff;
       font-size: 1.1em;
     }
+    /* Modal perfil */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10;
+      left: 0; top: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.7);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: #333;
+      padding: 30px 25px 20px 25px;
+      border-radius: 10px;
+      text-align: center;
+      min-width: 300px;
+      box-shadow: 0 0 15px #111;
+      position: relative;
+    }
+    .modal-content h3 {
+      color: #00c853;
+      margin-bottom: 15px;
+    }
+    .modal-content input[type="password"] {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0 18px 0;
+      border-radius: 6px;
+      border: none;
+      font-size: 1em;
+      background: #222;
+      color: #fff;
+      outline: none;
+    }
+    .modal-content button {
+      width: 100%;
+      margin-top: 0;
+    }
+    .close-modal {
+      position: absolute;
+      top: 10px; right: 15px;
+      color: #fff;
+      font-size: 1.3em;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    #perfil-mensagem {
+      margin-top: 10px;
+      font-size: 1em;
+    }
   </style>
 </head>
 <body>
-    <header>
-    <h2 style="
-      margin-top: 32px;
-      margin-bottom: 8px;
-      color: #00c853;
-      letter-spacing: 2px;
-      font-size: 2em;
-      text-align: center;
-      font-family: 'Arial Black', Arial, sans-serif;
-      text-shadow: 1px 1px 6px #111;
-    ">
-      Barbearia Pedro Rodrigues
-    </h2>
+  <header>
+    <h2 class="titulo-barbearia">Barbearia Pedro Rodrigues</h2>
+    <button class="perfil-btn" onclick="abrirPerfil()" title="Perfil">
+      <i class="fa-solid fa-user"></i>
+    </button>
   </header>
   <div class="container">
     <h1>Escolha seu serviço</h1>
@@ -138,7 +225,9 @@
         <div class="nome-servico">Corte</div>
         <div class="preco-servico">R$ 30,00</div>
       </div>
-      <div class="checkbox-custom" id="check-0"><i class="fa-solid fa-check"></i></div>
+      <div class="checkbox-custom" id="check-0">
+        <i class="fa-solid fa-check"></i>
+      </div>
     </div>
     <div class="servico" onclick="toggleServico(this, 1)">
       <span class="icone-servico"><i class="fa-solid fa-beard"></i></span>
@@ -146,7 +235,9 @@
         <div class="nome-servico">Barba</div>
         <div class="preco-servico">R$ 30,00</div>
       </div>
-      <div class="checkbox-custom" id="check-1"><i class="fa-solid fa-check"></i></div>
+      <div class="checkbox-custom" id="check-1">
+        <i class="fa-solid fa-check"></i>
+      </div>
     </div>
     <div class="servico" onclick="toggleServico(this, 2)">
       <span class="icone-servico"><i class="fa-solid fa-user"></i></span>
@@ -154,7 +245,9 @@
         <div class="nome-servico">Corte e Barba</div>
         <div class="preco-servico">R$ 50,00</div>
       </div>
-      <div class="checkbox-custom" id="check-2"><i class="fa-solid fa-check"></i></div>
+      <div class="checkbox-custom" id="check-2">
+        <i class="fa-solid fa-check"></i>
+      </div>
     </div>
     <div class="servico" onclick="toggleServico(this, 3)">
       <span class="icone-servico"><i class="fa-solid fa-comb"></i></span>
@@ -162,7 +255,9 @@
         <div class="nome-servico">Acabamentos</div>
         <div class="preco-servico">R$ 5,00</div>
       </div>
-      <div class="checkbox-custom" id="check-3"><i class="fa-solid fa-check"></i></div>
+      <div class="checkbox-custom" id="check-3">
+        <i class="fa-solid fa-check"></i>
+      </div>
     </div>
     <div class="botoes">
       <button onclick="logout()">Sair</button>
@@ -170,6 +265,18 @@
     </div>
     <div id="mensagem"></div>
   </div>
+
+  <!-- Modal do perfil -->
+  <div class="modal" id="modalPerfil">
+    <div class="modal-content">
+      <button class="close-modal" onclick="fecharPerfil()">&times;</button>
+      <h3>Alterar Senha</h3>
+      <input type="password" id="novaSenha" placeholder="Nova senha" />
+      <button onclick="alterarSenha()">Alterar senha</button>
+      <div id="perfil-mensagem"></div>
+    </div>
+  </div>
+
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script>
@@ -196,32 +303,57 @@
 
     // Seleção dos serviços
     const servicosSelecionados = [false, false, false, false];
-    const nomesServicos = [
-      "Corte",
-      "Barba",
-      "Corte e Barba",
-      "Acabamentos"
-    ];
+    const nomesServicos = ["Corte", "Barba", "Corte e Barba", "Acabamentos"];
 
     function toggleServico(div, idx) {
       servicosSelecionados[idx] = !servicosSelecionados[idx];
-      div.classList.toggle('selected');
-      document.getElementById('check-' + idx).classList.toggle('checked');
+      div.classList.toggle("selected");
+      document.getElementById("check-" + idx).classList.toggle("checked");
     }
 
     function enviar() {
       const selecionados = servicosSelecionados
-        .map((sel, idx) => sel ? nomesServicos[idx] : null)
+        .map((sel, idx) => (sel ? nomesServicos[idx] : null))
         .filter(Boolean);
 
-      const mensagem = document.getElementById('mensagem');
+      const mensagem = document.getElementById("mensagem");
       if (selecionados.length === 0) {
         mensagem.textContent = "Selecione pelo menos um serviço!";
         mensagem.style.color = "#ff5252";
       } else {
-        mensagem.textContent = "Serviços selecionados: " + selecionados.join(", ");
+        mensagem.textContent =
+          "Serviços selecionados: " + selecionados.join(", ");
         mensagem.style.color = "#b2ff59";
       }
+    }
+
+    // Modal perfil
+    function abrirPerfil() {
+      document.getElementById('modalPerfil').style.display = 'flex';
+      document.getElementById('novaSenha').value = '';
+      document.getElementById('perfil-mensagem').textContent = '';
+    }
+    function fecharPerfil() {
+      document.getElementById('modalPerfil').style.display = 'none';
+    }
+    function alterarSenha() {
+      const novaSenha = document.getElementById('novaSenha').value;
+      const mensagem = document.getElementById('perfil-mensagem');
+      if (novaSenha.length < 6) {
+        mensagem.textContent = 'A senha deve ter pelo menos 6 caracteres.';
+        mensagem.style.color = '#ff5252';
+        return;
+      }
+      const user = auth.currentUser;
+      user.updatePassword(novaSenha)
+        .then(() => {
+          mensagem.textContent = 'Senha alterada com sucesso!';
+          mensagem.style.color = '#b2ff59';
+        })
+        .catch((error) => {
+          mensagem.textContent = 'Erro: ' + error.message;
+          mensagem.style.color = '#ff5252';
+        });
     }
   </script>
 </body>
