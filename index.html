@@ -2,94 +2,47 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login - Barbearia Pedro</title>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #222;
-      color: #fff;
-      margin: 0;
-      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
+      height: 100vh;
+      background: #222;
+      color: #fff;
     }
     .login-box {
       background: #333;
-      padding: 30px 25px;
+      padding: 30px;
       border-radius: 10px;
-      width: 320px;
-      max-width: 95vw;
+      width: 300px;
       text-align: center;
-      box-shadow: 0 0 12px #000a;
-    }
-    .login-box h2 {
-      color: #00c853;
-      margin-bottom: 22px;
-      font-size: 1.7em;
     }
     input {
       width: 100%;
-      padding: 12px;
-      margin: 12px 0;
-      border-radius: 6px;
-      border: none;
-      font-size: 1em;
-      background: #222;
-      color: #fff;
-      outline: none;
-      box-sizing: border-box;
-    }
-    input::placeholder {
-      color: #bbb;
-      opacity: 1;
+      padding: 10px;
+      margin: 10px 0;
     }
     button {
-      padding: 12px;
+      padding: 10px;
       background: #007acc;
       color: white;
       border: none;
-      border-radius: 6px;
       width: 100%;
       cursor: pointer;
-      font-size: 1.1em;
-      margin-top: 10px;
-      transition: background 0.2s;
-    }
-    button:hover {
-      background: #005fa3;
-    }
-    #mensagem {
-      margin-top: 18px;
-      min-height: 22px;
-      font-size: 1em;
-      word-break: break-word;
-    }
-    @media (max-width: 500px) {
-      .login-box {
-        padding: 18px 4vw;
-        width: 98vw;
-        max-width: 99vw;
-      }
-      .login-box h2 {
-        font-size: 1.2em;
-      }
-      input, button {
-        font-size: 1em;
-        padding: 10px;
-      }
     }
   </style>
 </head>
 <body>
   <div class="login-box">
     <h2>Login</h2>
-    <input type="email" id="email" placeholder="Seu email" autocomplete="username" />
-    <input type="password" id="senha" placeholder="Sua senha" autocomplete="current-password" />
-    <button onclick="loginEmail()">Entrar</button>
+    <input type="email" id="email" placeholder="Seu email" />
+    <input type="password" id="senha" placeholder="Sua senha" />
+    <button onclick="loginBanco()">Entrar</button>
     <p id="mensagem"></p>
   </div>
 
@@ -102,27 +55,40 @@
     };
 
     firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-    function loginEmail() {
-      const email = document.getElementById("email").value;
+    function loginBanco() {
+      const email = document.getElementById("email").value.trim();
       const senha = document.getElementById("senha").value;
       const mensagem = document.getElementById("mensagem");
 
-      auth
-        .signInWithEmailAndPassword(email, senha)
-        .then((userCredential) => {
-          const user = userCredential.user;
-          mensagem.textContent = "Bem-vindo, " + user.email;
-          mensagem.style.color = "lightgreen";
-          setTimeout(() => {
-            window.location.href = "pagina_principal.html";
-          }, 1000);
-        })
-        .catch((error) => {
-          mensagem.textContent = "Erro: " + error.message;
+      mensagem.textContent = "Verificando...";
+      mensagem.style.color = "#fff";
+
+      db.collection('usuarios').doc('usuarios').get().then(doc => {
+        if (doc.exists && Array.isArray(doc.data().lista)) {
+          const usuarios = doc.data().lista;
+          const user = usuarios.find(u => u.email === email && u.senha === senha);
+          if (user) {
+            mensagem.textContent = "Bem-vindo, " + user.nome;
+            mensagem.style.color = "lightgreen";
+            // Salva no localStorage para manter login (opcional)
+            localStorage.setItem("usuarioLogado", JSON.stringify(user));
+            setTimeout(() => {
+              window.location.href = "pagina_principal.html";
+            }, 1000);
+          } else {
+            mensagem.textContent = "Email ou senha incorretos!";
+            mensagem.style.color = "red";
+          }
+        } else {
+          mensagem.textContent = "Base de usuários não encontrada!";
           mensagem.style.color = "red";
-        });
+        }
+      }).catch(error => {
+        mensagem.textContent = "Erro: " + error.message;
+        mensagem.style.color = "red";
+      });
     }
   </script>
 </body>
