@@ -6,6 +6,7 @@
     <title>Página Principal - Barbearia Pedro Rodrigues</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <style>
+      /* ... Seu CSS permanece igual ... */
       body {
         font-family: Arial, sans-serif;
         background: #222;
@@ -349,7 +350,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <script>
       // Proteção: só entra se estiver logado pelo localStorage
-      let usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
+      const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
       if (!usuarioLogado) {
         window.location.href = "index.html";
       }
@@ -496,15 +497,17 @@
 
         if (user && user.email === "lucas.alexandre.sf@gmail.com") {
           opcoesDiv.innerHTML = `
-          <button onclick="window.location.href='alterar_barbeiros.html'" style="width:100%;margin-bottom:8px;">Alterar Barbeiros</button>
-          <button onclick="window.location.href='alterar_servicos.html'" style="width:100%;margin-bottom:8px;">Alterar Serviços</button>
-          <button onclick="window.location.href='alterar_usuarios.html'" style="width:100%;margin-bottom:8px;">Alterar Usuários</button>
-          <button onclick="mostrarCampoSenha()" style="width:100%;">Alterar Senha</button>
-        `;
+            <button onclick="window.location.href='alterar_barbeiros.html'" style="width:100%;margin-bottom:8px;">Alterar Barbeiros</button>
+            <button onclick="window.location.href='alterar_servicos.html'" style="width:100%;margin-bottom:8px;">Alterar Serviços</button>
+            <button onclick="window.location.href='alterar_usuarios.html'" style="width:100%;margin-bottom:8px;">Alterar Usuários</button>
+            <button onclick="window.location.href='ver_solicitacoes.html'" style="width:100%;margin-bottom:8px;">Ver Solicitações</button>
+            <button onclick="mostrarCampoSenha()" style="width:100%;">Alterar Senha</button>
+          `;
         } else {
           opcoesDiv.innerHTML = `
-          <button onclick="mostrarCampoSenha()" style="width:100%;">Alterar Senha</button>
-        `;
+            <button onclick="window.location.href='ver_solicitacoes.html'" style="width:100%;margin-bottom:8px;">Ver Solicitações</button>
+            <button onclick="mostrarCampoSenha()" style="width:100%;">Alterar Senha</button>
+          `;
         }
       }
 
@@ -521,8 +524,6 @@
       function fecharPerfil() {
         document.getElementById("modalPerfil").style.display = "none";
       }
-
-      // ALTERAR SENHA NO FIRESTORE
       function alterarSenha() {
         const novaSenha = document.getElementById("novaSenha").value;
         const mensagem = document.getElementById("perfil-mensagem");
@@ -531,7 +532,6 @@
           mensagem.style.color = "#ff5252";
           return;
         }
-
         db.collection('usuarios').doc('usuarios').get().then(doc => {
           if (doc.exists && Array.isArray(doc.data().lista)) {
             let usuarios = doc.data().lista;
@@ -542,7 +542,6 @@
                 .then(() => {
                   mensagem.textContent = "Senha alterada com sucesso!";
                   mensagem.style.color = "#b2ff59";
-                  // Atualiza localStorage
                   usuarioLogado.senha = novaSenha;
                   localStorage.setItem("usuarioLogado", JSON.stringify(usuarioLogado));
                 })
