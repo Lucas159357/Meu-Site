@@ -47,6 +47,11 @@
       display: flex;
       flex-direction: column;
       gap: 3px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .usuario-item:hover {
+      background: #555;
     }
     .usuario-email {
       color: #b2ff59;
@@ -62,7 +67,7 @@
       font-size: 0.97em;
       word-break: break-all;
     }
-    .voltar-btn {
+    .voltar-btn, .novo-btn {
       background: #007acc;
       color: #fff;
       border: none;
@@ -73,13 +78,104 @@
       cursor: pointer;
       transition: background 0.2s;
     }
-    .voltar-btn:hover {
-      background: #005fa3;
+    .novo-btn {
+      margin-bottom: 0;
+      margin-top: 20px;
+      background: #00c853;
+      color: #222;
+      font-weight: bold;
+    }
+    .voltar-btn:hover { background: #005fa3; }
+    .novo-btn:hover { background: #009e46; color: #fff; }
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 20;
+      left: 0; top: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.7);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: #333;
+      padding: 30px 25px 20px 25px;
+      border-radius: 10px;
+      text-align: center;
+      min-width: 300px;
+      box-shadow: 0 0 15px #111;
+      position: relative;
+      width: 90vw;
+      max-width: 340px;
+    }
+    .modal-content label {
+      display: block;
+      color: #b2ff59;
+      text-align: left;
+      margin-top: 12px;
+      margin-bottom: 3px;
+      font-size: 1em;
+    }
+    .modal-content input {
+      width: 96%;
+      padding: 8px;
+      margin-bottom: 8px;
+      border-radius: 6px;
+      border: none;
+      font-size: 1em;
+      background: #222;
+      color: #fff;
+      outline: none;
+    }
+    .modal-content button {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px 0;
+      border-radius: 5px;
+      font-size: 1em;
+    }
+    .close-modal {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      color: #fff;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.3em;
+      padding: 0 8px;
+      line-height: 1;
+      border-radius: 50%;
+      height: 32px;
+      width: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s, background 0.2s;
+    }
+    .close-modal:hover {
+      color: #00c853;
+      background: rgba(0,0,0,0.08);
+    }
+    .modal-title {
+      color: #00c853;
+      font-size: 1.2em;
+      margin-bottom: 12px;
+      margin-top: 0;
+    }
+    .modal-msg {
+      margin-top: 8px;
+      font-size: 1em;
+      color: #b2ff59;
+      min-height: 18px;
     }
     @media (max-width: 500px) {
       .container { padding: 18px 2vw; width: 99vw; }
       .usuario-item { padding: 10px 7px; font-size: 1em; }
-      .voltar-btn { padding: 8px 10px; font-size: 0.97em; }
+      .voltar-btn, .novo-btn { padding: 8px 10px; font-size: 0.97em; }
+      .modal-content { padding: 16px 4vw 12px 4vw; min-width: unset; max-width: 99vw; }
+      .close-modal { font-size: 1em; height: 28px; width: 28px; right: 6px; top: 6px; }
     }
   </style>
 </head>
@@ -91,6 +187,23 @@
     <h1>Alterar Usuários</h1>
     <div class="usuarios-lista" id="usuarios-lista">
       <div style="color:#fff;text-align:center;">Carregando...</div>
+    </div>
+    <button class="novo-btn" onclick="abrirNovoUsuario()">Novo Usuário</button>
+  </div>
+
+  <!-- Modal Editar/Criar Usuário -->
+  <div class="modal" id="modalUsuario">
+    <div class="modal-content">
+      <button class="close-modal" onclick="fecharModalUsuario()" aria-label="Fechar">&times;</button>
+      <div class="modal-title" id="modalUsuarioTitulo">Editar Usuário</div>
+      <label for="usuarioEmail">Email</label>
+      <input type="email" id="usuarioEmail" placeholder="Email" autocomplete="off"/>
+      <label for="usuarioNome">Nome</label>
+      <input type="text" id="usuarioNome" placeholder="Nome" autocomplete="off"/>
+      <label for="usuarioSenha">Senha</label>
+      <input type="text" id="usuarioSenha" placeholder="Senha" autocomplete="off"/>
+      <button id="btnSalvarUsuario" onclick="salvarUsuario()">Salvar</button>
+      <div class="modal-msg" id="modalUsuarioMsg"></div>
     </div>
   </div>
 
@@ -109,6 +222,9 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    let usuarios = [];
+    let usuarioEditIdx = null;
+
     function voltar() {
       window.history.back();
     }
@@ -119,15 +235,15 @@
 
       db.collection('usuarios').doc('usuarios').get().then(doc => {
         if (doc.exists && Array.isArray(doc.data().lista)) {
-          const usuarios = doc.data().lista;
+          usuarios = doc.data().lista;
           if (usuarios.length === 0) {
             lista.innerHTML = '<div style="color:#fff;text-align:center;">Nenhum usuário encontrado.</div>';
             return;
           }
           let html = "";
-          usuarios.forEach(u => {
+          usuarios.forEach((u, idx) => {
             html += `
-              <div class="usuario-item">
+              <div class="usuario-item" onclick="abrirEditarUsuario(${idx})">
                 <div class="usuario-email"><i class="fa fa-envelope"></i> ${u.email || '(sem email)'}</div>
                 <div class="usuario-nome"><i class="fa fa-user"></i> ${u.nome || '(sem nome)'}</div>
                 <div class="usuario-senha"><i class="fa fa-key"></i> ${u.senha ? u.senha : '(sem senha)'}</div>
@@ -136,6 +252,7 @@
           });
           lista.innerHTML = html;
         } else {
+          usuarios = [];
           lista.innerHTML = '<div style="color:#fff;text-align:center;">Nenhum usuário encontrado.</div>';
         }
       }).catch(error => {
@@ -143,7 +260,73 @@
       });
     }
 
+    function abrirEditarUsuario(idx) {
+      usuarioEditIdx = idx;
+      const u = usuarios[idx];
+      document.getElementById('modalUsuarioTitulo').textContent = "Editar Usuário";
+      document.getElementById('usuarioEmail').value = u.email || "";
+      document.getElementById('usuarioNome').value = u.nome || "";
+      document.getElementById('usuarioSenha').value = u.senha || "";
+      document.getElementById('modalUsuarioMsg').textContent = "";
+      document.getElementById('modalUsuario').style.display = "flex";
+      document.getElementById('btnSalvarUsuario').textContent = "Salvar";
+    }
+
+    function abrirNovoUsuario() {
+      usuarioEditIdx = null;
+      document.getElementById('modalUsuarioTitulo').textContent = "Novo Usuário";
+      document.getElementById('usuarioEmail').value = "";
+      document.getElementById('usuarioNome').value = "";
+      document.getElementById('usuarioSenha').value = "";
+      document.getElementById('modalUsuarioMsg').textContent = "";
+      document.getElementById('modalUsuario').style.display = "flex";
+      document.getElementById('btnSalvarUsuario').textContent = "Adicionar";
+    }
+
+    function fecharModalUsuario() {
+      document.getElementById('modalUsuario').style.display = "none";
+    }
+
+    function salvarUsuario() {
+      const email = document.getElementById('usuarioEmail').value.trim();
+      const nome = document.getElementById('usuarioNome').value.trim();
+      const senha = document.getElementById('usuarioSenha').value.trim();
+      const msg = document.getElementById('modalUsuarioMsg');
+
+      if (!email || !nome || !senha) {
+        msg.textContent = "Preencha todos os campos!";
+        msg.style.color = "#ff5252";
+        return;
+      }
+
+      // Checa se está editando ou criando novo
+      if (usuarioEditIdx !== null) {
+        usuarios[usuarioEditIdx] = { email, nome, senha };
+      } else {
+        usuarios.push({ email, nome, senha });
+      }
+
+      // Atualiza o array no Firestore
+      db.collection('usuarios').doc('usuarios').set({ lista: usuarios })
+        .then(() => {
+          msg.textContent = "Usuário salvo com sucesso!";
+          msg.style.color = "#b2ff59";
+          setTimeout(() => {
+            fecharModalUsuario();
+            carregarUsuarios();
+          }, 800);
+        })
+        .catch(error => {
+          msg.textContent = "Erro ao salvar: " + error.message;
+          msg.style.color = "#ff5252";
+        });
+    }
+
     window.onload = carregarUsuarios;
+    // Fecha modal ao apertar ESC
+    window.addEventListener('keydown', function(e){
+      if(e.key === "Escape") fecharModalUsuario();
+    });
   </script>
 </body>
 </html>
