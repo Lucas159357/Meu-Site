@@ -1,238 +1,183 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Minhas Solicitações - Barbearia Pedro Rodrigues</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background: #222;
-        color: #fff;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        min-height: 100vh;
-      }
-      .container {
-        background: #333;
-        padding: 40px 30px;
-        border-radius: 10px;
-        margin-top: 40px;
-        text-align: center;
-        width: 400px;
-        box-shadow: 0 0 10px #111;
-        max-width: 98vw;
-      }
-      h1 {
-        color: #00c853;
-        margin-bottom: 30px;
-        font-size: 1.5em;
-        letter-spacing: 1px;
-      }
-      .solicitacoes-lista {
-        margin-top: 20px;
-        text-align: left;
-      }
-      .solicitacao-bloco {
-        background: #444;
-        border-radius: 8px;
-        margin-bottom: 18px;
-        padding: 16px 12px;
-        box-shadow: 0 2px 8px #1118;
-        font-size: 1.1em;
-      }
-      .solicitacao-barbeiro {
-        color: #b2ff59;
-        font-weight: bold;
-        margin-bottom: 8px;
-        font-size: 1.1em;
-      }
-      .solicitacao-item {
-        border-top: 1px solid #444a;
-        margin-top: 8px;
-        padding-top: 8px;
-        padding-bottom: 4px;
-      }
-      .solicitacao-servicos {
-        margin: 4px 0 8px 0;
-      }
-      .solicitacao-status {
-        color: #00c853;
-        font-size: 1em;
-        font-weight: bold;
-      }
-      .solicitacao-pendente {
-        color: #ffeb3b;
-      }
-      .solicitacao-cancelado {
-        color: #ff5252;
-      }
-      .solicitacao-concluido {
-        color: #00c853;
-      }
-      .solicitacao-data {
-        color: #aaa;
-        font-size: 0.97em;
-        margin-bottom: 2px;
-      }
-      .voltar-btn {
-        background: #007acc;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        padding: 10px 22px;
-        font-size: 1em;
-        margin-bottom: 25px;
-        cursor: pointer;
-        transition: background 0.2s;
-        margin-top: 0;
-      }
-      .voltar-btn:hover {
-        background: #005fa3;
-      }
-      @media (max-width: 500px) {
-        .container {
-          padding: 18px 2vw;
-          width: 99vw;
-        }
-        .solicitacao-bloco {
-          padding: 10px 7px;
-          font-size: 1em;
-        }
-        .voltar-btn {
-          padding: 8px 10px;
-          font-size: 0.97em;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <button class="voltar-btn" onclick="voltar()">
-        <i class="fa fa-arrow-left"></i> Voltar
-      </button>
-      <h1>Minhas Solicitações</h1>
-      <div class="solicitacoes-lista" id="solicitacoes-lista">
-        <div style="color: #fff; text-align: center">Carregando...</div>
-      </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minhas Solicitações - Barbearia Pedro Rodrigues</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #222;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      background: #333;
+      padding: 40px 30px;
+      border-radius: 10px;
+      margin-top: 40px;
+      text-align: center;
+      width: 400px;
+      box-shadow: 0 0 10px #111;
+      max-width: 98vw;
+    }
+    h1 {
+      color: #00c853;
+      margin-bottom: 30px;
+      font-size: 1.5em;
+      letter-spacing: 1px;
+    }
+    .solicitacoes-lista {
+      margin-top: 20px;
+      text-align: left;
+    }
+    .solicitacao-bloco {
+      background: #444;
+      border-radius: 8px;
+      margin-bottom: 18px;
+      padding: 16px 12px;
+      box-shadow: 0 2px 8px #1118;
+      font-size: 1.1em;
+    }
+    .solicitacao-barbeiro {
+      color: #b2ff59;
+      font-weight: bold;
+      margin-bottom: 8px;
+      font-size: 1.1em;
+    }
+    .solicitacao-item {
+      border-top: 1px solid #444a;
+      margin-top: 8px;
+      padding-top: 8px;
+      padding-bottom: 4px;
+    }
+    .solicitacao-servicos {
+      margin: 4px 0 8px 0;
+    }
+    .solicitacao-status {
+      color: #00c853;
+      font-size: 1em;
+      font-weight: bold;
+    }
+    .solicitacao-pendente { color: #ffeb3b; }
+    .solicitacao-cancelado { color: #ff5252; }
+    .solicitacao-concluido { color: #00c853; }
+    .solicitacao-data {
+      color: #aaa;
+      font-size: 0.97em;
+      margin-bottom: 2px;
+    }
+    .voltar-btn {
+      background: #007acc;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 22px;
+      font-size: 1em;
+      margin-bottom: 25px;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 0;
+    }
+    .voltar-btn:hover { background: #005fa3; }
+    @media (max-width: 500px) {
+      .container { padding: 18px 2vw; width: 99vw; }
+      .solicitacao-bloco { padding: 10px 7px; font-size: 1em; }
+      .voltar-btn { padding: 8px 10px; font-size: 0.97em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button class="voltar-btn" onclick="voltar()">
+      <i class="fa fa-arrow-left"></i> Voltar
+    </button>
+    <h1>Minhas Solicitações</h1>
+    <div class="solicitacoes-lista" id="solicitacoes-lista">
+      <div style="color:#fff;text-align:center;">Carregando...</div>
     </div>
+  </div>
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-    <script>
-      // Proteção: só entra se estiver logado pelo localStorage
-      const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
-      if (!usuarioLogado) {
-        window.location.href = "index.html";
-      }
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script>
+    // Proteção: só entra se estiver logado pelo localStorage
+    const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
+    if (!usuarioLogado) {
+      window.location.href = "index.html";
+    }
 
-      const firebaseConfig = {
-        apiKey: "AIzaSyAY-Win6vQEHP1XR_fG3NOg0PAkNPAcxSg",
-        authDomain: "banco-de-dados-bd2a6.firebaseapp.com",
-        projectId: "banco-de-dados-bd2a6",
-        appId: "1:859895156791:web",
-      };
-      firebase.initializeApp(firebaseConfig);
-      const db = firebase.firestore();
+    const firebaseConfig = {
+      apiKey: "AIzaSyAY-Win6vQEHP1XR_fG3NOg0PAkNPAcxSg",
+      authDomain: "banco-de-dados-bd2a6.firebaseapp.com",
+      projectId: "banco-de-dados-bd2a6",
+      appId: "1:859895156791:web",
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-      function voltar() {
-        window.history.back();
-      }
+    function voltar() {
+      window.history.back();
+    }
 
-      function formatarData(iso) {
-        if (!iso) return "";
-        const d = new Date(iso);
-        return `${d.getDate().toString().padStart(2, "0")}/${(d.getMonth() + 1)
-          .toString()
-          .padStart(2, "0")}/${d.getFullYear()} ${d
-          .getHours()
-          .toString()
-          .padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`;
-      }
+    function formatarData(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      return `${d.getDate().toString().padStart(2, '0')}/${
+        (d.getMonth()+1).toString().padStart(2, '0')}/${
+        d.getFullYear()} ${d.getHours().toString().padStart(2, '0')}:${
+        d.getMinutes().toString().padStart(2, '0')}`;
+    }
 
-      function carregarSolicitacoes() {
-        const listaDiv = document.getElementById("solicitacoes-lista");
-        listaDiv.innerHTML =
-          '<div style="color:#fff;text-align:center;">Carregando...</div>';
+    // Função para gerar o ID do documento igual ao usado nas solicitações
+    function nomeParaId(nome) {
+      return nome
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9]/g, "_");
+    }
 
-        db.collection("solicitacoes")
-          .get()
-          .then((snapshot) => {
-            let solicitacoesPorBarbeiro = {};
-            snapshot.forEach((doc) => {
-              const barbeiro = doc.id;
-              const lista = Array.isArray(doc.data().lista)
-                ? doc.data().lista
-                : [];
-              const minhas = lista.filter(
-                (s) => s.email === usuarioLogado.email
-              );
-              if (minhas.length) {
-                solicitacoesPorBarbeiro[barbeiro] = minhas;
-              }
-            });
+    function carregarSolicitacoes() {
+      const listaDiv = document.getElementById("solicitacoes-lista");
+      listaDiv.innerHTML = '<div style="color:#fff;text-align:center;">Carregando...</div>';
 
-            let html = "";
-            const barbeiros = Object.keys(solicitacoesPorBarbeiro);
-            if (barbeiros.length === 0) {
-              html =
-                '<div style="color:#fff;text-align:center;">Nenhuma solicitação encontrada.</div>';
-            } else {
-              barbeiros.forEach((barbeiro) => {
-                html += `<div class="solicitacao-bloco">
-              <div class="solicitacao-barbeiro"><i class="fa fa-user"></i> ${barbeiro}</div>
-              ${solicitacoesPorBarbeiro[barbeiro]
-                .map(
-                  (s) => `
-                <div class="solicitacao-item">
-                  <div class="solicitacao-data"><i class="fa fa-calendar"></i> ${formatarData(
-                    s.dataCriacao
-                  )}</div>
-                  <div class="solicitacao-servicos"><i class="fa fa-scissors"></i> 
-                    ${
-                      Array.isArray(s.servicos)
-                        ? s.servicos
-                            .map((sv) => `${sv.nome} (R$ ${sv.preco})`)
-                            .join(", ")
-                        : ""
-                    }
-                  </div>
-                  <div>Total: <b>R$ ${s.valorTotal}</b></div>
-                  <div class="solicitacao-status solicitacao-${(
-                    s.status || "pendente"
-                  ).toLowerCase()}">
-                    Status: ${
-                      s.status
-                        ? s.status.charAt(0).toUpperCase() + s.status.slice(1)
-                        : "Pendente"
-                    }
-                  </div>
-                </div>
-              `
-                )
-                .join("")}
-            </div>`;
-              });
-            }
-            listaDiv.innerHTML = html;
-          })
-          .catch((error) => {
-            listaDiv.innerHTML =
-              '<div style="color:#ff5252;">Erro ao carregar solicitações: ' +
-              error.message +
-              "</div>";
-          });
-      }
+      const meuDocId = nomeParaId(usuarioLogado.nome);
 
-      window.onload = carregarSolicitacoes;
-    </script>
-  </body>
+      db.collection("solicitacoes").doc(meuDocId).get().then(doc => {
+        if (!doc.exists || !Array.isArray(doc.data().lista) || doc.data().lista.length === 0) {
+          listaDiv.innerHTML = '<div style="color:#fff;text-align:center;">Nenhuma solicitação encontrada.</div>';
+          return;
+        }
+        const lista = doc.data().lista;
+        let html = `<div class="solicitacao-bloco">
+          <div class="solicitacao-barbeiro"><i class="fa fa-user"></i> ${usuarioLogado.nome}</div>
+          ${lista.map(s => `
+            <div class="solicitacao-item">
+              <div class="solicitacao-data"><i class="fa fa-calendar"></i> ${formatarData(s.dataCriacao)}</div>
+              <div class="solicitacao-servicos"><i class="fa fa-scissors"></i> 
+                ${Array.isArray(s.servicos) ? s.servicos.map(sv => `${sv.nome} (R$ ${sv.preco})`).join(", ") : ""}
+              </div>
+              <div>Total: <b>R$ ${s.valorTotal}</b></div>
+              <div class="solicitacao-status solicitacao-${(s.status||'pendente').toLowerCase()}">
+                Status: ${s.status ? s.status.charAt(0).toUpperCase() + s.status.slice(1) : "Pendente"}
+              </div>
+            </div>
+          `).join("")}
+        </div>`;
+        listaDiv.innerHTML = html;
+      }).catch(error => {
+        listaDiv.innerHTML = '<div style="color:#ff5252;">Erro ao carregar solicitações: ' + error.message + '</div>';
+      });
+    }
+
+    window.onload = carregarSolicitacoes;
+  </script>
+</body>
 </html>
