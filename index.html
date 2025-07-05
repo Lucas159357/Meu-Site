@@ -68,11 +68,12 @@
       db.collection('usuarios').doc('usuarios').get().then(doc => {
         if (doc.exists && Array.isArray(doc.data().lista)) {
           const usuarios = doc.data().lista;
+          // Procura se existe usuário com email e senha iguais
           const user = usuarios.find(u => u.email === email && u.senha === senha);
           if (user) {
-            mensagem.textContent = "Bem-vindo, " + user.nome;
+            mensagem.textContent = "Bem-vindo, " + (user.nome || user.email);
             mensagem.style.color = "lightgreen";
-            // Salva no localStorage para manter login (opcional)
+            // Salva no localStorage para uso em outras páginas (opcional)
             localStorage.setItem("usuarioLogado", JSON.stringify(user));
             setTimeout(() => {
               window.location.href = "pagina_principal.html";
