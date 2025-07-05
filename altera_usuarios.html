@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Alterar Usuários - Barbearia Pedro Rodrigues</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #222;
+        color: #fff;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+      }
+      .container {
+        background: #333;
+        padding: 40px 30px;
+        border-radius: 10px;
+        margin-top: 40px;
+        text-align: center;
+        width: 380px;
+        box-shadow: 0 0 10px #111;
+        max-width: 98vw;
+      }
+      h1 {
+        color: #00c853;
+        margin-bottom: 30px;
+        font-size: 1.5em;
+        letter-spacing: 1px;
+      }
+      .usuarios-lista {
+        margin-top: 20px;
+        text-align: left;
+      }
+      .usuario-item {
+        background: #444;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        padding: 16px 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 2px 8px #1118;
+        font-size: 1.1em;
+      }
+      .usuario-email {
+        color: #b2ff59;
+        font-weight: bold;
+        word-break: break-all;
+      }
+      .usuario-nome {
+        color: #fff;
+        margin-left: 12px;
+        font-size: 1em;
+      }
+      .voltar-btn {
+        background: #007acc;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 22px;
+        font-size: 1em;
+        margin-bottom: 25px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .voltar-btn:hover {
+        background: #005fa3;
+      }
+      @media (max-width: 500px) {
+        .container {
+          padding: 18px 2vw;
+          width: 99vw;
+        }
+        .usuario-item {
+          padding: 10px 7px;
+          font-size: 1em;
+        }
+        .voltar-btn {
+          padding: 8px 10px;
+          font-size: 0.97em;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <button class="voltar-btn" onclick="voltar()">
+        <i class="fa fa-arrow-left"></i> Voltar
+      </button>
+      <h1>Alterar Usuários</h1>
+      <div class="usuarios-lista" id="usuarios-lista">
+        <div style="color: #fff; text-align: center">Carregando...</div>
+      </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script>
+      // Firebase config (use o mesmo da sua página principal)
+      const firebaseConfig = {
+        apiKey: "AIzaSyAY-Win6vQEHP1XR_fG3NOg0PAkNPAcxSg",
+        authDomain: "banco-de-dados-bd2a6.firebaseapp.com",
+        projectId: "banco-de-dados-bd2a6",
+        appId: "1:859895156791:web",
+      };
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+
+      function voltar() {
+        window.history.back();
+      }
+
+      function carregarUsuarios() {
+        const lista = document.getElementById("usuarios-lista");
+        lista.innerHTML =
+          '<div style="color:#fff;text-align:center;">Carregando...</div>';
+
+        db.collection("usuarios")
+          .get()
+          .then((snapshot) => {
+            if (snapshot.empty) {
+              lista.innerHTML =
+                '<div style="color:#fff;text-align:center;">Nenhum usuário encontrado.</div>';
+              return;
+            }
+            let html = "";
+            snapshot.forEach((doc) => {
+              const u = doc.data();
+              html += `
+            <div class="usuario-item">
+              <span class="usuario-email">${u.email || "(sem email)"}</span>
+              ${u.nome ? `<span class="usuario-nome">${u.nome}</span>` : ""}
+            </div>
+          `;
+            });
+            lista.innerHTML = html;
+          })
+          .catch((error) => {
+            lista.innerHTML =
+              '<div style="color:#ff5252;">Erro ao carregar usuários: ' +
+              error.message +
+              "</div>";
+          });
+      }
+
+      window.onload = carregarUsuarios;
+    </script>
+  </body>
+</html>
