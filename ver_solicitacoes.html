@@ -52,22 +52,27 @@
       letter-spacing: 1px;
       font-weight: bold;
     }
-    .filtro-data {
+    .filtro-linha {
+      display: flex;
+      align-items: center;
+      gap: 18px;
       margin-bottom: 8px;
-      text-align: left;
       width: 100%;
       max-width: 400px;
+    }
+    .filtro-data, .filtro-status {
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    .filtro-data label {
+    .filtro-data label,
+    .filtro-status label {
       color: #00c853;
       font-weight: bold;
-      margin-right: 6px;
       font-size: 1.07em;
     }
-    .filtro-data select {
+    .filtro-data select,
+    .filtro-status select {
       padding: 6px 10px;
       border-radius: 6px;
       border: none;
@@ -417,7 +422,8 @@
         right: 6px;
         top: 6px;
       }
-      .filtro-data, #periodoSelecionado { max-width: 99vw; }
+      .filtro-linha, .filtro-data, .filtro-status, #periodoSelecionado { max-width: 99vw; }
+      .filtro-linha { flex-direction: column; gap:4px;}
     }
   </style>
 </head>
@@ -427,14 +433,25 @@
       <i class="fa fa-arrow-left"></i> Voltar
     </button>
     <h1>Minhas Solicitações</h1>
-    <div class="filtro-data">
-      <label for="filtroData">Filtrar por:</label>
-      <select id="filtroData" onchange="carregarSolicitacoes()">
-        <option value="dia">Dia</option>
-        <option value="semana">Semana</option>
-        <option value="mes">Mês</option>
-        <option value="todos">Todos</option>
-      </select>
+    <div class="filtro-linha">
+      <div class="filtro-data">
+        <label for="filtroData">Filtrar por:</label>
+        <select id="filtroData" onchange="carregarSolicitacoes()">
+          <option value="dia">Dia</option>
+          <option value="semana">Semana</option>
+          <option value="mes">Mês</option>
+          <option value="todos">Todos</option>
+        </select>
+      </div>
+      <div class="filtro-status">
+        <label for="filtroStatus">Status:</label>
+        <select id="filtroStatus" onchange="carregarSolicitacoes()">
+          <option value="todos">Todos</option>
+          <option value="pendente">Pendente</option>
+          <option value="concluido">Concluído</option>
+          <option value="cancelado">Cancelado</option>
+        </select>
+      </div>
     </div>
     <div id="periodoSelecionado"></div>
     <div class="solicitacoes-lista" id="solicitacoes-lista">
@@ -555,6 +572,11 @@
       });
     }
 
+    function filtrarPorStatus(lista, status) {
+      if (!status || status === "todos") return lista;
+      return lista.filter(s => (s.status || "pendente").toLowerCase() === status);
+    }
+
     function carregarServicosGlobais(callback) {
       db.collection("servicos")
         .doc("servicos")
@@ -577,6 +599,7 @@
 
       carregarServicosGlobais(() => {
         const filtro = document.getElementById("filtroData")?.value || "dia";
+        const filtroStatus = document.getElementById("filtroStatus")?.value || "todos";
         // Proprietario/Admin: vê todas as solicitações de todos os barbeiros
         if (
           usuarioLogado.categoria === "Proprietario" ||
@@ -602,7 +625,8 @@
                   '<div style="color:#fff;text-align:center;">Nenhuma solicitação encontrada.</div>';
               } else {
                 barbeiros.forEach((barbeiro) => {
-                  const listaSolic = filtrarPorData(solicitacoesPorBarbeiro[barbeiro], filtro);
+                  let listaSolic = filtrarPorData(solicitacoesPorBarbeiro[barbeiro], filtro);
+                  listaSolic = filtrarPorStatus(listaSolic, filtroStatus);
                   // Soma valores por status
                   let totalGeral = 0, totalConcluido = 0, totalPendente = 0;
                   listaSolic.forEach(s => {
@@ -686,7 +710,8 @@
                 return;
               }
               listaSolicitacoes = doc.data().lista;
-              const listaFiltrada = filtrarPorData(listaSolicitacoes, filtro);
+              let listaFiltrada = filtrarPorData(listaSolicitacoes, filtro);
+              listaFiltrada = filtrarPorStatus(listaFiltrada, filtroStatus);
               // Resumo também para barbeiro comum
               let totalGeral = 0, totalConcluido = 0, totalPendente = 0;
               listaFiltrada.forEach(s => {
