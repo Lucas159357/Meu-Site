@@ -67,6 +67,13 @@
       font-size: 0.97em;
       word-break: break-all;
     }
+    .usuario-categoria {
+      color: #00c853;
+      font-size: 0.98em;
+      font-weight: bold;
+      margin-top: 2px;
+      margin-bottom: 2px;
+    }
     .voltar-btn, .novo-btn {
       background: #007acc;
       color: #fff;
@@ -117,7 +124,7 @@
       margin-bottom: 3px;
       font-size: 1em;
     }
-    .modal-content input {
+    .modal-content input, .modal-content select {
       width: 96%;
       padding: 8px;
       margin-bottom: 8px;
@@ -212,6 +219,13 @@
       <input type="text" id="usuarioNome" placeholder="Nome" autocomplete="off"/>
       <label for="usuarioSenha">Senha</label>
       <input type="text" id="usuarioSenha" placeholder="Senha" autocomplete="off"/>
+      <label for="usuarioCategoria">Categoria</label>
+      <select id="usuarioCategoria">
+        <option value="">Selecione...</option>
+        <option value="Proprietario">Proprietário</option>
+        <option value="Administrador">Administrador</option>
+        <option value="Barbeiro">Barbeiro</option>
+      </select>
       <button id="btnSalvarUsuario" onclick="salvarUsuario()">Salvar</button>
       <button id="btnExcluirUsuario" class="btn-excluir" style="display:none;" onclick="excluirUsuario()">Excluir</button>
       <div class="modal-msg" id="modalUsuarioMsg"></div>
@@ -257,6 +271,7 @@
                 <div class="usuario-email"><i class="fa fa-envelope"></i> ${u.email || '(sem email)'}</div>
                 <div class="usuario-nome"><i class="fa fa-user"></i> ${u.nome || '(sem nome)'}</div>
                 <div class="usuario-senha"><i class="fa fa-key"></i> ${u.senha ? u.senha : '(sem senha)'}</div>
+                <div class="usuario-categoria"><i class="fa fa-id-badge"></i> ${u.categoria || '(sem categoria)'}</div>
               </div>
             `;
           });
@@ -277,6 +292,7 @@
       document.getElementById('usuarioEmail').value = u.email || "";
       document.getElementById('usuarioNome').value = u.nome || "";
       document.getElementById('usuarioSenha').value = u.senha || "";
+      document.getElementById('usuarioCategoria').value = u.categoria || "";
       document.getElementById('modalUsuarioMsg').textContent = "";
       document.getElementById('modalUsuario').style.display = "flex";
       document.getElementById('btnSalvarUsuario').textContent = "Salvar";
@@ -289,6 +305,7 @@
       document.getElementById('usuarioEmail').value = "";
       document.getElementById('usuarioNome').value = "";
       document.getElementById('usuarioSenha').value = "";
+      document.getElementById('usuarioCategoria').value = "";
       document.getElementById('modalUsuarioMsg').textContent = "";
       document.getElementById('modalUsuario').style.display = "flex";
       document.getElementById('btnSalvarUsuario').textContent = "Adicionar";
@@ -303,9 +320,10 @@
       const email = document.getElementById('usuarioEmail').value.trim();
       const nome = document.getElementById('usuarioNome').value.trim();
       const senha = document.getElementById('usuarioSenha').value.trim();
+      const categoria = document.getElementById('usuarioCategoria').value;
       const msg = document.getElementById('modalUsuarioMsg');
 
-      if (!email || !nome || !senha) {
+      if (!email || !nome || !senha || !categoria) {
         msg.textContent = "Preencha todos os campos!";
         msg.style.color = "#ff5252";
         return;
@@ -313,9 +331,9 @@
 
       // Checa se está editando ou criando novo
       if (usuarioEditIdx !== null) {
-        usuarios[usuarioEditIdx] = { email, nome, senha };
+        usuarios[usuarioEditIdx] = { email, nome, senha, categoria };
       } else {
-        usuarios.push({ email, nome, senha });
+        usuarios.push({ email, nome, senha, categoria });
       }
 
       // Atualiza o array no Firestore
