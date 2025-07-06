@@ -200,22 +200,22 @@
       if (filtro === "dia") {
         campo.innerHTML = `<input type="date" id="inputData" value="${new Date().toISOString().slice(0,10)}" onchange="carregarDados()">`;
       } else if (filtro === "semana") {
+        // Semana atual: domingo a sábado
         const hoje = new Date();
-        const week = getISOWeek(hoje);
-        campo.innerHTML = `<input type="week" id="inputData" value="${hoje.getFullYear()}-W${week}" onchange="carregarDados()">`;
+        const inicio = new Date(hoje);
+        inicio.setDate(hoje.getDate() - hoje.getDay());
+        const fim = new Date(inicio);
+        fim.setDate(inicio.getDate() + 6);
+        campo.innerHTML = `
+          <label style="color:#00c853;font-weight:bold;">De</label>
+          <input type="date" id="inputDataInicio" value="${inicio.toISOString().slice(0,10)}" onchange="carregarDados()">
+          <label style="color:#00c853;font-weight:bold;">até</label>
+          <input type="date" id="inputDataFim" value="${fim.toISOString().slice(0,10)}" onchange="carregarDados()">
+        `;
       } else if (filtro === "mes") {
         const hoje = new Date();
         campo.innerHTML = `<input type="month" id="inputData" value="${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}" onchange="carregarDados()">`;
       }
-    }
-
-    function getISOWeek(date) {
-      const temp = new Date(date.valueOf());
-      const dayNr = (date.getDay() + 6) % 7;
-      temp.setDate(temp.getDate() - dayNr + 3);
-      const jan4 = new Date(temp.getFullYear(),0,4);
-      const dayDiff = (temp - jan4) / 86400000;
-      return String(1 + Math.floor(dayDiff / 7)).padStart(2,"0");
     }
 
     function mostrarPeriodoSelecionado() {
@@ -226,13 +226,16 @@
         const [ano, mes, dia] = campo.value.split('-');
         const dt = new Date(Number(ano), Number(mes)-1, Number(dia));
         div.textContent = "Dia: " + dt.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
-      } else if (filtro === "semana" && campo && campo.value) {
-        const [ano, semana] = campo.value.split("-W");
-        const primeiroDiaSemana = new Date(ano,0,1 + (semana-1)*7);
-        while (primeiroDiaSemana.getDay() !== 0) primeiroDiaSemana.setDate(primeiroDiaSemana.getDate()-1);
-        const ultimoDiaSemana = new Date(primeiroDiaSemana);
-        ultimoDiaSemana.setDate(primeiroDiaSemana.getDate()+6);
-        div.textContent = `Semana: de ${primeiroDiaSemana.toLocaleDateString('pt-BR')} até ${ultimoDiaSemana.toLocaleDateString('pt-BR')}`;
+      } else if (filtro === "semana") {
+        const inicioCampo = document.getElementById("inputDataInicio");
+        const fimCampo = document.getElementById("inputDataFim");
+        if (inicioCampo && fimCampo && inicioCampo.value && fimCampo.value) {
+          const di = new Date(inicioCampo.value);
+          const df = new Date(fimCampo.value);
+          div.textContent = `Semana: de ${di.toLocaleDateString('pt-BR')} até ${df.toLocaleDateString('pt-BR')}`;
+        } else {
+          div.textContent = "";
+        }
       } else if (filtro === "mes" && campo && campo.value) {
         const [ano, mes] = campo.value.split('-');
         const data = new Date(Number(ano), Number(mes)-1, 1);
@@ -246,6 +249,18 @@
 
     function filtrarPorData(lista, modo) {
       if (modo === "todos") return lista;
+      if (modo === "semana") {
+        const inicioCampo = document.getElementById("inputDataInicio");
+        const fimCampo = document.getElementById("inputDataFim");
+        if (!inicioCampo || !inicioCampo.value || !fimCampo || !fimCampo.value) return lista;
+        const inicio = new Date(inicioCampo.value + "T00:00:00");
+        const fim = new Date(fimCampo.value + "T23:59:59");
+        return lista.filter(s => {
+          if (!s.dataCriacao) return false;
+          const data = new Date(s.dataCriacao);
+          return data >= inicio && data <= fim;
+        });
+      }
       const campo = document.getElementById("inputData");
       if (!campo || !campo.value) return lista;
       if (modo === "dia") {
@@ -258,19 +273,6 @@
             (data.getMonth() + 1) === mesFiltro &&
             data.getDate() === diaFiltro
           );
-        });
-      }
-      if (modo === "semana") {
-        const [ano, semana] = campo.value.split("-W");
-        if (!ano || !semana) return lista;
-        const primeiroDia = new Date(ano,0,1 + (semana-1)*7);
-        while (primeiroDia.getDay() !== 0) primeiroDia.setDate(primeiroDia.getDate()-1);
-        const ultimoDia = new Date(primeiroDia);
-        ultimoDia.setDate(primeiroDia.getDate()+6);
-        return lista.filter(s => {
-          if (!s.dataCriacao) return false;
-          const data = new Date(s.dataCriacao);
-          return data >= primeiroDia && data <= ultimoDia;
         });
       }
       if (modo === "mes") {
