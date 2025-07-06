@@ -35,7 +35,7 @@
       letter-spacing: 1px;
       font-weight: bold;
     }
-    #graficoDesempenho {
+    #graficoDesempenho, #graficoServicos {
       background: #fff;
       border-radius: 8px;
       padding: 10px;
@@ -102,7 +102,7 @@
     .filtro-linha input[type="date"]::-webkit-calendar-picker-indicator {
       filter: invert(1) brightness(1.5);
     }
-    #periodoSelecionado {
+    #periodoSelecionado, #periodoSelecionadoServicos {
       color: #00c853;
       font-weight: bold;
       margin-bottom: 4px;
@@ -112,15 +112,20 @@
       max-width: 400px;
       min-height: 20px;
     }
-    #mensagem {
+    #mensagem, #mensagemServicos {
       color: #ff5252;
       font-weight: bold;
       margin-top: 12px;
       min-height: 24px;
     }
+    hr {
+      margin: 30px 0 18px 0;
+      border: none;
+      border-top: 2px solid #444;
+    }
     @media (max-width: 500px) {
       .container { width: 99vw; padding: 10px 2vw; }
-      #graficoDesempenho { padding: 2px; }
+      #graficoDesempenho, #graficoServicos { padding: 2px; }
       .filtros { gap: 7px; }
       .filtro-linha { flex-direction: column; align-items: flex-start; gap: 4px;}
       .filtro-linha select, .filtro-linha input[type="date"], .filtro-linha input[type="month"], .filtro-linha input[type="text"] { width: 100%; }
@@ -194,6 +199,24 @@
     </div>
     <canvas id="graficoDesempenho" height="220"></canvas>
     <div id="mensagem"></div>
+
+    <hr>
+    <div style="margin-bottom: 10px; color:#00c853; font-weight:bold;">Serviços Realizados</div>
+    <div class="filtros" id="filtrosServicos">
+      <div class="filtro-linha">
+        <label for="filtroPeriodoServicos">Período:</label>
+        <select id="filtroPeriodoServicos" onchange="mostrarCampoPeriodoServicos();carregarGraficoServicos();">
+          <option value="todos">Todos</option>
+          <option value="dia" selected>Dia</option>
+          <option value="semana">Semana</option>
+          <option value="mes">Mês</option>
+        </select>
+        <span id="campoPeriodoServicos"></span>
+      </div>
+      <div id="periodoSelecionadoServicos"></div>
+    </div>
+    <canvas id="graficoServicos" height="220"></canvas>
+    <div id="mensagemServicos"></div>
   </div>
   <script>
     const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
@@ -419,6 +442,9 @@
         const dadosConcluido = [];
         const dadosPendente = [];
         const dadosCancelado = [];
+        const detalhesConcluido = [];
+        const detalhesPendente = [];
+        const detalhesCancelado = [];
 
         snapshot.forEach(doc => {
           const barbeiro = doc.id;
@@ -432,12 +458,28 @@
           const listaFiltrada = filtrarPorData(lista, filtroData);
 
           let qtdConcluido = 0, qtdPendente = 0, qtdCancelado = 0;
+          let detConcluido = [], detPendente = [], detCancelado = [];
+
           listaFiltrada.forEach(s => {
             const status = (s.status || '').toLowerCase();
-            if (status === 'concluido') qtdConcluido++;
-            else if (status === 'pendente') qtdPendente++;
-            else if (status === 'cancelado') qtdCancelado++;
+            const detalhe = {
+              data: s.dataCriacao,
+              servicos: s.servicos,
+              valorTotal: s.valorTotal,
+              status: s.status
+            };
+            if (status === 'concluido') {
+              qtdConcluido++;
+              detConcluido.push(detalhe);
+            } else if (status === 'pendente') {
+              qtdPendente++;
+              detPendente.push(detalhe);
+            } else if (status === 'cancelado') {
+              qtdCancelado++;
+              detCancelado.push(detalhe);
+            }
           });
+
           if (
             (filtroStatus === "concluido" && qtdConcluido > 0) ||
             (filtroStatus === "pendente" && qtdPendente > 0) ||
@@ -450,6 +492,9 @@
             dadosConcluido.push(qtdConcluido > 0 ? qtdConcluido : null);
             dadosPendente.push(qtdPendente > 0 ? qtdPendente : null);
             dadosCancelado.push(qtdCancelado > 0 ? qtdCancelado : null);
+            detalhesConcluido.push(detConcluido);
+            detalhesPendente.push(detPendente);
+            detalhesCancelado.push(detCancelado);
           }
         });
 
@@ -523,6 +568,32 @@
                 color: '#222',
                 font: { weight: 'bold', size: 15 },
                 formatter: function(value) { return value !== null ? value : ''; }
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    const idx = context.dataIndex;
+                    const label = context.dataset.label;
+                    let detalhes = [];
+                    if (label === "Concluídas") detalhes = detalhesConcluido[idx];
+                    if (label === "Pendentes") detalhes = detalhesPendente[idx];
+                    if (label === "Canceladas") detalhes = detalhesCancelado[idx];
+                    if (!detalhes || detalhes.length === 0) return "Nenhuma solicitação";
+                    let txt = `${label}: ${context.parsed.y}`;
+                    detalhes.forEach((s, i) => {
+                      txt += `\n\nSolicitação ${i + 1}:`;
+                      txt += `\nData: ${s.data ? new Date(s.data).toLocaleString("pt-BR") : "-"}`;
+                      if (Array.isArray(s.servicos)) {
+                        txt += `\nServiços:`;
+                        s.servicos.forEach(sv => {
+                          txt += `\n- ${sv.nome}: R$ ${sv.preco}`;
+                        });
+                      }
+                      txt += `\nValor Total: R$ ${Number(s.valorTotal || 0).toFixed(2)}`;
+                    });
+                    return txt;
+                  }
+                }
               }
             },
             scales: {
@@ -550,6 +621,256 @@
       }
     }
 
+    // --- GRÁFICO DE SERVIÇOS ---
+
+    let graficoServicos;
+
+    function mostrarCampoPeriodoServicos() {
+      const tipo = document.getElementById('filtroPeriodoServicos').value;
+      const campo = document.getElementById('campoPeriodoServicos');
+      campo.innerHTML = "";
+      if (tipo === "dia") {
+        campo.innerHTML = `<input type="date" id="inputDataServicos" class="filtro-input" value="${new Date().toISOString().slice(0,10)}" onchange="carregarGraficoServicos()">`;
+      } else if (tipo === "semana") {
+        campo.innerHTML = `<input type="text" id="inputSemanaServicos" class="filtro-input" readonly style="width: 170px;" />`;
+        setTimeout(() => {
+          inicializarRangePickerSemanaServicos();
+        }, 50);
+      } else if (tipo === "mes") {
+        const hoje = new Date();
+        campo.innerHTML = `<input type="month" id="inputMesServicos" class="filtro-input" value="${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}" onchange="carregarGraficoServicos()">`;
+      }
+    }
+
+    function inicializarRangePickerSemanaServicos() {
+      const hoje = new Date();
+      const domingo = new Date(hoje);
+      domingo.setDate(hoje.getDate() - hoje.getDay());
+      const sabado = new Date(domingo);
+      sabado.setDate(domingo.getDate() + 6);
+
+      $('#inputSemanaServicos').daterangepicker({
+        locale: {
+          format: 'DD/MM/YYYY',
+          applyLabel: "Aplicar",
+          cancelLabel: "Cancelar",
+          fromLabel: "De",
+          toLabel: "Até",
+          daysOfWeek: ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"],
+          monthNames: ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"],
+          firstDay: 0
+        },
+        startDate: moment(domingo),
+        endDate: moment(sabado),
+        opens: "center",
+        autoUpdateInput: true
+      }, function(start, end) {
+        carregarGraficoServicos();
+      });
+
+      $('#inputSemanaServicos').on('apply.daterangepicker', function(ev, picker) {
+        carregarGraficoServicos();
+      });
+    }
+
+    function mostrarPeriodoSelecionadoServicos() {
+      const tipo = document.getElementById('filtroPeriodoServicos').value;
+      const div = document.getElementById("periodoSelecionadoServicos");
+      if (tipo === "dia") {
+        const campo = document.getElementById("inputDataServicos");
+        if (campo && campo.value) {
+          const [ano, mes, dia] = campo.value.split('-');
+          const dt = new Date(Number(ano), Number(mes)-1, Number(dia));
+          div.textContent = "Dia: " + dt.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
+        } else {
+          div.textContent = "";
+        }
+      } else if (tipo === "semana") {
+        const picker = $('#inputSemanaServicos').data('daterangepicker');
+        if (picker) {
+          div.textContent = `Semana: de ${picker.startDate.format('DD/MM/YYYY')} até ${picker.endDate.format('DD/MM/YYYY')}`;
+        } else {
+          div.textContent = "";
+        }
+      } else if (tipo === "mes") {
+        const campo = document.getElementById("inputMesServicos");
+        if (campo && campo.value) {
+          const [ano, mes] = campo.value.split('-');
+          const data = new Date(Number(ano), Number(mes)-1, 1);
+          let txt = data.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+          txt = txt.charAt(0).toUpperCase() + txt.slice(1);
+          div.textContent = "Mês: " + txt;
+        } else {
+          div.textContent = "";
+        }
+      } else {
+        div.textContent = "";
+      }
+    }
+
+    function filtrarSolicPorPeriodoServicos(lista) {
+      const tipo = document.getElementById('filtroPeriodoServicos').value;
+      if (tipo === "todos") return lista;
+      if (tipo === "dia") {
+        const campo = document.getElementById("inputDataServicos");
+        if (!campo || !campo.value) return lista;
+        const [anoFiltro, mesFiltro, diaFiltro] = campo.value.split('-').map(Number);
+        return lista.filter(s => {
+          if (!s.dataCriacao) return false;
+          const data = new Date(s.dataCriacao);
+          return (
+            data.getFullYear() === anoFiltro &&
+            (data.getMonth() + 1) === mesFiltro &&
+            data.getDate() === diaFiltro
+          );
+        });
+      }
+      if (tipo === "semana") {
+        const picker = $('#inputSemanaServicos').data('daterangepicker');
+        if (!picker) return lista;
+        const inicio = picker.startDate.startOf('day');
+        const fim = picker.endDate.endOf('day');
+        return lista.filter(s => {
+          if (!s.dataCriacao) return false;
+          const data = moment(s.dataCriacao);
+          return data.isBetween(inicio, fim, null, '[]');
+        });
+      }
+      if (tipo === "mes") {
+        const campo = document.getElementById("inputMesServicos");
+        if (!campo || !campo.value) return lista;
+        const [anoFiltro, mesFiltro] = campo.value.split('-').map(Number);
+        return lista.filter(s => {
+          if (!s.dataCriacao) return false;
+          const data = new Date(s.dataCriacao);
+          return (
+            data.getFullYear() === anoFiltro &&
+            (data.getMonth() + 1) === mesFiltro
+          );
+        });
+      }
+      return lista;
+    }
+
+    async function carregarGraficoServicos() {
+      document.getElementById('mensagemServicos').textContent = "";
+      mostrarPeriodoSelecionadoServicos();
+
+      try {
+        let snapshot;
+        if (
+          usuarioLogado.categoria === "Administrador" ||
+          usuarioLogado.categoria === "Proprietario"
+        ) {
+          snapshot = await db.collection("solicitacoes").get();
+        } else {
+          const meuDocId = nomeParaId(usuarioLogado.nome);
+          const doc = await db.collection("solicitacoes").doc(meuDocId).get();
+          snapshot = {
+            empty: !doc.exists || !Array.isArray(doc.data().lista) || doc.data().lista.length === 0,
+            forEach: function(cb) {
+              if (!this.empty) cb(doc);
+            }
+          };
+        }
+
+        if (snapshot.empty) {
+          document.getElementById('mensagemServicos').textContent = "Nenhum serviço encontrado.";
+          if (graficoServicos) graficoServicos.destroy();
+          return;
+        }
+
+        // Montar contagem e valores por serviço
+        const servicosQtd = {};
+        const servicosValor = {};
+
+        snapshot.forEach(doc => {
+          const lista = Array.isArray(doc.data().lista) ? doc.data().lista : [];
+          const listaFiltrada = filtrarSolicPorPeriodoServicos(lista);
+          listaFiltrada.forEach(s => {
+            if (Array.isArray(s.servicos)) {
+              s.servicos.forEach(sv => {
+                servicosQtd[sv.nome] = (servicosQtd[sv.nome] || 0) + 1;
+                servicosValor[sv.nome] = (servicosValor[sv.nome] || 0) + Number(sv.preco || 0);
+              });
+            }
+          });
+        });
+
+        const labels = Object.keys(servicosQtd);
+        const dataQtd = labels.map(nome => servicosQtd[nome]);
+        const dataValor = labels.map(nome => servicosValor[nome]);
+
+        if (graficoServicos) graficoServicos.destroy();
+
+        graficoServicos = new Chart(document.getElementById('graficoServicos').getContext('2d'), {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: "Quantidade",
+              data: dataQtd,
+              backgroundColor: 'rgba(0, 200, 83, 0.6)',
+              borderColor: 'rgba(0, 200, 83, 1)',
+              borderWidth: 2,
+              borderRadius: 6,
+              datalabels: { color: "#222", font: { weight: 'bold', size: 15 } }
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { labels: { color: '#00c853', font: { size: 15 } } },
+              title: { display: false },
+              datalabels: {
+                anchor: 'end',
+                align: 'start',
+                color: '#222',
+                font: { weight: 'bold', size: 15 },
+                formatter: function(value) { return value !== null ? value : ''; }
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    const idx = context.dataIndex;
+                    const nome = labels[idx];
+                    const qtd = dataQtd[idx];
+                    const valor = dataValor[idx] || 0;
+                    return [
+                      `Serviço: ${nome}`,
+                      `Quantidade: ${qtd}`,
+                      `Valor total: R$ ${valor.toFixed(2)}`
+                    ];
+                  }
+                }
+              }
+            },
+            scales: {
+              x: { 
+                ticks: { color: '#fff', font: { size: 14 } },
+                title: { display: true, text: "Serviço", color: "#00c853", font: { size: 15, weight: "bold" } }
+              },
+              y: {
+                beginAtZero: true,
+                ticks: { 
+                  color: '#fff', 
+                  font: { size: 14 }, 
+                  stepSize: 1,
+                  callback: function(value) { return value; }
+                },
+                title: { display: true, text: "Quantidade", color: "#00c853", font: { size: 15, weight: "bold" } }
+              }
+            }
+          },
+          plugins: [ChartDataLabels]
+        });
+      } catch (error) {
+        document.getElementById('mensagemServicos').textContent = "Erro ao carregar serviços: " + error.message;
+        if (graficoServicos) graficoServicos.destroy();
+      }
+    }
+
+    // Inicialização dos gráficos
     window.addEventListener("DOMContentLoaded", () => {
       if (
         usuarioLogado.categoria === "Administrador" ||
@@ -563,6 +884,8 @@
         mostrarCampoData();
         carregarDados();
       }
+      mostrarCampoPeriodoServicos();
+      carregarGraficoServicos();
     });
   </script>
 </body>
