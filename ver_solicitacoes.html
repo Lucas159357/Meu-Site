@@ -27,14 +27,71 @@
       box-shadow: 0 0 10px #111;
       max-width: 98vw;
     }
+    .voltar-btn {
+      background: #007acc;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 22px;
+      font-size: 1em;
+      margin-bottom: 18px;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 0;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .voltar-btn:hover {
+      background: #005fa3;
+    }
     h1 {
       color: #00c853;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
       font-size: 1.5em;
       letter-spacing: 1px;
+      font-weight: bold;
+    }
+    .filtro-linha {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 8px;
+      width: 100%;
+      max-width: 400px;
+    }
+    .filtro-data, .filtro-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .filtro-data label,
+    .filtro-status label {
+      color: #00c853;
+      font-weight: bold;
+      font-size: 1.07em;
+    }
+    .filtro-data select,
+    .filtro-status select {
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: none;
+      font-size: 1em;
+      background: #222;
+      color: #00c853;
+      outline: none;
+    }
+    #periodoSelecionado {
+      color: #00c853;
+      font-weight: bold;
+      margin-bottom: 8px;
+      font-size: 1em;
+      text-align: left;
+      width: 100%;
+      max-width: 400px;
     }
     .solicitacoes-lista {
-      margin-top: 20px;
+      margin-top: 12px;
       text-align: left;
     }
     .solicitacao-bloco {
@@ -45,11 +102,28 @@
       box-shadow: 0 2px 8px #1118;
       font-size: 1.1em;
     }
+    .solicitacao-bloco.admin-link {
+      cursor: pointer;
+      transition: background 0.18s;
+    }
+    .solicitacao-bloco.admin-link:hover {
+      background: #555;
+    }
     .solicitacao-barbeiro {
       color: #b2ff59;
       font-weight: bold;
       margin-bottom: 8px;
       font-size: 1.1em;
+    }
+    .solicitacao-resumo {
+      font-size:0.97em;
+      color:#b2ff59;
+      margin-top:4px;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+    .solicitacao-resumo div {
+      margin-bottom: 2px;
     }
     .solicitacao-item {
       border-top: 1px solid #444a;
@@ -114,21 +188,6 @@
       color: #aaa;
       font-size: 0.97em;
       margin-bottom: 2px;
-    }
-    .voltar-btn {
-      background: #007acc;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      padding: 10px 22px;
-      font-size: 1em;
-      margin-bottom: 25px;
-      cursor: pointer;
-      transition: background 0.2s;
-      margin-top: 0;
-    }
-    .voltar-btn:hover {
-      background: #005fa3;
     }
     /* Modal */
     .modal {
@@ -370,6 +429,8 @@
         right: 6px;
         top: 6px;
       }
+      .filtro-linha, .filtro-data, .filtro-status, #periodoSelecionado { max-width: 99vw; }
+      .filtro-linha { flex-direction: column; gap:4px;}
     }
   </style>
 </head>
@@ -379,6 +440,27 @@
       <i class="fa fa-arrow-left"></i> Voltar
     </button>
     <h1>Minhas Solicitações</h1>
+    <div class="filtro-linha">
+      <div class="filtro-data">
+        <label for="filtroData">Filtrar por:</label>
+        <select id="filtroData" onchange="carregarSolicitacoes()">
+          <option value="dia">Dia</option>
+          <option value="semana">Semana</option>
+          <option value="mes">Mês</option>
+          <option value="todos">Todos</option>
+        </select>
+      </div>
+      <div class="filtro-status">
+        <label for="filtroStatus">Status:</label>
+        <select id="filtroStatus" onchange="carregarSolicitacoes()">
+          <option value="todos">Todos</option>
+          <option value="pendente">Pendente</option>
+          <option value="concluido">Concluído</option>
+          <option value="cancelado">Cancelado</option>
+        </select>
+      </div>
+    </div>
+    <div id="periodoSelecionado"></div>
     <div class="solicitacoes-lista" id="solicitacoes-lista">
       <div style="color:#fff;text-align:center;">Carregando...</div>
     </div>
@@ -402,7 +484,6 @@
     </div>
   </div>
 
-  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script>
@@ -422,6 +503,7 @@
     let solicitacaoEditIdx = null;
     let servicosGlobais = [];
     let solicitacoesPorBarbeiro = {}; // só para admin/prop
+    let barbeiroAtual = null;
 
     function voltar() {
       window.history.back();
@@ -438,11 +520,58 @@
         .padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`;
     }
 
-    function nomeParaId(nome) {
-      return nome
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-zA-Z0-9]/g, "_");
+    function mostrarPeriodoSelecionado() {
+      const filtro = document.getElementById("filtroData")?.value || "dia";
+      const div = document.getElementById("periodoSelecionado");
+      const agora = new Date();
+      if (filtro === "dia") {
+        div.textContent = "Dia: " + agora.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
+      } else if (filtro === "semana") {
+        const primeiroDiaSemana = new Date(agora);
+        primeiroDiaSemana.setDate(agora.getDate() - agora.getDay());
+        const ultimoDiaSemana = new Date(primeiroDiaSemana);
+        ultimoDiaSemana.setDate(primeiroDiaSemana.getDate() + 6);
+        div.textContent = `Semana: de ${primeiroDiaSemana.toLocaleDateString('pt-BR')} até ${ultimoDiaSemana.toLocaleDateString('pt-BR')}`;
+      } else if (filtro === "mes") {
+        let mes = agora.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+        mes = mes.charAt(0).toUpperCase() + mes.slice(1);
+        div.textContent = "Mês: " + mes;
+      } else {
+        div.textContent = "";
+      }
+    }
+
+    function filtrarPorData(lista, modo) {
+      if (modo === "todos") return lista;
+      const agora = new Date();
+      return lista.filter(s => {
+        if (!s.dataCriacao) return false;
+        const data = new Date(s.dataCriacao);
+        if (modo === "dia") {
+          return data.getDate() === agora.getDate() &&
+                 data.getMonth() === agora.getMonth() &&
+                 data.getFullYear() === agora.getFullYear();
+        }
+        if (modo === "semana") {
+          const primeiroDiaSemana = new Date(agora);
+          primeiroDiaSemana.setDate(agora.getDate() - agora.getDay());
+          primeiroDiaSemana.setHours(0,0,0,0);
+          const ultimoDiaSemana = new Date(primeiroDiaSemana);
+          ultimoDiaSemana.setDate(primeiroDiaSemana.getDate() + 6);
+          ultimoDiaSemana.setHours(23,59,59,999);
+          return data >= primeiroDiaSemana && data <= ultimoDiaSemana;
+        }
+        if (modo === "mes") {
+          return data.getMonth() === agora.getMonth() &&
+                 data.getFullYear() === agora.getFullYear();
+        }
+        return true;
+      });
+    }
+
+    function filtrarPorStatus(lista, status) {
+      if (!status || status === "todos") return lista;
+      return lista.filter(s => (s.status || "pendente").toLowerCase() === status);
     }
 
     function carregarServicosGlobais(callback) {
@@ -459,43 +588,63 @@
         });
     }
 
+    function getBarbeiroFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("barbeiro");
+    }
+
     function carregarSolicitacoes() {
+      mostrarPeriodoSelecionado();
       const listaDiv = document.getElementById("solicitacoes-lista");
       listaDiv.innerHTML =
         '<div style="color:#fff;text-align:center;">Carregando...</div>';
 
       carregarServicosGlobais(() => {
+        const filtro = document.getElementById("filtroData")?.value || "dia";
+        const filtroStatus = document.getElementById("filtroStatus")?.value || "todos";
+        barbeiroAtual = getBarbeiroFromUrl() || nomeParaId(usuarioLogado.nome);
+
         // Proprietario/Admin: vê todas as solicitações de todos os barbeiros
         if (
           usuarioLogado.categoria === "Proprietario" ||
           usuarioLogado.categoria === "Administrador"
         ) {
           db.collection("solicitacoes")
+            .doc(barbeiroAtual)
             .get()
-            .then((snapshot) => {
-              solicitacoesPorBarbeiro = {};
-              snapshot.forEach((doc) => {
-                const barbeiro = doc.id;
-                const lista = Array.isArray(doc.data().lista)
-                  ? doc.data().lista
-                  : [];
-                if (lista.length) {
-                  solicitacoesPorBarbeiro[barbeiro] = lista;
-                }
-              });
-              let html = "";
-              const barbeiros = Object.keys(solicitacoesPorBarbeiro);
-              if (barbeiros.length === 0) {
-                html =
+            .then((doc) => {
+              if (
+                !doc.exists ||
+                !Array.isArray(doc.data().lista) ||
+                doc.data().lista.length === 0
+              ) {
+                listaDiv.innerHTML =
                   '<div style="color:#fff;text-align:center;">Nenhuma solicitação encontrada.</div>';
-              } else {
-                barbeiros.forEach((barbeiro) => {
-                  html += `<div class="solicitacao-bloco">
-                <div class="solicitacao-barbeiro"><i class="fa fa-user"></i> ${barbeiro}</div>
-                ${solicitacoesPorBarbeiro[barbeiro]
+                return;
+              }
+              listaSolicitacoes = doc.data().lista;
+              let listaFiltrada = filtrarPorData(listaSolicitacoes, filtro);
+              listaFiltrada = filtrarPorStatus(listaFiltrada, filtroStatus);
+
+              let totalGeral = 0, totalConcluido = 0, totalPendente = 0;
+              listaFiltrada.forEach(s => {
+                totalGeral += Number(s.valorTotal || 0);
+                if ((s.status || '').toLowerCase() === 'concluido') totalConcluido += Number(s.valorTotal || 0);
+                if ((s.status || '').toLowerCase() === 'pendente') totalPendente += Number(s.valorTotal || 0);
+              });
+
+              let html = `<div class="solicitacao-bloco">
+                <div class="solicitacao-barbeiro">${barbeiroAtual}
+                  <div class="solicitacao-resumo">
+                    <div>Valor Total: <b>R$ ${totalGeral.toFixed(2)}</b></div>
+                    <div>Concluído: <b style="color:#00c853;">R$ ${totalConcluido.toFixed(2)}</b></div>
+                    <div>Pendente: <b style="color:#ffeb3b;">R$ ${totalPendente.toFixed(2)}</b></div>
+                  </div>
+                </div>
+                ${listaFiltrada
                   .map(
                     (s, idx) => `
-                  <div class="solicitacao-item" onclick="abrirEditarSolicitacaoAdmin('${barbeiro}',${idx})">
+                  <div class="solicitacao-item" onclick="abrirEditarSolicitacao(${idx})">
                     <div class="solicitacao-data"><i class="fa fa-calendar"></i> ${formatarData(
                       s.dataCriacao
                     )}</div>
@@ -521,8 +670,7 @@
                     ).toLowerCase()}">
                       Status: ${
                         s.status
-                          ? s.status.charAt(0).toUpperCase() +
-                            s.status.slice(1)
+                          ? s.status.charAt(0).toUpperCase() + s.status.slice(1)
                           : "Pendente"
                       }
                     </div>
@@ -531,8 +679,6 @@
                   )
                   .join("")}
               </div>`;
-                });
-              }
               listaDiv.innerHTML = html;
             })
             .catch((error) => {
@@ -542,7 +688,7 @@
                 "</div>";
             });
         } else {
-          // Barbeiro: vê só as próprias solicitações
+          // Barbeiro: vê só as próprias solicitações (com filtro e resumo)
           const meuDocId = nomeParaId(usuarioLogado.nome);
           db.collection("solicitacoes")
             .doc(meuDocId)
@@ -558,48 +704,62 @@
                 return;
               }
               listaSolicitacoes = doc.data().lista;
+              let listaFiltrada = filtrarPorData(listaSolicitacoes, filtro);
+              listaFiltrada = filtrarPorStatus(listaFiltrada, filtroStatus);
+
+              let totalGeral = 0, totalConcluido = 0, totalPendente = 0;
+              listaFiltrada.forEach(s => {
+                totalGeral += Number(s.valorTotal || 0);
+                if ((s.status || '').toLowerCase() === 'concluido') totalConcluido += Number(s.valorTotal || 0);
+                if ((s.status || '').toLowerCase() === 'pendente') totalPendente += Number(s.valorTotal || 0);
+              });
+
               let html = `<div class="solicitacao-bloco">
-            <div class="solicitacao-barbeiro"><i class="fa fa-user"></i> ${
-              usuarioLogado.nome
-            }</div>
-            ${listaSolicitacoes
-              .map(
-                (s, idx) => `
-              <div class="solicitacao-item" onclick="abrirEditarSolicitacao(${idx})">
-                <div class="solicitacao-data"><i class="fa fa-calendar"></i> ${formatarData(
-                  s.dataCriacao
-                )}</div>
-                <div class="solicitacao-servicos">
-                  ${
-                    Array.isArray(s.servicos)
-                      ? s.servicos
-                          .map(
-                            (sv) =>
-                              `<div class="servico-linha">
-                                <span class="servico-icone"><i class="fa fa-scissors"></i></span>
-                                <span class="servico-nome">${sv.nome}</span>
-                                <span class="servico-preco">R$ ${sv.preco}</span>
-                              </div>`
-                          )
-                          .join("")
-                      : ""
-                  }
+                <div class="solicitacao-barbeiro"><i class="fa fa-user"></i> ${usuarioLogado.nome}
+                  <div class="solicitacao-resumo">
+                    <div>Valor Total: <b>R$ ${totalGeral.toFixed(2)}</b></div>
+                    <div>Concluído: <b style="color:#00c853;">R$ ${totalConcluido.toFixed(2)}</b></div>
+                    <div>Pendente: <b style="color:#ffeb3b;">R$ ${totalPendente.toFixed(2)}</b></div>
+                  </div>
                 </div>
-                <div class="solicitacao-total">Total: <b>R$ ${s.valorTotal}</b></div>
-                <div class="solicitacao-status solicitacao-${(
-                  s.status || "pendente"
-                ).toLowerCase()}">
-                  Status: ${
-                    s.status
-                      ? s.status.charAt(0).toUpperCase() + s.status.slice(1)
-                      : "Pendente"
-                  }
-                </div>
-              </div>
-            `
-              )
-              .join("")}
-          </div>`;
+                ${listaFiltrada
+                  .map(
+                    (s, idx) => `
+                  <div class="solicitacao-item" onclick="abrirEditarSolicitacao(${idx})">
+                    <div class="solicitacao-data"><i class="fa fa-calendar"></i> ${formatarData(
+                      s.dataCriacao
+                    )}</div>
+                    <div class="solicitacao-servicos">
+                      ${
+                        Array.isArray(s.servicos)
+                          ? s.servicos
+                              .map(
+                                (sv) =>
+                                  `<div class="servico-linha">
+                                    <span class="servico-icone"><i class="fa fa-scissors"></i></span>
+                                    <span class="servico-nome">${sv.nome}</span>
+                                    <span class="servico-preco">R$ ${sv.preco}</span>
+                                  </div>`
+                              )
+                              .join("")
+                          : ""
+                      }
+                    </div>
+                    <div class="solicitacao-total">Total: <b>R$ ${s.valorTotal}</b></div>
+                    <div class="solicitacao-status solicitacao-${(
+                      s.status || "pendente"
+                    ).toLowerCase()}">
+                      Status: ${
+                        s.status
+                          ? s.status.charAt(0).toUpperCase() + s.status.slice(1)
+                          : "Pendente"
+                      }
+                    </div>
+                  </div>
+                `
+                  )
+                  .join("")}
+              </div>`;
               listaDiv.innerHTML = html;
             })
             .catch((error) => {
@@ -612,94 +772,67 @@
       });
     }
 
-    // Modal para Proprietario/Admin (pode editar status)
-    function abrirEditarSolicitacaoAdmin(barbeiro, idx) {
-      const lista = solicitacoesPorBarbeiro[barbeiro];
-      const s = lista[idx];
-      window._adminSolicitacao = { barbeiro, idx }; // Para salvar depois
-      document.getElementById("modalSolicitacaoTitulo").textContent =
-        "Editar Solicitação";
-      document.getElementById("statusSolicitacaoArea").innerHTML = `
-      <select id="statusSolicitacaoSelect" class="modal-status-select">
-        <option value="pendente" ${
-          s.status === "pendente" ? "selected" : ""
-        }>Pendente</option>
-        <option value="concluido" ${
-          s.status === "concluido" ? "selected" : ""
-        }>Concluído</option>
-        <option value="cancelado" ${
-          s.status === "cancelado" ? "selected" : ""
-        }>Cancelado</option>
-      </select>
-    `;
-      document.getElementById("modalSolicitacaoMsg").textContent = "";
-      renderServicosEdit(s.servicos || []);
-      renderSelectAdicionarServico(s.servicos || []);
-      // Sempre habilita para admin/prop
-      document.getElementById("selectAdicionarServico").disabled = false;
-      document.querySelector(".add-servico-btn").style.display = "block";
-      document.querySelector(".salvar-btn").style.display = "block";
-      setTimeout(() => {
-        document.querySelectorAll(".remover-servico-btn").forEach(btn => {
-          btn.style.display = "block";
-        });
-      }, 50);
-      document.getElementById("modalSolicitacao").style.display = "flex";
-    }
-
-    // Modal para Barbeiro (status só visualização, bloqueio se concluído)
+    // Modal de edição (admin/prop sempre pode, barbeiro só se não for concluído)
     function abrirEditarSolicitacao(idx) {
-      solicitacaoEditIdx = idx;
       const s = listaSolicitacoes[idx];
-      document.getElementById("modalSolicitacaoTitulo").textContent = "Editar Solicitação";
-      document.getElementById("statusSolicitacaoArea").innerHTML =
-        `<div class="modal-status-value">${s.status ? s.status.charAt(0).toUpperCase() + s.status.slice(1) : "Pendente"}</div>`;
-      document.getElementById("modalSolicitacaoMsg").textContent = "";
-      renderServicosEdit(s.servicos || []);
-
-      renderSelectAdicionarServico(s.servicos || []);
-
-      // Verifica se status é concluído
+      // Permite editar se for admin/prop OU barbeiro e status não concluído
+      const isAdmin = usuarioLogado.categoria === "Administrador" || usuarioLogado.categoria === "Proprietario";
+      const isBarbeiro = usuarioLogado.categoria === "Barbeiro";
       const isConcluido = (s.status || '').toLowerCase() === 'concluido';
 
-      // Desabilita/oculta botões e selects se for concluído
-      document.getElementById("selectAdicionarServico").disabled = isConcluido;
-      document.querySelector(".add-servico-btn").style.display = isConcluido ? "none" : "block";
-      document.querySelector(".salvar-btn").style.display = isConcluido ? "none" : "block";
-
-      // Esconde botões de remover serviço se for concluído
-      setTimeout(() => {
-        document.querySelectorAll(".remover-servico-btn").forEach(btn => {
-          btn.style.display = isConcluido ? "none" : "block";
-        });
-      }, 50);
-
-      document.getElementById("modalSolicitacao").style.display = "flex";
+      if (isAdmin || (isBarbeiro && !isConcluido)) {
+        solicitacaoEditIdx = idx;
+        document.getElementById("modalSolicitacaoTitulo").textContent =
+          "Editar Solicitação";
+        document.getElementById("statusSolicitacaoArea").innerHTML = `
+          <select id="statusSolicitacaoSelect" class="modal-status-select" ${isBarbeiro ? 'disabled' : ''}>
+            <option value="pendente" ${
+              s.status === "pendente" ? "selected" : ""
+            }>Pendente</option>
+            <option value="concluido" ${
+              s.status === "concluido" ? "selected" : ""
+            }>Concluído</option>
+            <option value="cancelado" ${
+              s.status === "cancelado" ? "selected" : ""
+            }>Cancelado</option>
+          </select>
+        `;
+        document.getElementById("modalSolicitacaoMsg").textContent = "";
+        renderServicosEdit(s.servicos || [], isBarbeiro && !isAdmin);
+        renderSelectAdicionarServico(s.servicos || [], isBarbeiro && !isAdmin);
+        // Botões só aparecem se pode editar
+        document.getElementById("selectAdicionarServico").disabled = isBarbeiro && !isAdmin ? false : false;
+        document.querySelector(".add-servico-btn").style.display = (isAdmin || (isBarbeiro && !isConcluido)) ? "block" : "none";
+        document.querySelector(".salvar-btn").style.display = (isAdmin || (isBarbeiro && !isConcluido)) ? "block" : "none";
+        setTimeout(() => {
+          document.querySelectorAll(".remover-servico-btn").forEach(btn => {
+            btn.style.display = (isAdmin || (isBarbeiro && !isConcluido)) ? "block" : "none";
+          });
+        }, 50);
+        document.getElementById("modalSolicitacao").style.display = "flex";
+      }
     }
 
     function fecharModalSolicitacao() {
       document.getElementById("modalSolicitacao").style.display = "none";
     }
 
-    function renderServicosEdit(servicos) {
+    function renderServicosEdit(servicos, isBarbeiro) {
       const div = document.getElementById("servicosEdit");
       let html = "";
-      // Para saber se é Barbeiro e concluído
-      const s = solicitacaoEditIdx !== null ? listaSolicitacoes[solicitacaoEditIdx] : null;
-      const isConcluido = s && (s.status || '').toLowerCase() === 'concluido' && usuarioLogado.categoria === 'Barbeiro';
       servicos.forEach((sv, idx) => {
         html += `
           <div class="servico-edit-item" data-idx="${idx}">
             <div class="servico-edit-nome">${sv.nome}</div>
             <div class="servico-edit-preco">R$ ${sv.preco}</div>
-            <button type="button" class="remover-servico-btn" style="display:${isConcluido ? 'none' : 'block'}" onclick="removerServicoEdit(${idx});event.stopPropagation();">Remover</button>
+            <button type="button" class="remover-servico-btn" onclick="removerServicoEdit(${idx});event.stopPropagation();">Remover</button>
           </div>
         `;
       });
       div.innerHTML = html;
     }
 
-    function renderSelectAdicionarServico(servicosAtuais) {
+    function renderSelectAdicionarServico(servicosAtuais, isBarbeiro) {
       const select = document.getElementById("selectAdicionarServico");
       select.innerHTML = "";
       const nomesAtuais = servicosAtuais.map((sv) => sv.nome);
@@ -714,30 +847,8 @@
     }
 
     function adicionarServicoEdit() {
-      // Proprietario/Admin
-      if (
-        usuarioLogado.categoria === "Proprietario" ||
-        usuarioLogado.categoria === "Administrador"
-      ) {
-        const { barbeiro, idx } = window._adminSolicitacao || {};
-        if (!barbeiro) return;
-        const lista = solicitacoesPorBarbeiro[barbeiro];
-        const s = lista[idx];
-        const select = document.getElementById("selectAdicionarServico");
-        const nomeServico = select.value;
-        if (!nomeServico) return;
-        const sv = servicosGlobais.find((sv) => sv.nome === nomeServico);
-        if (!sv) return;
-        if (!Array.isArray(s.servicos)) s.servicos = [];
-        s.servicos.push({ nome: sv.nome, preco: sv.preco });
-        renderServicosEdit(s.servicos);
-        renderSelectAdicionarServico(s.servicos);
-        return;
-      }
-      // Barbeiro
       if (solicitacaoEditIdx === null) return;
       const s = listaSolicitacoes[solicitacaoEditIdx];
-      if ((s.status || '').toLowerCase() === 'concluido') return; // bloqueia
       const select = document.getElementById("selectAdicionarServico");
       const nomeServico = select.value;
       if (!nomeServico) return;
@@ -750,25 +861,8 @@
     }
 
     function removerServicoEdit(idx) {
-      // Proprietario/Admin
-      if (
-        usuarioLogado.categoria === "Proprietario" ||
-        usuarioLogado.categoria === "Administrador"
-      ) {
-        const { barbeiro, idx: idxSel } = window._adminSolicitacao || {};
-        if (!barbeiro) return;
-        const lista = solicitacoesPorBarbeiro[barbeiro];
-        const s = lista[idxSel];
-        if (!Array.isArray(s.servicos)) s.servicos = [];
-        s.servicos.splice(idx, 1);
-        renderServicosEdit(s.servicos);
-        renderSelectAdicionarServico(s.servicos);
-        return;
-      }
-      // Barbeiro
       if (solicitacaoEditIdx === null) return;
       const s = listaSolicitacoes[solicitacaoEditIdx];
-      if ((s.status || '').toLowerCase() === 'concluido') return; // bloqueia
       if (!Array.isArray(s.servicos)) s.servicos = [];
       s.servicos.splice(idx, 1);
       renderServicosEdit(s.servicos);
@@ -776,69 +870,34 @@
     }
 
     function salvarSolicitacaoEditada() {
-      // Proprietario/Admin
-      if (
-        usuarioLogado.categoria === "Proprietario" ||
-        usuarioLogado.categoria === "Administrador"
-      ) {
-        const { barbeiro, idx } = window._adminSolicitacao || {};
-        if (!barbeiro) return;
-        const lista = solicitacoesPorBarbeiro[barbeiro];
-        const s = lista[idx];
-        // Atualiza status
-        const novoStatus = document.getElementById(
-          "statusSolicitacaoSelect"
-        ).value;
-        s.status = novoStatus;
-        // Valor total recalculado
-        s.valorTotal = Array.isArray(s.servicos)
-          ? s.servicos.reduce((acc, sv) => acc + sv.preco, 0)
-          : 0;
-        db.collection("solicitacoes")
-          .doc(barbeiro)
-          .set({ lista: lista })
-          .then(() => {
-            document.getElementById("modalSolicitacaoMsg").textContent =
-              "Solicitação atualizada!";
-            document.getElementById("modalSolicitacaoMsg").style.color =
-              "#b2ff59";
-            setTimeout(() => {
-              fecharModalSolicitacao();
-              carregarSolicitacoes();
-            }, 800);
-          })
-          .catch((error) => {
-            document.getElementById("modalSolicitacaoMsg").textContent =
-              "Erro ao salvar: " + error.message;
-            document.getElementById("modalSolicitacaoMsg").style.color =
-              "#ff5252";
-          });
-        return;
-      }
-      // Barbeiro
       if (solicitacaoEditIdx === null) return;
       const s = listaSolicitacoes[solicitacaoEditIdx];
-      if ((s.status || '').toLowerCase() === 'concluido') return; // bloqueia
-      const msg = document.getElementById("modalSolicitacaoMsg");
+      // Atualiza status (admin/prop pode, barbeiro não)
+      if (usuarioLogado.categoria === "Administrador" || usuarioLogado.categoria === "Proprietario") {
+        s.status = document.getElementById("statusSolicitacaoSelect").value;
+      }
       // Valor total recalculado
       s.valorTotal = Array.isArray(s.servicos)
         ? s.servicos.reduce((acc, sv) => acc + sv.preco, 0)
         : 0;
-      const meuDocId = nomeParaId(usuarioLogado.nome);
       db.collection("solicitacoes")
-        .doc(meuDocId)
+        .doc(barbeiroAtual)
         .set({ lista: listaSolicitacoes })
         .then(() => {
-          msg.textContent = "Solicitação atualizada!";
-          msg.style.color = "#b2ff59";
+          document.getElementById("modalSolicitacaoMsg").textContent =
+            "Solicitação atualizada!";
+          document.getElementById("modalSolicitacaoMsg").style.color =
+            "#b2ff59";
           setTimeout(() => {
             fecharModalSolicitacao();
             carregarSolicitacoes();
           }, 800);
         })
         .catch((error) => {
-          msg.textContent = "Erro ao salvar: " + error.message;
-          msg.style.color = "#ff5252";
+          document.getElementById("modalSolicitacaoMsg").textContent =
+            "Erro ao salvar: " + error.message;
+          document.getElementById("modalSolicitacaoMsg").style.color =
+            "#ff5252";
         });
     }
 
