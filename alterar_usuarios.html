@@ -220,12 +220,7 @@
       <label for="usuarioSenha">Senha</label>
       <input type="text" id="usuarioSenha" placeholder="Senha" autocomplete="off"/>
       <label for="usuarioCategoria">Categoria</label>
-      <select id="usuarioCategoria">
-        <option value="">Selecione...</option>
-        <option value="Proprietario">Proprietário</option>
-        <option value="Administrador">Administrador</option>
-        <option value="Barbeiro">Barbeiro</option>
-      </select>
+      <select id="usuarioCategoria"></select>
       <button id="btnSalvarUsuario" onclick="salvarUsuario()">Salvar</button>
       <button id="btnExcluirUsuario" class="btn-excluir" style="display:none;" onclick="excluirUsuario()">Excluir</button>
       <div class="modal-msg" id="modalUsuarioMsg"></div>
@@ -245,6 +240,9 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+
+    // Usuário logado (para saber a categoria)
+    const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado") || "{}");
 
     let usuarios = [];
     let usuarioEditIdx = null;
@@ -292,7 +290,7 @@
       document.getElementById('usuarioEmail').value = u.email || "";
       document.getElementById('usuarioNome').value = u.nome || "";
       document.getElementById('usuarioSenha').value = u.senha || "";
-      document.getElementById('usuarioCategoria').value = u.categoria || "";
+      renderCategoriaSelect(u.categoria || "");
       document.getElementById('modalUsuarioMsg').textContent = "";
       document.getElementById('modalUsuario').style.display = "flex";
       document.getElementById('btnSalvarUsuario').textContent = "Salvar";
@@ -305,11 +303,38 @@
       document.getElementById('usuarioEmail').value = "";
       document.getElementById('usuarioNome').value = "";
       document.getElementById('usuarioSenha').value = "";
-      document.getElementById('usuarioCategoria').value = "";
+      renderCategoriaSelect("");
       document.getElementById('modalUsuarioMsg').textContent = "";
       document.getElementById('modalUsuario').style.display = "flex";
       document.getElementById('btnSalvarUsuario').textContent = "Adicionar";
       document.getElementById('btnExcluirUsuario').style.display = "none";
+    }
+
+    function renderCategoriaSelect(valorAtual) {
+      // Proprietário pode tudo, Administrador só pode Barbeiro
+      const select = document.getElementById('usuarioCategoria');
+      select.innerHTML = "";
+      if (usuarioLogado.categoria === "Administrador") {
+        // Só pode criar/editar Barbeiro
+        select.innerHTML = `<option value="Barbeiro">Barbeiro</option>`;
+        select.value = "Barbeiro";
+        select.disabled = false;
+      } else {
+        // Proprietário pode tudo
+        select.disabled = false;
+        select.innerHTML = `
+          <option value="">Selecione...</option>
+          <option value="Proprietario">Proprietário</option>
+          <option value="Administrador">Administrador</option>
+          <option value="Barbeiro">Barbeiro</option>
+        `;
+        select.value = valorAtual;
+      }
+      // Se for Administrador e estiver editando um usuário que não é Barbeiro, não pode alterar categoria
+      if (usuarioLogado.categoria === "Administrador" && valorAtual && valorAtual !== "Barbeiro") {
+        select.value = valorAtual;
+        select.disabled = true;
+      }
     }
 
     function fecharModalUsuario() {
@@ -329,6 +354,13 @@
         return;
       }
 
+      // Administrador só pode criar/editar Barbeiro
+      if (usuarioLogado.categoria === "Administrador" && categoria !== "Barbeiro") {
+        msg.textContent = "Administrador só pode criar/editar usuários do tipo Barbeiro!";
+        msg.style.color = "#ff5252";
+        return;
+      }
+
       // Checa se está editando ou criando novo
       if (usuarioEditIdx !== null) {
         usuarios[usuarioEditIdx] = { email, nome, senha, categoria };
@@ -336,7 +368,6 @@
         usuarios.push({ email, nome, senha, categoria });
       }
 
-      // Atualiza o array no Firestore
       db.collection('usuarios').doc('usuarios').set({ lista: usuarios })
         .then(() => {
           msg.textContent = "Usuário salvo com sucesso!";
@@ -375,7 +406,6 @@
     }
 
     window.onload = carregarUsuarios;
-    // Fecha modal ao apertar ESC
     window.addEventListener('keydown', function(e){
       if(e.key === "Escape") fecharModalUsuario();
     });
