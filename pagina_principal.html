@@ -4,10 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Página Principal - Barbearia Pedro Rodrigues</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -382,6 +379,14 @@
                 option.textContent = b.nome;
                 select.appendChild(option);
               });
+
+              // Se for Barbeiro, trava o select no próprio nome
+              if (usuarioLogado.categoria === "Barbeiro") {
+                select.value = usuarioLogado.nome;
+                select.disabled = true;
+              } else {
+                select.disabled = false;
+              }
             }
           });
       }
@@ -439,10 +444,20 @@
         }
       }
 
+      // Função para gerar o ID do documento de solicitações
+      function barbeiroNomeParaId(nome) {
+        return nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
+      }
+
       function enviar() {
         const mensagem = document.getElementById("mensagem");
         const selectBarbeiro = document.getElementById("selectBarbeiro");
-        const barbeiro = selectBarbeiro.value;
+        let barbeiro = selectBarbeiro.value;
+
+        // Se for Barbeiro, força o nome do próprio usuário
+        if (usuarioLogado.categoria === "Barbeiro") {
+          barbeiro = usuarioLogado.nome;
+        }
 
         if (!barbeiro) {
           mensagem.textContent = "Selecione o barbeiro!";
@@ -455,13 +470,12 @@
           return;
         }
 
-        // Pega o email do usuário logado do localStorage
         const emailUsuario = usuarioLogado.email;
-
-        const selecionados = servicosSelecionados.map(
-          (idx) => servicosFirestore[idx]
-        );
+        const selecionados = servicosSelecionados.map((idx) => servicosFirestore[idx]);
         const valorTotal = selecionados.reduce((acc, s) => acc + s.preco, 0);
+
+        // Para salvar data local, pois serverTimestamp não funciona em arrayUnion
+        const dataCriacao = new Date().toISOString();
 
         const solicitacao = {
           email: emailUsuario,
@@ -469,22 +483,38 @@
           servicos: selecionados.map((s) => ({ nome: s.nome, preco: s.preco })),
           valorTotal: valorTotal,
           status: "pendente",
-          dataCriacao: firebase.firestore.FieldValue.serverTimestamp(),
+          dataCriacao: dataCriacao,
         };
 
+        // Salva no documento correto (solicitacoes/{id_do_barbeiro})
+        const docId = barbeiroNomeParaId(barbeiro);
+
         db.collection("solicitacoes")
-          .add(solicitacao)
-          .then(() => {
-            mensagem.textContent = "Solicitação enviada com sucesso!";
-            mensagem.style.color = "#b2ff59";
-            servicosSelecionados = [];
-            carregarServicos();
-            selectBarbeiro.selectedIndex = 0;
-          })
-          .catch((error) => {
-            mensagem.textContent =
-              "Erro ao enviar solicitação: " + error.message;
-            mensagem.style.color = "#ff5252";
+          .doc(docId)
+          .get()
+          .then((doc) => {
+            let lista = [];
+            if (doc.exists && Array.isArray(doc.data().lista)) {
+              lista = doc.data().lista;
+            }
+            lista.push(solicitacao);
+            db.collection("solicitacoes")
+              .doc(docId)
+              .set({ lista })
+              .then(() => {
+                mensagem.textContent = "Solicitação enviada com sucesso!";
+                mensagem.style.color = "#b2ff59";
+                servicosSelecionados = [];
+                carregarServicos();
+                if (usuarioLogado.categoria !== "Barbeiro") {
+                  selectBarbeiro.selectedIndex = 0;
+                }
+              })
+              .catch((error) => {
+                mensagem.textContent =
+                  "Erro ao enviar solicitação: " + error.message;
+                mensagem.style.color = "#ff5252";
+              });
           });
       }
 
