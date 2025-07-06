@@ -114,16 +114,13 @@
         <option value="todos">Todas</option>
       </select>
     </div>
-    <div style="position:relative;">
-      <canvas id="graficoDesempenho" height="220"></canvas>
-      <div id="barbeiroLabels" style="position:absolute;left:0;right:0;bottom:0;pointer-events:none;"></div>
-    </div>
+    <canvas id="graficoDesempenho" height="220"></canvas>
     <div id="mensagem"></div>
   </div>
   <script>
     // Configuração Firebase (use a sua)
     const firebaseConfig = {
-      apiKey: "AIzaSyAY-Win6vQEHP1XR_fG3NOg0PAkNPAcxSg",
+      apiKey: "AIzaSyAY-Wn6vQEHP1XR_fG3NOg0PAkNPAcxSg",
       authDomain: "banco-de-dados-bd2a6.firebaseapp.com",
       projectId: "banco-de-dados-bd2a6",
       appId: "1:859895156791:web",
@@ -159,7 +156,6 @@
         if (snapshot.empty) {
           document.getElementById('mensagem').textContent = "Nenhuma solicitação encontrada.";
           if (grafico) grafico.destroy();
-          document.getElementById("barbeiroLabels").innerHTML = "";
           return;
         }
 
@@ -179,10 +175,18 @@
             else if (status === 'pendente') qtdPendente++;
             else if (status === 'cancelado') qtdCancelado++;
           });
-          labels.push(barbeiro);
-          dadosConcluido.push(qtdConcluido > 0 ? qtdConcluido : null);
-          dadosPendente.push(qtdPendente > 0 ? qtdPendente : null);
-          dadosCancelado.push(qtdCancelado > 0 ? qtdCancelado : null);
+          // Só mostra barbeiro se tiver pelo menos um registro do status filtrado
+          if (
+            (filtroStatus === "concluido" && qtdConcluido > 0) ||
+            (filtroStatus === "pendente" && qtdPendente > 0) ||
+            (filtroStatus === "cancelado" && qtdCancelado > 0) ||
+            (filtroStatus === "todos" && (qtdConcluido > 0 || qtdPendente > 0 || qtdCancelado > 0))
+          ) {
+            labels.push(barbeiro);
+            dadosConcluido.push(qtdConcluido > 0 ? qtdConcluido : null);
+            dadosPendente.push(qtdPendente > 0 ? qtdPendente : null);
+            dadosCancelado.push(qtdCancelado > 0 ? qtdCancelado : null);
+          }
         });
 
         if (grafico) grafico.destroy();
@@ -259,7 +263,7 @@
             },
             scales: {
               x: { 
-                ticks: { color: 'transparent', font: { size: 14 } }, // Esconde os labels padrão
+                ticks: { color: '#fff', font: { size: 14 } },
                 title: { display: true, text: "Barbeiro", color: "#00c853", font: { size: 15, weight: "bold" } }
               },
               y: {
@@ -276,26 +280,9 @@
           },
           plugins: [ChartDataLabels]
         });
-
-        // Exibe nomes dos barbeiros centralizados embaixo dos grupos
-        setTimeout(() => {
-          const chartArea = grafico.chartArea;
-          const meta = grafico.getDatasetMeta(0);
-          let html = '<div style="display:flex;justify-content:space-between;width:100%;position:absolute;left:0;right:0;bottom:-15px;">';
-          meta.data.forEach((bar, i) => {
-            if (!bar) return;
-            // Largura do grupo
-            const x = bar.x;
-            html += `<span style="min-width:60px;text-align:center;color:#00c853;font-weight:bold;display:inline-block;">${labels[i]}</span>`;
-          });
-          html += '</div>';
-          document.getElementById("barbeiroLabels").innerHTML = html;
-        }, 300);
-
       } catch (error) {
         document.getElementById('mensagem').textContent = "Erro ao carregar dados: " + error.message;
         if (grafico) grafico.destroy();
-        document.getElementById("barbeiroLabels").innerHTML = "";
       }
     }
 
