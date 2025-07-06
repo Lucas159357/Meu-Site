@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Estatísticas - Barbearia Pedro Rodrigues</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <!-- Date Range Picker CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
   <style>
     body {
       background: #222;
@@ -79,7 +81,7 @@
       font-weight: bold;
       font-size: 1.07em;
     }
-    .filtro-linha select, .filtro-linha input[type="date"], .filtro-linha input[type="month"] {
+    .filtro-linha select, .filtro-linha input[type="text"], .filtro-linha input[type="month"] {
       padding: 6px 10px;
       border-radius: 6px;
       border: none;
@@ -111,8 +113,32 @@
       .filtros { gap: 7px; }
       .filtro-linha { flex-direction: column; align-items: flex-start; gap: 4px;}
     }
+    .daterangepicker {
+      color: #222;
+    }
+    .daterangepicker .calendar-table {
+      background: #fff;
+      color: #222;
+    }
+    .daterangepicker td.active, .daterangepicker td.active:hover {
+      background-color: #00c853 !important;
+      color: #fff !important;
+    }
+    .daterangepicker .drp-buttons .btn {
+      background: #007acc;
+      color: #fff;
+      border-radius: 5px;
+      border: none;
+      padding: 4px 12px;
+      font-size: 1em;
+      margin: 0 2px;
+    }
   </style>
-  <!-- Chart.js CDN -->
+  <!-- jQuery, moment.js, daterangepicker.js -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Chart.js datalabels plugin -->
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
@@ -204,27 +230,56 @@
       if (filtro === "dia") {
         campo.innerHTML = `<input type="date" id="inputData" value="${new Date().toISOString().slice(0,10)}" onchange="carregarDados()">`;
       } else if (filtro === "semana") {
-        campo.innerHTML = `<input type="date" id="inputDataSemana" value="${new Date().toISOString().slice(0,10)}" onchange="carregarDados()">`;
+        campo.innerHTML = `<input type="text" id="inputDataSemana" style="width: 170px;" readonly />`;
+        setTimeout(() => {
+          inicializarRangePickerSemana();
+        }, 50);
       } else if (filtro === "mes") {
         const hoje = new Date();
         campo.innerHTML = `<input type="month" id="inputData" value="${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}" onchange="carregarDados()">`;
       }
     }
 
+    function inicializarRangePickerSemana() {
+      const hoje = new Date();
+      const domingo = new Date(hoje);
+      domingo.setDate(hoje.getDate() - hoje.getDay());
+      const sabado = new Date(domingo);
+      sabado.setDate(domingo.getDate() + 6);
+
+      $('#inputDataSemana').daterangepicker({
+        locale: {
+          format: 'DD/MM/YYYY',
+          applyLabel: "Aplicar",
+          cancelLabel: "Cancelar",
+          fromLabel: "De",
+          toLabel: "Até",
+          daysOfWeek: ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"],
+          monthNames: ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"],
+          firstDay: 0
+        },
+        startDate: moment(domingo),
+        endDate: moment(sabado),
+        opens: "center",
+        autoUpdateInput: true
+      }, function(start, end) {
+        carregarDados();
+      });
+
+      $('#inputDataSemana').on('apply.daterangepicker', function(ev, picker) {
+        carregarDados();
+      });
+    }
+
     function mostrarPeriodoSelecionado() {
       const filtro = document.getElementById("filtroData")?.value || "dia";
       const div = document.getElementById("periodoSelecionado");
       if (filtro === "semana") {
-        const campo = document.getElementById("inputDataSemana");
-        if (campo && campo.value) {
-          const dataSelecionada = new Date(campo.value + "T00:00:00");
-          // Domingo (início da semana)
-          const inicio = new Date(dataSelecionada);
-          inicio.setDate(dataSelecionada.getDate() - dataSelecionada.getDay());
-          // Sábado (fim da semana)
-          const fim = new Date(inicio);
-          fim.setDate(inicio.getDate() + 6);
-          div.textContent = `Semana: de ${inicio.toLocaleDateString('pt-BR')} até ${fim.toLocaleDateString('pt-BR')}`;
+        const picker = $('#inputDataSemana').data('daterangepicker');
+        if (picker) {
+          const inicio = picker.startDate;
+          const fim = picker.endDate;
+          div.textContent = `Semana: de ${inicio.format('DD/MM/YYYY')} até ${fim.format('DD/MM/YYYY')}`;
         } else {
           div.textContent = "";
         }
@@ -256,21 +311,14 @@
     function filtrarPorData(lista, modo) {
       if (modo === "todos") return lista;
       if (modo === "semana") {
-        const campo = document.getElementById("inputDataSemana");
-        if (!campo || !campo.value) return lista;
-        const dataSelecionada = new Date(campo.value + "T00:00:00");
-        // Domingo (início da semana)
-        const inicio = new Date(dataSelecionada);
-        inicio.setDate(dataSelecionada.getDate() - dataSelecionada.getDay());
-        // Sábado (fim da semana)
-        const fim = new Date(inicio);
-        fim.setDate(inicio.getDate() + 6);
-        // Considera todo o dia final
-        fim.setHours(23,59,59,999);
+        const picker = $('#inputDataSemana').data('daterangepicker');
+        if (!picker) return lista;
+        const inicio = picker.startDate.startOf('day');
+        const fim = picker.endDate.endOf('day');
         return lista.filter(s => {
           if (!s.dataCriacao) return false;
-          const data = new Date(s.dataCriacao);
-          return data >= inicio && data <= fim;
+          const data = moment(s.dataCriacao);
+          return data.isBetween(inicio, fim, null, '[]');
         });
       }
       const campo = document.getElementById("inputData");
