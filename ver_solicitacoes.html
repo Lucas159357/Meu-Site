@@ -690,17 +690,18 @@
                     <div>Pendente: <b style="color:#ffeb3b;">R$ ${totalPendente.toFixed(2)}</b></div>
                   </div>
                 </div>
-                ${listaFiltrada
-                  .map(
-                    (s, idx) => `
-                  <div class="solicitacao-item" onclick="abrirEditarSolicitacao(${idx})">
+                ${
+                  listaFiltrada.map((sFiltrada) => {
+                    const idxReal = listaSolicitacoes.findIndex(s => s.dataCriacao === sFiltrada.dataCriacao);
+                    return `
+                  <div class="solicitacao-item" onclick="abrirEditarSolicitacao(${idxReal})">
                     <div class="solicitacao-data"><i class="fa fa-calendar"></i> ${formatarData(
-                      s.dataCriacao
+                      sFiltrada.dataCriacao
                     )}</div>
                     <div class="solicitacao-servicos">
                       ${
-                        Array.isArray(s.servicos)
-                          ? s.servicos
+                        Array.isArray(sFiltrada.servicos)
+                          ? sFiltrada.servicos
                               .map(
                                 (sv) =>
                                   `<div class="servico-linha">
@@ -713,20 +714,20 @@
                           : ""
                       }
                     </div>
-                    <div class="solicitacao-total">Total: <b>R$ ${s.valorTotal}</b></div>
+                    <div class="solicitacao-total">Total: <b>R$ ${sFiltrada.valorTotal}</b></div>
                     <div class="solicitacao-status solicitacao-${(
-                      s.status || "pendente"
+                      sFiltrada.status || "pendente"
                     ).toLowerCase()}">
                       Status: ${
-                        s.status
-                          ? s.status.charAt(0).toUpperCase() + s.status.slice(1)
+                        sFiltrada.status
+                          ? sFiltrada.status.charAt(0).toUpperCase() + sFiltrada.status.slice(1)
                           : "Pendente"
                       }
                     </div>
                   </div>
-                `
-                  )
-                  .join("")}
+                `;
+                  }).join("")
+                }
               </div>`;
               listaDiv.innerHTML = html;
             })
