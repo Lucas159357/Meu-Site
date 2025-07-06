@@ -59,19 +59,26 @@
     .voltar-btn:hover {
       background: #005fa3;
     }
-    .filtro-status {
+    .filtros {
       margin-bottom: 18px;
       display: flex;
+      flex-direction: column;
+      gap: 12px;
       align-items: center;
       justify-content: center;
-      gap: 10px;
     }
-    .filtro-status label {
+    .filtro-linha {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 0;
+    }
+    .filtro-linha label {
       color: #00c853;
       font-weight: bold;
       font-size: 1.07em;
     }
-    .filtro-status select {
+    .filtro-linha select {
       padding: 6px 10px;
       border-radius: 6px;
       border: none;
@@ -79,6 +86,15 @@
       background: #222;
       color: #00c853;
       outline: none;
+    }
+    #periodoSelecionado {
+      color: #00c853;
+      font-weight: bold;
+      margin-bottom: 4px;
+      font-size: 1em;
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
     }
     #mensagem {
       color: #ff5252;
@@ -89,6 +105,7 @@
     @media (max-width: 500px) {
       .container { width: 99vw; padding: 12px 2vw; }
       #graficoDesempenho { padding: 2px; }
+      .filtros { gap: 7px; }
     }
   </style>
   <!-- Chart.js CDN -->
@@ -105,28 +122,56 @@
       <i class="fa fa-arrow-left"></i> Voltar
     </button>
     <h1>Solicitações por Barbeiro</h1>
-    <div class="filtro-status">
-      <label for="filtroStatus">Mostrar:</label>
-      <select id="filtroStatus" onchange="carregarDados()">
-        <option value="concluido">Concluídas</option>
-        <option value="pendente">Pendentes</option>
-        <option value="cancelado">Canceladas</option>
-        <option value="todos">Todas</option>
-      </select>
+    <div class="filtros">
+      <div class="filtro-linha" id="filtroBarbeiroLinha" style="display:none;">
+        <label for="filtroBarbeiro">Barbeiro:</label>
+        <select id="filtroBarbeiro" onchange="carregarDados()">
+          <option value="todos">Todos</option>
+        </select>
+      </div>
+      <div class="filtro-linha">
+        <label for="filtroData">Período:</label>
+        <select id="filtroData" onchange="carregarDados()">
+          <option value="dia">Dia</option>
+          <option value="semana">Semana</option>
+          <option value="mes">Mês</option>
+        </select>
+      </div>
+      <div id="periodoSelecionado"></div>
+      <div class="filtro-linha">
+        <label for="filtroStatus">Status:</label>
+        <select id="filtroStatus" onchange="carregarDados()">
+          <option value="concluido">Concluídas</option>
+          <option value="pendente">Pendentes</option>
+          <option value="cancelado">Canceladas</option>
+          <option value="todos">Todas</option>
+        </select>
+      </div>
     </div>
     <canvas id="graficoDesempenho" height="220"></canvas>
     <div id="mensagem"></div>
   </div>
   <script>
-    // Configuração Firebase (use a sua)
+    // Proteção: só entra se estiver logado pelo localStorage
+    const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
+    if (!usuarioLogado) window.location.href = "index.html";
+
+    // Firebase config
     const firebaseConfig = {
-      apiKey: "AIzaSyAY-Wn6vQEHP1XR_fG3NOg0PAkNPAcxSg",
+      apiKey: "AIzaSyAY-Win6vQEHP1XR_fG3NOg0PAkNPAcxSg",
       authDomain: "banco-de-dados-bd2a6.firebaseapp.com",
       projectId: "banco-de-dados-bd2a6",
       appId: "1:859895156791:web",
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+
+    function nomeParaId(nome) {
+      return nome
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9]/g, "_");
+    }
 
     const ctx = document.getElementById('graficoDesempenho').getContext('2d');
     let grafico;
@@ -148,11 +193,104 @@
       }
     }
 
+    function mostrarPeriodoSelecionado() {
+      const filtro = document.getElementById("filtroData")?.value || "dia";
+      const div = document.getElementById("periodoSelecionado");
+      const agora = new Date();
+      if (filtro === "dia") {
+        div.textContent = "Dia: " + agora.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
+      } else if (filtro === "semana") {
+        const primeiroDiaSemana = new Date(agora);
+        primeiroDiaSemana.setDate(agora.getDate() - agora.getDay());
+        const ultimoDiaSemana = new Date(primeiroDiaSemana);
+        ultimoDiaSemana.setDate(primeiroDiaSemana.getDate() + 6);
+        div.textContent = `Semana: de ${primeiroDiaSemana.toLocaleDateString('pt-BR')} até ${ultimoDiaSemana.toLocaleDateString('pt-BR')}`;
+      } else if (filtro === "mes") {
+        let mes = agora.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+        mes = mes.charAt(0).toUpperCase() + mes.slice(1);
+        div.textContent = "Mês: " + mes;
+      } else {
+        div.textContent = "";
+      }
+    }
+
+    function filtrarPorData(lista, modo) {
+      if (modo === "todos") return lista;
+      const agora = new Date();
+      return lista.filter(s => {
+        if (!s.dataCriacao) return false;
+        const data = new Date(s.dataCriacao);
+        if (modo === "dia") {
+          return data.getDate() === agora.getDate() &&
+                 data.getMonth() === agora.getMonth() &&
+                 data.getFullYear() === agora.getFullYear();
+        }
+        if (modo === "semana") {
+          const primeiroDiaSemana = new Date(agora);
+          primeiroDiaSemana.setDate(agora.getDate() - agora.getDay());
+          primeiroDiaSemana.setHours(0,0,0,0);
+          const ultimoDiaSemana = new Date(primeiroDiaSemana);
+          ultimoDiaSemana.setDate(primeiroDiaSemana.getDate() + 6);
+          ultimoDiaSemana.setHours(23,59,59,999);
+          return data >= primeiroDiaSemana && data <= ultimoDiaSemana;
+        }
+        if (modo === "mes") {
+          return data.getMonth() === agora.getMonth() &&
+                 data.getFullYear() === agora.getFullYear();
+        }
+        return true;
+      });
+    }
+
+    async function carregarBarbeirosSelect() {
+      const select = document.getElementById("filtroBarbeiro");
+      select.innerHTML = `<option value="todos">Todos</option>`;
+      const doc = await db.collection("barbeiros").doc("barbeiros").get();
+      if (doc.exists && Array.isArray(doc.data().lista)) {
+        doc.data().lista.forEach(b => {
+          const opt = document.createElement("option");
+          opt.value = b.nome;
+          opt.textContent = b.nome;
+          select.appendChild(opt);
+        });
+      }
+    }
+
     async function carregarDados() {
       document.getElementById('mensagem').textContent = "";
+      mostrarPeriodoSelecionado();
       const filtroStatus = document.getElementById("filtroStatus").value;
+      const filtroData = document.getElementById("filtroData").value;
+      let filtroBarbeiro = "todos";
+      if (
+        usuarioLogado.categoria === "Administrador" ||
+        usuarioLogado.categoria === "Proprietario"
+      ) {
+        document.getElementById("filtroBarbeiroLinha").style.display = "flex";
+        filtroBarbeiro = document.getElementById("filtroBarbeiro").value;
+      } else {
+        document.getElementById("filtroBarbeiroLinha").style.display = "none";
+      }
+
       try {
-        const snapshot = await db.collection("solicitacoes").get();
+        let snapshot;
+        if (
+          usuarioLogado.categoria === "Administrador" ||
+          usuarioLogado.categoria === "Proprietario"
+        ) {
+          snapshot = await db.collection("solicitacoes").get();
+        } else {
+          // Barbeiro só vê as próprias solicitações
+          const meuDocId = nomeParaId(usuarioLogado.nome);
+          const doc = await db.collection("solicitacoes").doc(meuDocId).get();
+          snapshot = {
+            empty: !doc.exists || !Array.isArray(doc.data().lista) || doc.data().lista.length === 0,
+            forEach: function(cb) {
+              if (!this.empty) cb(doc);
+            }
+          };
+        }
+
         if (snapshot.empty) {
           document.getElementById('mensagem').textContent = "Nenhuma solicitação encontrada.";
           if (grafico) grafico.destroy();
@@ -167,9 +305,19 @@
 
         snapshot.forEach(doc => {
           const barbeiro = doc.id;
+          // Filtro de barbeiro (apenas para admin/prop)
+          if (
+            (usuarioLogado.categoria === "Administrador" || usuarioLogado.categoria === "Proprietario") &&
+            filtroBarbeiro !== "todos" &&
+            barbeiro !== nomeParaId(filtroBarbeiro)
+          ) return;
+
           const lista = Array.isArray(doc.data().lista) ? doc.data().lista : [];
+          // Filtro por data
+          const listaFiltrada = filtrarPorData(lista, filtroData);
+
           let qtdConcluido = 0, qtdPendente = 0, qtdCancelado = 0;
-          lista.forEach(s => {
+          listaFiltrada.forEach(s => {
             const status = (s.status || '').toLowerCase();
             if (status === 'concluido') qtdConcluido++;
             else if (status === 'pendente') qtdPendente++;
@@ -182,7 +330,10 @@
             (filtroStatus === "cancelado" && qtdCancelado > 0) ||
             (filtroStatus === "todos" && (qtdConcluido > 0 || qtdPendente > 0 || qtdCancelado > 0))
           ) {
-            labels.push(barbeiro);
+            // Para barbeiro comum, mostrar o nome correto
+            let labelNome = barbeiro;
+            if (usuarioLogado.categoria === "Barbeiro") labelNome = usuarioLogado.nome;
+            labels.push(labelNome);
             dadosConcluido.push(qtdConcluido > 0 ? qtdConcluido : null);
             dadosPendente.push(qtdPendente > 0 ? qtdPendente : null);
             dadosCancelado.push(qtdCancelado > 0 ? qtdCancelado : null);
@@ -286,7 +437,17 @@
       }
     }
 
-    carregarDados();
+    // Carrega barbeiros no filtro (apenas para admin/prop)
+    window.addEventListener("DOMContentLoaded", () => {
+      if (
+        usuarioLogado.categoria === "Administrador" ||
+        usuarioLogado.categoria === "Proprietario"
+      ) {
+        carregarBarbeirosSelect().then(carregarDados);
+      } else {
+        carregarDados();
+      }
+    });
   </script>
 </body>
 </html>
