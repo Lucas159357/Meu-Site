@@ -419,6 +419,9 @@
         const dadosConcluido = [];
         const dadosPendente = [];
         const dadosCancelado = [];
+        const detalhesConcluido = [];
+        const detalhesPendente = [];
+        const detalhesCancelado = [];
 
         snapshot.forEach(doc => {
           const barbeiro = doc.id;
@@ -432,12 +435,28 @@
           const listaFiltrada = filtrarPorData(lista, filtroData);
 
           let qtdConcluido = 0, qtdPendente = 0, qtdCancelado = 0;
+          let detConcluido = [], detPendente = [], detCancelado = [];
+
           listaFiltrada.forEach(s => {
             const status = (s.status || '').toLowerCase();
-            if (status === 'concluido') qtdConcluido++;
-            else if (status === 'pendente') qtdPendente++;
-            else if (status === 'cancelado') qtdCancelado++;
+            const detalhe = {
+              data: s.dataCriacao,
+              servicos: s.servicos,
+              valorTotal: s.valorTotal,
+              status: s.status
+            };
+            if (status === 'concluido') {
+              qtdConcluido++;
+              detConcluido.push(detalhe);
+            } else if (status === 'pendente') {
+              qtdPendente++;
+              detPendente.push(detalhe);
+            } else if (status === 'cancelado') {
+              qtdCancelado++;
+              detCancelado.push(detalhe);
+            }
           });
+
           if (
             (filtroStatus === "concluido" && qtdConcluido > 0) ||
             (filtroStatus === "pendente" && qtdPendente > 0) ||
@@ -450,6 +469,9 @@
             dadosConcluido.push(qtdConcluido > 0 ? qtdConcluido : null);
             dadosPendente.push(qtdPendente > 0 ? qtdPendente : null);
             dadosCancelado.push(qtdCancelado > 0 ? qtdCancelado : null);
+            detalhesConcluido.push(detConcluido);
+            detalhesPendente.push(detPendente);
+            detalhesCancelado.push(detCancelado);
           }
         });
 
@@ -523,6 +545,32 @@
                 color: '#222',
                 font: { weight: 'bold', size: 15 },
                 formatter: function(value) { return value !== null ? value : ''; }
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    const idx = context.dataIndex;
+                    const label = context.dataset.label;
+                    let detalhes = [];
+                    if (label === "Concluídas") detalhes = detalhesConcluido[idx];
+                    if (label === "Pendentes") detalhes = detalhesPendente[idx];
+                    if (label === "Canceladas") detalhes = detalhesCancelado[idx];
+                    if (!detalhes || detalhes.length === 0) return "Nenhuma solicitação";
+                    let txt = `${label}: ${context.parsed.y}`;
+                    detalhes.forEach((s, i) => {
+                      txt += `\n\nSolicitação ${i + 1}:`;
+                      txt += `\nData: ${s.data ? new Date(s.data).toLocaleString("pt-BR") : "-"}`;
+                      if (Array.isArray(s.servicos)) {
+                        txt += `\nServiços:`;
+                        s.servicos.forEach(sv => {
+                          txt += `\n- ${sv.nome}: R$ ${sv.preco}`;
+                        });
+                      }
+                      txt += `\nValor Total: R$ ${Number(s.valorTotal || 0).toFixed(2)}`;
+                    });
+                    return txt;
+                  }
+                }
               }
             },
             scales: {
