@@ -111,10 +111,8 @@
     const coresServicos = [
       "#00c853", "#ff9800", "#2196f3", "#e91e63", "#ffeb3b", "#9c27b0", "#009688", "#f44336", "#607d8b", "#795548"
     ];
-    const coresBarbeiros = [
-      "#00c853", "#ff9800", "#2196f3", "#e91e63", "#ffeb3b", "#9c27b0", "#009688", "#f44336", "#607d8b", "#795548"
-    ];
 
+    // Funções para filtros e datas
     function mostrarCampoData() {
       const filtro = document.getElementById("filtroData").value;
       const campo = document.getElementById("campoData");
@@ -235,7 +233,21 @@
       return lista;
     }
 
-    // --- GRÁFICO 1: Solicitações por Barbeiro ---
+    async function carregarBarbeirosSelect() {
+      const select = document.getElementById("filtroBarbeiro");
+      select.innerHTML = `<option value="todos">Todos</option>`;
+      const doc = await db.collection("barbeiros").doc("barbeiros").get();
+      if (doc.exists && Array.isArray(doc.data().lista)) {
+        doc.data().lista.forEach(b => {
+          const opt = document.createElement("option");
+          opt.value = b.nome;
+          opt.textContent = b.nome;
+          select.appendChild(opt);
+        });
+      }
+    }
+
+    // GRÁFICO 1: Solicitações por Barbeiro
     let grafico;
     function getCorPorStatus(status) {
       switch(status) {
@@ -251,19 +263,6 @@
         case 'pendente': return 'rgba(255, 235, 59, 1)';
         case 'cancelado': return 'rgba(244, 67, 54, 1)';
         default: return 'rgba(0, 200, 83, 1)';
-      }
-    }
-    async function carregarBarbeirosSelect() {
-      const select = document.getElementById("filtroBarbeiro");
-      select.innerHTML = `<option value="todos">Todos</option>`;
-      const doc = await db.collection("barbeiros").doc("barbeiros").get();
-      if (doc.exists && Array.isArray(doc.data().lista)) {
-        doc.data().lista.forEach(b => {
-          const opt = document.createElement("option");
-          opt.value = b.nome;
-          opt.textContent = b.nome;
-          select.appendChild(opt);
-        });
       }
     }
     async function carregarDados() {
@@ -426,7 +425,7 @@
       }
     }
 
-    // --- GRÁFICO 2: Serviços por Barbeiro (cores por serviço, colunas por barbeiro) ---
+    // GRÁFICO 2: Serviços por Barbeiro (cores por serviço, colunas por barbeiro, só barbeiros com serviços)
     let graficoServicosPorBarbeiro;
     async function carregarGraficoServicosPorBarbeiro() {
       document.getElementById('mensagemServicosPorBarbeiro').textContent = "";
@@ -453,14 +452,11 @@
           if (graficoServicosPorBarbeiro) graficoServicosPorBarbeiro.destroy();
           return;
         }
-        // Descobrir todos os barbeiros e todos os serviços
-        const barbeiros = [];
         const servicosSet = new Set();
         const dadosPorBarbeiro = {};
         snapshot.forEach(doc => {
           const barbeiro = doc.id;
           if (filtroBarbeiro !== "todos" && barbeiro !== nomeParaId(filtroBarbeiro)) return;
-          barbeiros.push(barbeiro);
           const lista = Array.isArray(doc.data().lista) ? doc.data().lista : [];
           const listaFiltrada = filtrarSolicPorPeriodoServicos(lista)
             .filter(s => (s.status || '').toLowerCase() !== 'cancelado');
@@ -478,20 +474,26 @@
           });
         });
         const servicos = Array.from(servicosSet);
-        // Para cada serviço, monta um dataset com a quantidade para cada barbeiro
+
+        // Filtrar barbeiros que têm pelo menos 1 serviço
+        const barbeirosFiltrados = Object.keys(dadosPorBarbeiro).filter(barbeiro =>
+          servicos.some(servico => dadosPorBarbeiro[barbeiro][servico] > 0)
+        );
+
         const datasets = servicos.map((servico, idx) => ({
           label: servico,
           backgroundColor: coresServicos[idx % coresServicos.length],
           borderColor: coresServicos[idx % coresServicos.length],
           borderWidth: 2,
-          data: barbeiros.map(barbeiro => (dadosPorBarbeiro[barbeiro] && dadosPorBarbeiro[barbeiro][servico]) ? dadosPorBarbeiro[barbeiro][servico] : 0),
+          data: barbeirosFiltrados.map(barbeiro => (dadosPorBarbeiro[barbeiro] && dadosPorBarbeiro[barbeiro][servico]) ? dadosPorBarbeiro[barbeiro][servico] : 0),
           datalabels: { color: "#fff", font: { weight: 'bold', size: 13 } }
         }));
+
         if (graficoServicosPorBarbeiro) graficoServicosPorBarbeiro.destroy();
         graficoServicosPorBarbeiro = new Chart(document.getElementById('graficoServicosPorBarbeiro').getContext('2d'), {
           type: 'bar',
           data: {
-            labels: barbeiros,
+            labels: barbeirosFiltrados,
             datasets: datasets
           },
           options: {
@@ -543,51 +545,8 @@
       }
     }
 
-    // --- GRÁFICO 3: Serviços Realizados (por serviço, cada serviço uma cor) ---
+    // GRÁFICO 3: Serviços Realizados (por serviço, cada serviço uma cor)
     let graficoServicos;
-    function filtrarSolicPorPeriodoServicos(lista) {
-      const tipo = document.getElementById('filtroData').value;
-      if (tipo === "todos") return lista;
-      if (tipo === "dia") {
-        const campo = document.getElementById("inputData");
-        if (!campo || !campo.value) return lista;
-        const [anoFiltro, mesFiltro, diaFiltro] = campo.value.split('-').map(Number);
-        return lista.filter(s => {
-          if (!s.dataCriacao) return false;
-          const data = new Date(s.dataCriacao);
-          return (
-            data.getFullYear() === anoFiltro &&
-            (data.getMonth() + 1) === mesFiltro &&
-            data.getDate() === diaFiltro
-          );
-        });
-      }
-      if (tipo === "semana") {
-        const picker = $('#inputDataSemana').data('daterangepicker');
-        if (!picker) return lista;
-        const inicio = picker.startDate.startOf('day');
-        const fim = picker.endDate.endOf('day');
-        return lista.filter(s => {
-          if (!s.dataCriacao) return false;
-          const data = moment(s.dataCriacao);
-          return data.isBetween(inicio, fim, null, '[]');
-        });
-      }
-      if (tipo === "mes") {
-        const campo = document.getElementById("inputData");
-        if (!campo || !campo.value) return lista;
-        const [anoFiltro, mesFiltro] = campo.value.split('-').map(Number);
-        return lista.filter(s => {
-          if (!s.dataCriacao) return false;
-          const data = new Date(s.dataCriacao);
-          return (
-            data.getFullYear() === anoFiltro &&
-            (data.getMonth() + 1) === mesFiltro
-          );
-        });
-      }
-      return lista;
-    }
     async function carregarGraficoServicos() {
       document.getElementById('mensagemServicos').textContent = "";
       const filtroBarbeiro = document.getElementById("filtroBarbeiro").value;
