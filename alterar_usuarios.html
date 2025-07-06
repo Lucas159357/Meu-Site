@@ -216,7 +216,7 @@
       <label for="usuarioEmail">Email</label>
       <input type="email" id="usuarioEmail" placeholder="Email" autocomplete="off"/>
       <label for="usuarioNome">Nome</label>
-      <input type="text" id="usuarioNome" placeholder="Nome" autocomplete="off"/>
+      <input type="text" id="usuarioNome" placeholder="Nome (opcional)" autocomplete="off"/>
       <label for="usuarioSenha">Senha</label>
       <input type="text" id="usuarioSenha" placeholder="Senha" autocomplete="off"/>
       <label for="usuarioCategoria">Categoria</label>
@@ -348,8 +348,8 @@
       const categoria = document.getElementById('usuarioCategoria').value;
       const msg = document.getElementById('modalUsuarioMsg');
 
-      if (!email || !nome || !senha || !categoria) {
-        msg.textContent = "Preencha todos os campos!";
+      if (!email || !senha || !categoria) {
+        msg.textContent = "Preencha email, senha e categoria!";
         msg.style.color = "#ff5252";
         return;
       }
@@ -369,7 +369,12 @@
       }
 
       db.collection('usuarios').doc('usuarios').set({ lista: usuarios })
-        .then(() => {
+        .then(async () => {
+          // Adiciona automaticamente em barbeiros e solicitacoes se nome preenchido
+          if (nome) {
+            await adicionarBarbeiroSeNaoExiste(nome);
+            await adicionarSolicitacaoSeNaoExiste(nome);
+          }
           msg.textContent = "Usuário salvo com sucesso!";
           msg.style.color = "#b2ff59";
           setTimeout(() => {
@@ -381,6 +386,28 @@
           msg.textContent = "Erro ao salvar: " + error.message;
           msg.style.color = "#ff5252";
         });
+    }
+
+    // Adiciona barbeiro na lista de barbeiros se não existir
+    async function adicionarBarbeiroSeNaoExiste(nome) {
+      const doc = await db.collection('barbeiros').doc('barbeiros').get();
+      let lista = (doc.exists && Array.isArray(doc.data().lista)) ? doc.data().lista : [];
+      if (!lista.includes(nome)) {
+        lista.push(nome);
+        await db.collection('barbeiros').doc('barbeiros').set({ lista });
+      }
+    }
+
+    // Adiciona documento de solicitações para o barbeiro se não existir
+    async function adicionarSolicitacaoSeNaoExiste(nome) {
+      const docId = nome
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9]/g, "_");
+      const doc = await db.collection('solicitacoes').doc(docId).get();
+      if (!doc.exists) {
+        await db.collection('solicitacoes').doc(docId).set({ lista: [] });
+      }
     }
 
     function excluirUsuario() {
