@@ -19,9 +19,9 @@
     }
     .container {
       background: #333;
-      padding: 38px 24px;
-      border-radius: 12px;
-      margin-top: 40px;
+      padding: 32px 18px 24px 18px;
+      border-radius: 16px;
+      margin-top: 38px;
       box-shadow: 0 0 10px #111;
       width: 420px;
       max-width: 98vw;
@@ -29,8 +29,8 @@
     }
     h1 {
       color: #00c853;
-      margin-bottom: 28px;
-      font-size: 1.7em;
+      margin-bottom: 22px;
+      font-size: 1.5em;
       letter-spacing: 1px;
       font-weight: bold;
     }
@@ -72,13 +72,14 @@
       align-items: center;
       gap: 10px;
       margin-bottom: 0;
+      flex-wrap: wrap;
     }
     .filtro-linha label {
       color: #00c853;
       font-weight: bold;
       font-size: 1.07em;
     }
-    .filtro-linha select, .filtro-linha input {
+    .filtro-linha select, .filtro-linha input[type="date"], .filtro-linha input[type="month"] {
       padding: 6px 10px;
       border-radius: 6px;
       border: none;
@@ -86,6 +87,13 @@
       background: #222;
       color: #00c853;
       outline: none;
+      margin-bottom: 2px;
+    }
+    .semana-campo {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: 2px;
     }
     #periodoSelecionado {
       color: #00c853;
@@ -95,6 +103,7 @@
       text-align: center;
       width: 100%;
       max-width: 400px;
+      min-height: 20px;
     }
     #mensagem {
       color: #ff5252;
@@ -103,9 +112,11 @@
       min-height: 24px;
     }
     @media (max-width: 500px) {
-      .container { width: 99vw; padding: 12px 2vw; }
+      .container { width: 99vw; padding: 10px 2vw; }
       #graficoDesempenho { padding: 2px; }
       .filtros { gap: 7px; }
+      .semana-campo { flex-direction: column; align-items: flex-start; gap: 2px;}
+      .filtro-linha { flex-direction: column; align-items: flex-start; gap: 4px;}
     }
   </style>
   <!-- Chart.js CDN -->
@@ -207,10 +218,12 @@
         const fim = new Date(inicio);
         fim.setDate(inicio.getDate() + 6);
         campo.innerHTML = `
-          <label style="color:#00c853;font-weight:bold;">De</label>
-          <input type="date" id="inputDataInicio" value="${inicio.toISOString().slice(0,10)}" onchange="carregarDados()">
-          <label style="color:#00c853;font-weight:bold;">até</label>
-          <input type="date" id="inputDataFim" value="${fim.toISOString().slice(0,10)}" onchange="carregarDados()">
+          <span class="semana-campo">
+            <label>De</label>
+            <input type="date" id="inputDataInicio" value="${inicio.toISOString().slice(0,10)}" onchange="carregarDados()">
+            <label>até</label>
+            <input type="date" id="inputDataFim" value="${fim.toISOString().slice(0,10)}" onchange="carregarDados()">
+          </span>
         `;
       } else if (filtro === "mes") {
         const hoje = new Date();
@@ -253,8 +266,9 @@
         const inicioCampo = document.getElementById("inputDataInicio");
         const fimCampo = document.getElementById("inputDataFim");
         if (!inicioCampo || !inicioCampo.value || !fimCampo || !fimCampo.value) return lista;
+        // Ajuste: fim do dia final
         const inicio = new Date(inicioCampo.value + "T00:00:00");
-        const fim = new Date(fimCampo.value + "T23:59:59");
+        const fim = new Date(fimCampo.value + "T23:59:59.999");
         return lista.filter(s => {
           if (!s.dataCriacao) return false;
           const data = new Date(s.dataCriacao);
