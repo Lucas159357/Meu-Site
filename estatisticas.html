@@ -142,7 +142,7 @@
         <label for="filtroData">Período:</label>
         <select id="filtroData" onchange="mostrarCampoData();carregarDados();">
           <option value="todos">Todos</option>
-          <option value="dia">Dia</option>
+          <option value="dia" selected>Dia</option>
           <option value="semana">Semana</option>
           <option value="mes">Mês</option>
         </select>
@@ -219,7 +219,7 @@
     }
 
     function mostrarPeriodoSelecionado() {
-      const filtro = document.getElementById("filtroData")?.value || "todos";
+      const filtro = document.getElementById("filtroData")?.value || "dia";
       const campo = document.getElementById("inputData");
       const div = document.getElementById("periodoSelecionado");
       if (filtro === "dia" && campo && campo.value) {
