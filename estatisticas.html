@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Estatísticas - Barbearia Pedro Rodrigues</title>
+  <title>Solicitações por Barbeiro</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-  <!-- Date Range Picker CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
   <style>
     body {
@@ -21,7 +20,7 @@
     }
     .container {
       background: #333;
-      padding: 32px 18px 24px 18px;
+      padding: 30px 18px 24px 18px;
       border-radius: 16px;
       margin-top: 38px;
       box-shadow: 0 0 10px #111;
@@ -31,8 +30,8 @@
     }
     h1 {
       color: #00c853;
-      margin-bottom: 22px;
-      font-size: 1.5em;
+      margin-bottom: 18px;
+      font-size: 1.35em;
       letter-spacing: 1px;
       font-weight: bold;
     }
@@ -48,7 +47,7 @@
       color: #fff;
       border: none;
       border-radius: 5px;
-      padding: 10px 22px;
+      padding: 8px 18px;
       font-size: 1em;
       margin-bottom: 18px;
       cursor: pointer;
@@ -65,7 +64,7 @@
       margin-bottom: 18px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
       align-items: center;
       justify-content: center;
     }
@@ -81,15 +80,27 @@
       font-weight: bold;
       font-size: 1.07em;
     }
-    .filtro-linha select, .filtro-linha input[type="text"], .filtro-linha input[type="month"] {
+    .filtro-linha select, .filtro-linha input[type="date"], .filtro-linha input[type="month"], .filtro-linha input[type="text"] {
       padding: 6px 10px;
       border-radius: 6px;
       border: none;
       font-size: 1em;
-      background: #222;
+      background: #181818;
       color: #00c853;
       outline: none;
       margin-bottom: 2px;
+      border: 1.5px solid #00c853;
+      transition: border 0.2s;
+      width: 135px;
+      box-sizing: border-box;
+    }
+    .filtro-linha select:focus, .filtro-linha input[type="date"]:focus, .filtro-linha input[type="month"]:focus, .filtro-linha input[type="text"]:focus {
+      border: 2px solid #00c853;
+      background: #222;
+    }
+    .filtro-linha input[type="date"]::-webkit-input-placeholder { color: #00c853; opacity: 0.7; }
+    .filtro-linha input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1) brightness(1.5);
     }
     #periodoSelecionado {
       color: #00c853;
@@ -112,6 +123,7 @@
       #graficoDesempenho { padding: 2px; }
       .filtros { gap: 7px; }
       .filtro-linha { flex-direction: column; align-items: flex-start; gap: 4px;}
+      .filtro-linha select, .filtro-linha input[type="date"], .filtro-linha input[type="month"], .filtro-linha input[type="text"] { width: 100%; }
     }
     .daterangepicker {
       color: #222;
