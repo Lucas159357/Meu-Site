@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Estatísticas - Barbearia Pedro Rodrigues</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <style>
@@ -108,7 +108,7 @@
     <div class="filtro-status">
       <label for="filtroStatus">Mostrar:</label>
       <select id="filtroStatus" onchange="carregarDados()">
-        <option value="concluido">Só Concluídas</option>
+        <option value="concluido">Concluídas</option>
         <option value="pendente">Pendentes</option>
         <option value="cancelado">Canceladas</option>
         <option value="todos">Todas</option>
@@ -130,6 +130,16 @@
 
     const ctx = document.getElementById('graficoDesempenho').getContext('2d');
     let grafico;
+
+    function getCorPorStatus(status) {
+      switch(status) {
+        case 'concluido': return 'rgba(0, 200, 83, 0.6)'; // verde
+        case 'pendente': return 'rgba(255, 235, 59, 0.7)'; // amarelo
+        case 'cancelado': return 'rgba(244, 67, 54, 0.7)'; // vermelho
+        case 'todos': return 'rgba(33, 150, 243, 0.7)'; // azul
+        default: return 'rgba(0, 200, 83, 0.6)';
+      }
+    }
 
     async function carregarDados() {
       document.getElementById('mensagem').textContent = "";
@@ -175,8 +185,8 @@
                   filtroStatus === "cancelado" ? "Canceladas" : ""
                 ),
               data: dados,
-              backgroundColor: 'rgba(0, 200, 83, 0.6)',
-              borderColor: 'rgba(0, 200, 83, 1)',
+              backgroundColor: getCorPorStatus(filtroStatus),
+              borderColor: getCorPorStatus(filtroStatus).replace('0.7','1'),
               borderWidth: 2,
               borderRadius: 6
             }]
@@ -203,7 +213,12 @@
               },
               y: {
                 beginAtZero: true,
-                ticks: { color: '#fff', font: { size: 14 }, stepSize: 1 },
+                ticks: { 
+                  color: '#fff', 
+                  font: { size: 14 }, 
+                  stepSize: 1,
+                  callback: function(value) { return value; } // mostra 1,2,3...
+                },
                 title: { display: true, text: "Quantidade", color: "#00c853", font: { size: 15, weight: "bold" } }
               }
             }
