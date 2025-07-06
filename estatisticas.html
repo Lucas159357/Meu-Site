@@ -134,10 +134,20 @@
     function getCorPorStatus(status) {
       switch(status) {
         case 'concluido': return 'rgba(0, 200, 83, 0.6)'; // verde
-        case 'pendente': return 'rgba(255, 235, 59, 0.7)'; // amarelo
-        case 'cancelado': return 'rgba(244, 67, 54, 0.7)'; // vermelho
+        case 'pendente': return 'rgba(255, 235, 59, 0.85)'; // amarelo
+        case 'cancelado': return 'rgba(244, 67, 54, 0.85)'; // vermelho
         case 'todos': return 'rgba(33, 150, 243, 0.7)'; // azul
         default: return 'rgba(0, 200, 83, 0.6)';
+      }
+    }
+
+    function getCorBordaPorStatus(status) {
+      switch(status) {
+        case 'concluido': return 'rgba(0, 200, 83, 1)';
+        case 'pendente': return 'rgba(255, 235, 59, 1)';
+        case 'cancelado': return 'rgba(244, 67, 54, 1)';
+        case 'todos': return 'rgba(33, 150, 243, 1)';
+        default: return 'rgba(0, 200, 83, 1)';
       }
     }
 
@@ -153,43 +163,86 @@
         }
 
         const labels = [];
-        const dados = [];
+        const dadosConcluido = [];
+        const dadosPendente = [];
+        const dadosCancelado = [];
+        const dadosTotal = [];
 
         snapshot.forEach(doc => {
           const barbeiro = doc.id;
           const lista = Array.isArray(doc.data().lista) ? doc.data().lista : [];
-          let qtd = 0;
-          if (filtroStatus === "todos") {
-            qtd = lista.length;
-          } else {
-            qtd = lista.reduce((acc, s) => {
-              return acc + ((s.status || '').toLowerCase() === filtroStatus ? 1 : 0);
-            }, 0);
-          }
+          let qtdConcluido = 0, qtdPendente = 0, qtdCancelado = 0;
+          lista.forEach(s => {
+            const status = (s.status || '').toLowerCase();
+            if (status === 'concluido') qtdConcluido++;
+            else if (status === 'pendente') qtdPendente++;
+            else if (status === 'cancelado') qtdCancelado++;
+          });
           labels.push(barbeiro);
-          dados.push(qtd);
+          dadosConcluido.push(qtdConcluido);
+          dadosPendente.push(qtdPendente);
+          dadosCancelado.push(qtdCancelado);
+          dadosTotal.push(lista.length);
         });
 
         if (grafico) grafico.destroy();
+
+        let datasets = [];
+        if (filtroStatus === "todos") {
+          datasets = [
+            {
+              label: "Concluídas",
+              data: dadosConcluido,
+              backgroundColor: getCorPorStatus("concluido"),
+              borderColor: getCorBordaPorStatus("concluido"),
+              borderWidth: 2,
+              borderRadius: 6,
+              datalabels: { color: "#222", font: { weight: 'bold', size: 15 } }
+            },
+            {
+              label: "Pendentes",
+              data: dadosPendente,
+              backgroundColor: getCorPorStatus("pendente"),
+              borderColor: getCorBordaPorStatus("pendente"),
+              borderWidth: 2,
+              borderRadius: 6,
+              datalabels: { color: "#222", font: { weight: 'bold', size: 15 } }
+            },
+            {
+              label: "Canceladas",
+              data: dadosCancelado,
+              backgroundColor: getCorPorStatus("cancelado"),
+              borderColor: getCorBordaPorStatus("cancelado"),
+              borderWidth: 2,
+              borderRadius: 6,
+              datalabels: { color: "#222", font: { weight: 'bold', size: 15 } }
+            }
+          ];
+        } else {
+          let label, data, cor, corBorda;
+          if (filtroStatus === "concluido") {
+            label = "Concluídas"; data = dadosConcluido; cor = getCorPorStatus("concluido"); corBorda = getCorBordaPorStatus("concluido");
+          } else if (filtroStatus === "pendente") {
+            label = "Pendentes"; data = dadosPendente; cor = getCorPorStatus("pendente"); corBorda = getCorBordaPorStatus("pendente");
+          } else if (filtroStatus === "cancelado") {
+            label = "Canceladas"; data = dadosCancelado; cor = getCorPorStatus("cancelado"); corBorda = getCorBordaPorStatus("cancelado");
+          }
+          datasets = [{
+            label: label,
+            data: data,
+            backgroundColor: cor,
+            borderColor: corBorda,
+            borderWidth: 2,
+            borderRadius: 6,
+            datalabels: { color: "#222", font: { weight: 'bold', size: 15 } }
+          }];
+        }
 
         grafico = new Chart(ctx, {
           type: 'bar',
           data: {
             labels: labels,
-            datasets: [{
-              label: filtroStatus === "todos"
-                ? "Total de Solicitações"
-                : "Solicitações " + (
-                  filtroStatus === "concluido" ? "Concluídas" :
-                  filtroStatus === "pendente" ? "Pendentes" :
-                  filtroStatus === "cancelado" ? "Canceladas" : ""
-                ),
-              data: dados,
-              backgroundColor: getCorPorStatus(filtroStatus),
-              borderColor: getCorPorStatus(filtroStatus).replace('0.7','1'),
-              borderWidth: 2,
-              borderRadius: 6
-            }]
+            datasets: datasets
           },
           options: {
             responsive: true,
@@ -201,9 +254,7 @@
                 align: 'start',
                 color: '#222',
                 font: { weight: 'bold', size: 15 },
-                formatter: function(value) {
-                  return value;
-                }
+                formatter: function(value) { return value; }
               }
             },
             scales: {
@@ -217,7 +268,7 @@
                   color: '#fff', 
                   font: { size: 14 }, 
                   stepSize: 1,
-                  callback: function(value) { return value; } // mostra 1,2,3...
+                  callback: function(value) { return value; }
                 },
                 title: { display: true, text: "Quantidade", color: "#00c853", font: { size: 15, weight: "bold" } }
               }
