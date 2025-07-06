@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Estatísticas - Barbearia Pedro Rodrigues</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      body {
+        background: #222;
+        color: #fff;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .container {
+        background: #333;
+        padding: 38px 24px;
+        border-radius: 12px;
+        margin-top: 40px;
+        box-shadow: 0 0 10px #111;
+        width: 420px;
+        max-width: 98vw;
+        text-align: center;
+      }
+      h1 {
+        color: #00c853;
+        margin-bottom: 28px;
+        font-size: 1.7em;
+        letter-spacing: 1px;
+        font-weight: bold;
+      }
+      #graficoDesempenho {
+        background: #fff;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 18px;
+        max-width: 100%;
+      }
+      .voltar-btn {
+        background: #007acc;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 22px;
+        font-size: 1em;
+        margin-bottom: 18px;
+        cursor: pointer;
+        transition: background 0.2s;
+        margin-top: 0;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .voltar-btn:hover {
+        background: #005fa3;
+      }
+      @media (max-width: 500px) {
+        .container {
+          width: 99vw;
+          padding: 12px 2vw;
+        }
+        #graficoDesempenho {
+          padding: 2px;
+        }
+      }
+    </style>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <button class="voltar-btn" onclick="window.history.back()">
+        <i class="fa fa-arrow-left"></i> Voltar
+      </button>
+      <h1>Desempenho Mensal</h1>
+      <canvas id="graficoDesempenho" height="220"></canvas>
+    </div>
+    <script>
+      // Dados de exemplo - troque pelos dados reais do seu sistema!
+      const labels = [
+        "Janeiro",
+        "Fevereiro",
+        "Março",
+        "Abril",
+        "Maio",
+        "Junho",
+        "Julho",
+      ];
+      const dadosConcluidos = [12, 19, 15, 22, 17, 25, 20]; // Exemplo: solicitações concluídas por mês
+
+      // Gráfico de barras
+      const ctx = document.getElementById("graficoDesempenho").getContext("2d");
+      const grafico = new Chart(ctx, {
+        type: "bar", // Troque para 'line' para gráfico de linha
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: "Solicitações Concluídas",
+              data: dadosConcluidos,
+              backgroundColor: "rgba(0, 200, 83, 0.5)",
+              borderColor: "rgba(0, 200, 83, 1)",
+              borderWidth: 2,
+              borderRadius: 6,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              display: true,
+              labels: { color: "#00c853", font: { size: 15 } },
+            },
+            title: { display: false },
+          },
+          scales: {
+            x: { ticks: { color: "#fff", font: { size: 14 } } },
+            y: {
+              beginAtZero: true,
+              ticks: { color: "#fff", font: { size: 14 } },
+            },
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
