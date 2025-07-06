@@ -231,7 +231,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script>
-    // Firebase config (use o mesmo da sua página principal)
     const firebaseConfig = {
       apiKey: "AIzaSyAY-Win6vQEHP1XR_fG3NOg0PAkNPAcxSg",
       authDomain: "banco-de-dados-bd2a6.firebaseapp.com",
@@ -241,11 +240,11 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // Usuário logado (para saber a categoria)
     const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado") || "{}");
 
     let usuarios = [];
     let usuarioEditIdx = null;
+    let nomeAntigo = ""; // Para controle de edição
 
     function voltar() {
       window.history.back();
@@ -286,6 +285,7 @@
     function abrirEditarUsuario(idx) {
       usuarioEditIdx = idx;
       const u = usuarios[idx];
+      nomeAntigo = u.nome || "";
       document.getElementById('modalUsuarioTitulo').textContent = "Editar Usuário";
       document.getElementById('usuarioEmail').value = u.email || "";
       document.getElementById('usuarioNome').value = u.nome || "";
@@ -299,6 +299,7 @@
 
     function abrirNovoUsuario() {
       usuarioEditIdx = null;
+      nomeAntigo = "";
       document.getElementById('modalUsuarioTitulo').textContent = "Novo Usuário";
       document.getElementById('usuarioEmail').value = "";
       document.getElementById('usuarioNome').value = "";
@@ -311,16 +312,13 @@
     }
 
     function renderCategoriaSelect(valorAtual) {
-      // Proprietário pode tudo, Administrador só pode Barbeiro
       const select = document.getElementById('usuarioCategoria');
       select.innerHTML = "";
       if (usuarioLogado.categoria === "Administrador") {
-        // Só pode criar/editar Barbeiro
         select.innerHTML = `<option value="Barbeiro">Barbeiro</option>`;
         select.value = "Barbeiro";
         select.disabled = false;
       } else {
-        // Proprietário pode tudo
         select.disabled = false;
         select.innerHTML = `
           <option value="">Selecione...</option>
@@ -330,7 +328,6 @@
         `;
         select.value = valorAtual;
       }
-      // Se for Administrador e estiver editando um usuário que não é Barbeiro, não pode alterar categoria
       if (usuarioLogado.categoria === "Administrador" && valorAtual && valorAtual !== "Barbeiro") {
         select.value = valorAtual;
         select.disabled = true;
@@ -339,6 +336,13 @@
 
     function fecharModalUsuario() {
       document.getElementById('modalUsuario').style.display = "none";
+    }
+
+    function nomeParaId(nome) {
+      return nome
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9]/g, "_");
     }
 
     function salvarUsuario() {
@@ -354,7 +358,6 @@
         return;
       }
 
-      // Administrador só pode criar/editar Barbeiro
       if (usuarioLogado.categoria === "Administrador" && categoria !== "Barbeiro") {
         msg.textContent = "Administrador só pode criar/editar usuários do tipo Barbeiro!";
         msg.style.color = "#ff5252";
@@ -362,7 +365,9 @@
       }
 
       // Checa se está editando ou criando novo
+      let nomeAntigoLocal = "";
       if (usuarioEditIdx !== null) {
+        nomeAntigoLocal = usuarios[usuarioEditIdx].nome || "";
         usuarios[usuarioEditIdx] = { email, nome, senha, categoria };
       } else {
         usuarios.push({ email, nome, senha, categoria });
@@ -370,7 +375,12 @@
 
       db.collection('usuarios').doc('usuarios').set({ lista: usuarios })
         .then(async () => {
-          // Adiciona automaticamente em barbeiros e solicitacoes se nome preenchido
+          // Se nome mudou e era barbeiro, remove antigo dos registros
+          if (nomeAntigoLocal && nomeAntigoLocal !== nome) {
+            await removerBarbeiro(nomeAntigoLocal);
+            await removerSolicitacao(nomeAntigoLocal);
+          }
+          // Se nome novo, adiciona nos registros
           if (nome) {
             await adicionarBarbeiroSeNaoExiste(nome);
             await adicionarSolicitacaoSeNaoExiste(nome);
@@ -400,14 +410,27 @@
 
     // Adiciona documento de solicitações para o barbeiro se não existir
     async function adicionarSolicitacaoSeNaoExiste(nome) {
-      const docId = nome
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-zA-Z0-9]/g, "_");
+      const docId = nomeParaId(nome);
       const doc = await db.collection('solicitacoes').doc(docId).get();
       if (!doc.exists) {
         await db.collection('solicitacoes').doc(docId).set({ lista: [] });
       }
+    }
+
+    // Remove barbeiro da lista de barbeiros
+    async function removerBarbeiro(nome) {
+      const doc = await db.collection('barbeiros').doc('barbeiros').get();
+      let lista = (doc.exists && Array.isArray(doc.data().lista)) ? doc.data().lista : [];
+      if (lista.includes(nome)) {
+        lista = lista.filter(n => n !== nome);
+        await db.collection('barbeiros').doc('barbeiros').set({ lista });
+      }
+    }
+
+    // Remove documento de solicitações do barbeiro
+    async function removerSolicitacao(nome) {
+      const docId = nomeParaId(nome);
+      await db.collection('solicitacoes').doc(docId).delete();
     }
 
     function excluirUsuario() {
@@ -415,10 +438,18 @@
       const msg = document.getElementById('modalUsuarioMsg');
       if (!confirm("Tem certeza que deseja excluir este usuário?")) return;
 
+      const usuarioRemovido = usuarios[usuarioEditIdx];
+      const nomeRemovido = usuarioRemovido.nome || "";
+
       usuarios.splice(usuarioEditIdx, 1);
 
       db.collection('usuarios').doc('usuarios').set({ lista: usuarios })
-        .then(() => {
+        .then(async () => {
+          // Remove também de barbeiros e solicitacoes se tinha nome
+          if (nomeRemovido) {
+            await removerBarbeiro(nomeRemovido);
+            await removerSolicitacao(nomeRemovido);
+          }
           msg.textContent = "Usuário excluído com sucesso!";
           msg.style.color = "#b2ff59";
           setTimeout(() => {
