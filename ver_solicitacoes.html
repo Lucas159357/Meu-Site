@@ -33,6 +33,26 @@
       font-size: 1.5em;
       letter-spacing: 1px;
     }
+    .filtro-data {
+      margin-bottom: 12px;
+      text-align: left;
+      width: 100%;
+      max-width: 400px;
+    }
+    .filtro-data label {
+      color: #b2ff59;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+    .filtro-data select {
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: none;
+      font-size: 1em;
+      background: #222;
+      color: #b2ff59;
+      outline: none;
+    }
     .solicitacoes-lista {
       margin-top: 20px;
       text-align: left;
@@ -50,6 +70,16 @@
       font-weight: bold;
       margin-bottom: 8px;
       font-size: 1.1em;
+    }
+    .solicitacao-resumo {
+      font-size:0.97em;
+      color:#b2ff59;
+      margin-top:4px;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+    .solicitacao-resumo div {
+      margin-bottom: 2px;
     }
     .solicitacao-item {
       border-top: 1px solid #444a;
@@ -370,6 +400,7 @@
         right: 6px;
         top: 6px;
       }
+      .filtro-data { max-width: 99vw; }
     }
   </style>
 </head>
@@ -379,6 +410,15 @@
       <i class="fa fa-arrow-left"></i> Voltar
     </button>
     <h1>Minhas Solicitações</h1>
+    <div class="filtro-data">
+      <label for="filtroData">Filtrar por:</label>
+      <select id="filtroData" onchange="carregarSolicitacoes()">
+        <option value="dia">Dia</option>
+        <option value="semana">Semana</option>
+        <option value="mes">Mês</option>
+        <option value="todos">Todos</option>
+      </select>
+    </div>
     <div class="solicitacoes-lista" id="solicitacoes-lista">
       <div style="color:#fff;text-align:center;">Carregando...</div>
     </div>
@@ -445,6 +485,35 @@
         .replace(/[^a-zA-Z0-9]/g, "_");
     }
 
+    function filtrarPorData(lista, modo) {
+      if (modo === "todos") return lista;
+      const agora = new Date();
+      return lista.filter(s => {
+        if (!s.dataCriacao) return false;
+        const data = new Date(s.dataCriacao);
+        if (modo === "dia") {
+          return data.getDate() === agora.getDate() &&
+                 data.getMonth() === agora.getMonth() &&
+                 data.getFullYear() === agora.getFullYear();
+        }
+        if (modo === "semana") {
+          // Considera semana atual (domingo a sábado)
+          const primeiroDiaSemana = new Date(agora);
+          primeiroDiaSemana.setDate(agora.getDate() - agora.getDay());
+          primeiroDiaSemana.setHours(0,0,0,0);
+          const ultimoDiaSemana = new Date(primeiroDiaSemana);
+          ultimoDiaSemana.setDate(primeiroDiaSemana.getDate() + 6);
+          ultimoDiaSemana.setHours(23,59,59,999);
+          return data >= primeiroDiaSemana && data <= ultimoDiaSemana;
+        }
+        if (modo === "mes") {
+          return data.getMonth() === agora.getMonth() &&
+                 data.getFullYear() === agora.getFullYear();
+        }
+        return true;
+      });
+    }
+
     function carregarServicosGlobais(callback) {
       db.collection("servicos")
         .doc("servicos")
@@ -465,6 +534,7 @@
         '<div style="color:#fff;text-align:center;">Carregando...</div>';
 
       carregarServicosGlobais(() => {
+        const filtro = document.getElementById("filtroData")?.value || "dia";
         // Proprietario/Admin: vê todas as solicitações de todos os barbeiros
         if (
           usuarioLogado.categoria === "Proprietario" ||
@@ -490,7 +560,7 @@
                   '<div style="color:#fff;text-align:center;">Nenhuma solicitação encontrada.</div>';
               } else {
                 barbeiros.forEach((barbeiro) => {
-                  const listaSolic = solicitacoesPorBarbeiro[barbeiro];
+                  const listaSolic = filtrarPorData(solicitacoesPorBarbeiro[barbeiro], filtro);
                   // Soma valores por status
                   let totalGeral = 0, totalConcluido = 0, totalPendente = 0;
                   listaSolic.forEach(s => {
@@ -500,19 +570,100 @@
                   });
 
                   html += `<div class="solicitacao-bloco">
-                <div class="solicitacao-barbeiro">
-                  <i class="fa fa-user"></i> ${barbeiro}
-                  <br>
-                  <span style="font-size:0.95em; color:#b2ff59;">
-                    Valor Total: <b>R$ ${totalGeral.toFixed(2)}</b> |
-                    Concluído: <b style="color:#00c853;">R$ ${totalConcluido.toFixed(2)}</b> |
-                    Pendente: <b style="color:#ffeb3b;">R$ ${totalPendente.toFixed(2)}</b>
-                  </span>
+                    <div class="solicitacao-barbeiro">
+                      <i class="fa fa-user"></i> ${barbeiro}
+                      <div class="solicitacao-resumo">
+                        <div>Valor Total: <b>R$ ${totalGeral.toFixed(2)}</b></div>
+                        <div>Concluído: <b style="color:#00c853;">R$ ${totalConcluido.toFixed(2)}</b></div>
+                        <div>Pendente: <b style="color:#ffeb3b;">R$ ${totalPendente.toFixed(2)}</b></div>
+                      </div>
+                    </div>
+                    ${listaSolic
+                      .map(
+                        (s, idx) => `
+                      <div class="solicitacao-item" onclick="abrirEditarSolicitacaoAdmin('${barbeiro}',${idx})">
+                        <div class="solicitacao-data"><i class="fa fa-calendar"></i> ${formatarData(
+                          s.dataCriacao
+                        )}</div>
+                        <div class="solicitacao-servicos">
+                          ${
+                            Array.isArray(s.servicos)
+                              ? s.servicos
+                                  .map(
+                                    (sv) =>
+                                      `<div class="servico-linha">
+                                        <span class="servico-icone"><i class="fa fa-scissors"></i></span>
+                                        <span class="servico-nome">${sv.nome}</span>
+                                        <span class="servico-preco">R$ ${sv.preco}</span>
+                                      </div>`
+                                  )
+                                  .join("")
+                              : ""
+                          }
+                        </div>
+                        <div class="solicitacao-total">Total: <b>R$ ${s.valorTotal}</b></div>
+                        <div class="solicitacao-status solicitacao-${(
+                          s.status || "pendente"
+                        ).toLowerCase()}">
+                          Status: ${
+                            s.status
+                              ? s.status.charAt(0).toUpperCase() +
+                                s.status.slice(1)
+                              : "Pendente"
+                          }
+                        </div>
+                      </div>
+                    `
+                      )
+                      .join("")}
+                  </div>`;
+                });
+              }
+              listaDiv.innerHTML = html;
+            })
+            .catch((error) => {
+              listaDiv.innerHTML =
+                '<div style="color:#ff5252;">Erro ao carregar solicitações: ' +
+                error.message +
+                "</div>";
+            });
+        } else {
+          // Barbeiro: vê só as próprias solicitações (com filtro e resumo)
+          const meuDocId = nomeParaId(usuarioLogado.nome);
+          db.collection("solicitacoes")
+            .doc(meuDocId)
+            .get()
+            .then((doc) => {
+              if (
+                !doc.exists ||
+                !Array.isArray(doc.data().lista) ||
+                doc.data().lista.length === 0
+              ) {
+                listaDiv.innerHTML =
+                  '<div style="color:#fff;text-align:center;">Nenhuma solicitação encontrada.</div>';
+                return;
+              }
+              listaSolicitacoes = doc.data().lista;
+              const listaFiltrada = filtrarPorData(listaSolicitacoes, filtro);
+              // Resumo também para barbeiro comum
+              let totalGeral = 0, totalConcluido = 0, totalPendente = 0;
+              listaFiltrada.forEach(s => {
+                totalGeral += Number(s.valorTotal || 0);
+                if ((s.status || '').toLowerCase() === 'concluido') totalConcluido += Number(s.valorTotal || 0);
+                if ((s.status || '').toLowerCase() === 'pendente') totalPendente += Number(s.valorTotal || 0);
+              });
+              let html = `<div class="solicitacao-bloco">
+                <div class="solicitacao-barbeiro"><i class="fa fa-user"></i> ${usuarioLogado.nome}
+                  <div class="solicitacao-resumo">
+                    <div>Valor Total: <b>R$ ${totalGeral.toFixed(2)}</b></div>
+                    <div>Concluído: <b style="color:#00c853;">R$ ${totalConcluido.toFixed(2)}</b></div>
+                    <div>Pendente: <b style="color:#ffeb3b;">R$ ${totalPendente.toFixed(2)}</b></div>
+                  </div>
                 </div>
-                ${listaSolic
+                ${listaFiltrada
                   .map(
                     (s, idx) => `
-                  <div class="solicitacao-item" onclick="abrirEditarSolicitacaoAdmin('${barbeiro}',${idx})">
+                  <div class="solicitacao-item" onclick="abrirEditarSolicitacao(${idx})">
                     <div class="solicitacao-data"><i class="fa fa-calendar"></i> ${formatarData(
                       s.dataCriacao
                     )}</div>
@@ -538,8 +689,7 @@
                     ).toLowerCase()}">
                       Status: ${
                         s.status
-                          ? s.status.charAt(0).toUpperCase() +
-                            s.status.slice(1)
+                          ? s.status.charAt(0).toUpperCase() + s.status.slice(1)
                           : "Pendente"
                       }
                     </div>
@@ -548,75 +698,6 @@
                   )
                   .join("")}
               </div>`;
-                });
-              }
-              listaDiv.innerHTML = html;
-            })
-            .catch((error) => {
-              listaDiv.innerHTML =
-                '<div style="color:#ff5252;">Erro ao carregar solicitações: ' +
-                error.message +
-                "</div>";
-            });
-        } else {
-          // Barbeiro: vê só as próprias solicitações (sem totais, mas pode adaptar igual se quiser)
-          const meuDocId = nomeParaId(usuarioLogado.nome);
-          db.collection("solicitacoes")
-            .doc(meuDocId)
-            .get()
-            .then((doc) => {
-              if (
-                !doc.exists ||
-                !Array.isArray(doc.data().lista) ||
-                doc.data().lista.length === 0
-              ) {
-                listaDiv.innerHTML =
-                  '<div style="color:#fff;text-align:center;">Nenhuma solicitação encontrada.</div>';
-                return;
-              }
-              listaSolicitacoes = doc.data().lista;
-              let html = `<div class="solicitacao-bloco">
-            <div class="solicitacao-barbeiro"><i class="fa fa-user"></i> ${
-              usuarioLogado.nome
-            }</div>
-            ${listaSolicitacoes
-              .map(
-                (s, idx) => `
-              <div class="solicitacao-item" onclick="abrirEditarSolicitacao(${idx})">
-                <div class="solicitacao-data"><i class="fa fa-calendar"></i> ${formatarData(
-                  s.dataCriacao
-                )}</div>
-                <div class="solicitacao-servicos">
-                  ${
-                    Array.isArray(s.servicos)
-                      ? s.servicos
-                          .map(
-                            (sv) =>
-                              `<div class="servico-linha">
-                                <span class="servico-icone"><i class="fa fa-scissors"></i></span>
-                                <span class="servico-nome">${sv.nome}</span>
-                                <span class="servico-preco">R$ ${sv.preco}</span>
-                              </div>`
-                          )
-                          .join("")
-                      : ""
-                  }
-                </div>
-                <div class="solicitacao-total">Total: <b>R$ ${s.valorTotal}</b></div>
-                <div class="solicitacao-status solicitacao-${(
-                  s.status || "pendente"
-                ).toLowerCase()}">
-                  Status: ${
-                    s.status
-                      ? s.status.charAt(0).toUpperCase() + s.status.slice(1)
-                      : "Pendente"
-                  }
-                </div>
-              </div>
-            `
-              )
-              .join("")}
-          </div>`;
               listaDiv.innerHTML = html;
             })
             .catch((error) => {
@@ -629,7 +710,7 @@
       });
     }
 
-    // ... (restante do seu código permanece igual) ...
+    // ... (restante do JS permanece igual) ...
     // Modal para Proprietario/Admin (pode editar status)
     function abrirEditarSolicitacaoAdmin(barbeiro, idx) {
       const lista = solicitacoesPorBarbeiro[barbeiro];
