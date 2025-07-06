@@ -6,6 +6,7 @@
     <title>Alterar Barbeiros - Barbearia Pedro Rodrigues</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <style>
+      /* ... seu CSS igual ... */
       body {
         font-family: Arial, sans-serif;
         background: #222;
@@ -341,6 +342,36 @@
         return nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
       }
 
+      // Atualiza nome do barbeiro na lista de usuários (se houver)
+      async function atualizarNomeUsuarioBarbeiro(nomeAntigo, nomeNovo) {
+        const usuariosDoc = await db.collection("usuarios").doc("usuarios").get();
+        if (usuariosDoc.exists && Array.isArray(usuariosDoc.data().lista)) {
+          let lista = usuariosDoc.data().lista;
+          let alterado = false;
+          lista.forEach(u => {
+            if (u.nome === nomeAntigo) {
+              u.nome = nomeNovo;
+              alterado = true;
+            }
+          });
+          if (alterado) {
+            await db.collection("usuarios").doc("usuarios").set({ lista });
+          }
+        }
+      }
+
+      // Remove barbeiro da lista de usuários (se houver)
+      async function removerUsuarioBarbeiro(nome) {
+        const usuariosDoc = await db.collection("usuarios").doc("usuarios").get();
+        if (usuariosDoc.exists && Array.isArray(usuariosDoc.data().lista)) {
+          let lista = usuariosDoc.data().lista;
+          const novaLista = lista.filter(u => u.nome !== nome);
+          if (novaLista.length !== lista.length) {
+            await db.collection("usuarios").doc("usuarios").set({ lista: novaLista });
+          }
+        }
+      }
+
       function salvarBarbeiro() {
         const nome = document.getElementById("barbeiroNome").value.trim();
         const msg = document.getElementById("modalBarbeiroMsg");
@@ -362,19 +393,19 @@
           db.collection("barbeiros")
             .doc("barbeiros")
             .set({ lista: barbeiros })
-            .then(() => {
-              // Se o nome mudou, renomeia o documento em solicitacoes
+            .then(async () => {
+              // Se o nome mudou, renomeia o documento em solicitacoes e atualiza em usuarios
               if (barbeiroIdAntigo !== barbeiroId) {
                 const solicitacoesRef = db.collection("solicitacoes");
-                solicitacoesRef.doc(barbeiroIdAntigo).get().then((docAntigo) => {
-                  if (docAntigo.exists) {
-                    solicitacoesRef.doc(barbeiroId).set(docAntigo.data()).then(() => {
-                      solicitacoesRef.doc(barbeiroIdAntigo).delete();
-                    });
-                  } else {
-                    solicitacoesRef.doc(barbeiroId).set({ lista: [] });
-                  }
-                });
+                const docAntigo = await solicitacoesRef.doc(barbeiroIdAntigo).get();
+                if (docAntigo.exists) {
+                  await solicitacoesRef.doc(barbeiroId).set(docAntigo.data());
+                  await solicitacoesRef.doc(barbeiroIdAntigo).delete();
+                } else {
+                  await solicitacoesRef.doc(barbeiroId).set({ lista: [] });
+                }
+                // Atualiza na lista de usuários
+                await atualizarNomeUsuarioBarbeiro(nomeAntigo, nome);
               }
               msg.textContent = "Barbeiro salvo com sucesso!";
               msg.style.color = "#b2ff59";
@@ -429,9 +460,11 @@
         db.collection("barbeiros")
           .doc("barbeiros")
           .set({ lista: barbeiros })
-          .then(() => {
+          .then(async () => {
             // Remove documento em solicitacoes
-            db.collection("solicitacoes").doc(barbeiroIdAntigo).delete();
+            await db.collection("solicitacoes").doc(barbeiroIdAntigo).delete();
+            // Remove também da lista de usuários
+            await removerUsuarioBarbeiro(nomeAntigo);
             msg.textContent = "Barbeiro excluído com sucesso!";
             msg.style.color = "#b2ff59";
             setTimeout(() => {
