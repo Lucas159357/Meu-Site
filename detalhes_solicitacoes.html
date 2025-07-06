@@ -196,25 +196,208 @@
       font-size: 0.97em;
       margin-bottom: 2px;
     }
-    .daterangepicker {
-      color: #222;
+
+    /* MODAL BONITO E MODERNO */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 20;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.7);
+      justify-content: center;
+      align-items: center;
     }
-    .daterangepicker .calendar-table {
+    .modal.show {
+      display: flex !important;
+    }
+    .modal-content {
+      background: #23272b;
+      padding: 32px 18px 18px 18px;
+      border-radius: 18px;
+      text-align: center;
+      min-width: 300px;
+      box-shadow: 0 0 18px #111;
+      position: relative;
+      width: 94vw;
+      max-width: 380px;
+      margin: 0 auto;
+      border: 1.5px solid #00c853;
+      animation: modalShow 0.18s;
+    }
+    @keyframes modalShow {
+      from { transform: scale(0.96); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+    .modal-title {
+      color: #00c853;
+      font-size: 1.25em;
+      margin-bottom: 12px;
+      margin-top: 0;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+    .modal-status-label {
+      color: #00ff6a;
+      text-align: left;
+      font-size: 1em;
+      font-weight: bold;
+      margin-bottom: 2px;
+    }
+    .modal-status-select, .modal-status-value {
+      background: #181818;
+      color: #00ff6a;
+      border-radius: 6px;
+      padding: 8px 0;
+      margin-bottom: 14px;
+      font-size: 1.13em;
+      font-weight: bold;
+      border: none;
+      width: 100%;
+      text-align: center;
+    }
+    .servico-edit-lista {
+      margin-bottom: 12px;
+    }
+    .servico-edit-item {
+      background: #222;
+      border-radius: 10px;
+      padding: 10px 10px 8px 10px;
+      margin-bottom: 7px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      box-shadow: 0 1px 0 #333 inset;
+      position: relative;
+    }
+    .servico-edit-nome {
+      color: #00ff6a;
+      font-weight: bold;
+      font-size: 1.08em;
+      margin-bottom: 2px;
+      text-align: left;
+    }
+    .servico-edit-preco {
+      color: #fff;
+      font-size: 1em;
+      margin-bottom: 5px;
+      text-align: left;
+    }
+    .remover-servico-btn {
+      background: #ff5252;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 0;
+      font-size: 1em;
+      cursor: pointer;
+      font-weight: bold;
+      width: 100%;
+      margin: 0;
+      transition: background 0.18s;
+      display: block;
+    }
+    .remover-servico-btn:hover {
+      background: #c62828;
+    }
+    .adicionar-servico-bloco {
+      background: #181818;
+      border-radius: 0 0 8px 8px;
+      padding: 10px 8px 8px 8px;
+      margin-bottom: 10px;
+      border-bottom: 2px solid #00ff6a;
+      box-shadow: 0 2px 0 #00ff6a inset;
+      text-align: left;
+    }
+    .adicionar-servico-label {
+      color: #00ff6a;
+      font-size: 1.1em;
+      font-weight: bold;
+      margin-bottom: 5px;
+      margin-left: 2px;
+      letter-spacing: 0.2px;
+    }
+    .adicionar-servico-select {
+      width: 100%;
+      background: #fff;
+      color: #111;
+      border: 1.5px solid #222;
+      border-radius: 6px;
+      padding: 7px 7px;
+      font-size: 1em;
+      transition: border 0.18s;
+      outline: none;
+      margin-bottom: 0;
+    }
+    .adicionar-servico-select:focus {
+      border: 1.5px solid #00ff6a;
+    }
+    .add-servico-btn {
+      background: #00ff6a;
+      color: #222;
+      border: none;
+      border-radius: 7px;
+      padding: 10px 0;
+      font-size: 1.08em;
+      cursor: pointer;
+      margin-top: 8px;
+      margin-bottom: 8px;
+      font-weight: bold;
+      width: 100%;
+      transition: background 0.18s, color 0.18s;
+    }
+    .add-servico-btn:hover {
+      background: #009e46;
+      color: #fff;
+    }
+    .salvar-btn {
       background: #fff;
       color: #222;
-    }
-    .daterangepicker td.active, .daterangepicker td.active:hover {
-      background-color: #00c853 !important;
-      color: #fff !important;
-    }
-    .daterangepicker .drp-buttons .btn {
-      background: #007acc;
-      color: #fff;
-      border-radius: 5px;
       border: none;
-      padding: 4px 12px;
+      border-radius: 7px;
+      padding: 10px 0;
+      font-size: 1.08em;
+      cursor: pointer;
+      margin-top: 6px;
+      font-weight: bold;
+      width: 100%;
+      transition: background 0.18s, color 0.18s;
+      box-shadow: 0 1px 0 #333 inset;
+    }
+    .salvar-btn:hover {
+      background: #00c853;
+      color: #fff;
+    }
+    .close-modal {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      color: #fff;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.3em;
+      padding: 0 8px;
+      line-height: 1;
+      border-radius: 50%;
+      height: 32px;
+      width: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s, background 0.2s;
+    }
+    .close-modal:hover {
+      color: #00c853;
+      background: rgba(0, 0, 0, 0.08);
+    }
+    .modal-msg {
+      margin-top: 8px;
       font-size: 1em;
-      margin: 0 2px;
+      color: #b2ff59;
+      min-height: 18px;
     }
     @media (max-width: 500px) {
       .container {
@@ -229,6 +412,7 @@
       .filtros { gap: 7px; }
       .filtro-linha { flex-direction: column; gap:4px;}
       .filtro-select, .filtro-input, #rangeSemana { width: 100%; }
+      .modal-content { max-width: 98vw; }
     }
   </style>
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -612,11 +796,11 @@
           btn.style.display = "block";
         });
       }, 50);
-      document.getElementById("modalSolicitacao").style.display = "flex";
+      document.getElementById("modalSolicitacao").classList.add('show');
     }
 
     function fecharModalSolicitacao() {
-      document.getElementById("modalSolicitacao").style.display = "none";
+      document.getElementById("modalSolicitacao").classList.remove('show');
     }
 
     function renderServicosEdit(servicos) {
