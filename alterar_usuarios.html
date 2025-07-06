@@ -244,7 +244,7 @@
 
     let usuarios = [];
     let usuarioEditIdx = null;
-    let nomeAntigo = ""; // Para controle de edição
+    let nomeAntigo = "";
 
     function voltar() {
       window.history.back();
@@ -364,7 +364,6 @@
         return;
       }
 
-      // Checa se está editando ou criando novo
       let nomeAntigoLocal = "";
       if (usuarioEditIdx !== null) {
         nomeAntigoLocal = usuarios[usuarioEditIdx].nome || "";
@@ -375,12 +374,10 @@
 
       db.collection('usuarios').doc('usuarios').set({ lista: usuarios })
         .then(async () => {
-          // Se nome mudou e era barbeiro, remove antigo dos registros
           if (nomeAntigoLocal && nomeAntigoLocal !== nome) {
             await removerBarbeiro(nomeAntigoLocal);
             await removerSolicitacao(nomeAntigoLocal);
           }
-          // Se nome novo, adiciona nos registros
           if (nome) {
             await adicionarBarbeiroSeNaoExiste(nome);
             await adicionarSolicitacaoSeNaoExiste(nome);
@@ -398,17 +395,25 @@
         });
     }
 
-    // Adiciona barbeiro na lista de barbeiros se não existir
+    // Adiciona barbeiro na lista de barbeiros se não existir (array de objetos {nome})
     async function adicionarBarbeiroSeNaoExiste(nome) {
       const doc = await db.collection('barbeiros').doc('barbeiros').get();
       let lista = (doc.exists && Array.isArray(doc.data().lista)) ? doc.data().lista : [];
-      if (!lista.includes(nome)) {
-        lista.push(nome);
+      if (!lista.some(b => b.nome === nome)) {
+        lista.push({ nome });
         await db.collection('barbeiros').doc('barbeiros').set({ lista });
       }
     }
 
-    // Adiciona documento de solicitações para o barbeiro se não existir
+    // Remove barbeiro da lista de barbeiros (array de objetos {nome})
+    async function removerBarbeiro(nome) {
+      const doc = await db.collection('barbeiros').doc('barbeiros').get();
+      let lista = (doc.exists && Array.isArray(doc.data().lista)) ? doc.data().lista : [];
+      lista = lista.filter(b => b.nome !== nome);
+      await db.collection('barbeiros').doc('barbeiros').set({ lista });
+    }
+
+    // Solicitações igual antes
     async function adicionarSolicitacaoSeNaoExiste(nome) {
       const docId = nomeParaId(nome);
       const doc = await db.collection('solicitacoes').doc(docId).get();
@@ -417,17 +422,6 @@
       }
     }
 
-    // Remove barbeiro da lista de barbeiros
-    async function removerBarbeiro(nome) {
-      const doc = await db.collection('barbeiros').doc('barbeiros').get();
-      let lista = (doc.exists && Array.isArray(doc.data().lista)) ? doc.data().lista : [];
-      if (lista.includes(nome)) {
-        lista = lista.filter(n => n !== nome);
-        await db.collection('barbeiros').doc('barbeiros').set({ lista });
-      }
-    }
-
-    // Remove documento de solicitações do barbeiro
     async function removerSolicitacao(nome) {
       const docId = nomeParaId(nome);
       await db.collection('solicitacoes').doc(docId).delete();
@@ -445,7 +439,6 @@
 
       db.collection('usuarios').doc('usuarios').set({ lista: usuarios })
         .then(async () => {
-          // Remove também de barbeiros e solicitacoes se tinha nome
           if (nomeRemovido) {
             await removerBarbeiro(nomeRemovido);
             await removerSolicitacao(nomeRemovido);
