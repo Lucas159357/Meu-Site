@@ -368,6 +368,23 @@
       background: #00c853;
       color: #fff;
     }
+    .excluir-btn {
+      background: #ff5252;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: 10px 0;
+      font-size: 1.08em;
+      cursor: pointer;
+      margin-top: 10px;
+      font-weight: bold;
+      width: 100%;
+      transition: background 0.18s, color 0.18s;
+    }
+    .excluir-btn:hover {
+      background: #c62828;
+      color: #fff;
+    }
     .close-modal {
       position: absolute;
       right: 10px;
@@ -466,6 +483,7 @@
       </div>
       <button class="add-servico-btn" onclick="adicionarServicoEdit()">+ Adicionar Serviço</button>
       <button class="salvar-btn" onclick="salvarSolicitacaoEditada()">Salvar Alteração</button>
+      <button class="excluir-btn" onclick="excluirSolicitacao()">Excluir Solicitação</button>
       <div class="modal-msg" id="modalSolicitacaoMsg"></div>
     </div>
   </div>
@@ -789,6 +807,7 @@
       document.getElementById("selectAdicionarServico").disabled = false;
       document.querySelector(".add-servico-btn").style.display = "block";
       document.querySelector(".salvar-btn").style.display = "block";
+      document.querySelector(".excluir-btn").style.display = "block";
       setTimeout(() => {
         document.querySelectorAll(".remover-servico-btn").forEach((btn) => {
           btn.style.display = "block";
@@ -852,6 +871,31 @@
       s.servicos.splice(idx, 1);
       renderServicosEdit(s.servicos);
       renderSelectAdicionarServico(s.servicos);
+    }
+
+    function excluirSolicitacao() {
+      if (solicitacaoEditIdx === null) return;
+      if (!confirm("Tem certeza que deseja excluir esta solicitação? Essa ação não pode ser desfeita!")) return;
+      listaSolicitacoes.splice(solicitacaoEditIdx, 1);
+      db.collection("solicitacoes")
+        .doc(barbeiroAtual)
+        .set({ lista: listaSolicitacoes })
+        .then(() => {
+          document.getElementById("modalSolicitacaoMsg").textContent =
+            "Solicitação excluída!";
+          document.getElementById("modalSolicitacaoMsg").style.color =
+            "#ff5252";
+          setTimeout(() => {
+            fecharModalSolicitacao();
+            carregarDetalhes();
+          }, 800);
+        })
+        .catch((error) => {
+          document.getElementById("modalSolicitacaoMsg").textContent =
+            "Erro ao excluir: " + error.message;
+          document.getElementById("modalSolicitacaoMsg").style.color =
+            "#ff5252";
+        });
     }
 
     function salvarSolicitacaoEditada() {
