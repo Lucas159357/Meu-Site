@@ -490,9 +490,26 @@
                   '<div style="color:#fff;text-align:center;">Nenhuma solicitação encontrada.</div>';
               } else {
                 barbeiros.forEach((barbeiro) => {
+                  const listaSolic = solicitacoesPorBarbeiro[barbeiro];
+                  // Soma valores por status
+                  let totalGeral = 0, totalConcluido = 0, totalPendente = 0;
+                  listaSolic.forEach(s => {
+                    totalGeral += Number(s.valorTotal || 0);
+                    if ((s.status || '').toLowerCase() === 'concluido') totalConcluido += Number(s.valorTotal || 0);
+                    if ((s.status || '').toLowerCase() === 'pendente') totalPendente += Number(s.valorTotal || 0);
+                  });
+
                   html += `<div class="solicitacao-bloco">
-                <div class="solicitacao-barbeiro"><i class="fa fa-user"></i> ${barbeiro}</div>
-                ${solicitacoesPorBarbeiro[barbeiro]
+                <div class="solicitacao-barbeiro">
+                  <i class="fa fa-user"></i> ${barbeiro}
+                  <br>
+                  <span style="font-size:0.95em; color:#b2ff59;">
+                    Valor Total: <b>R$ ${totalGeral.toFixed(2)}</b> |
+                    Concluído: <b style="color:#00c853;">R$ ${totalConcluido.toFixed(2)}</b> |
+                    Pendente: <b style="color:#ffeb3b;">R$ ${totalPendente.toFixed(2)}</b>
+                  </span>
+                </div>
+                ${listaSolic
                   .map(
                     (s, idx) => `
                   <div class="solicitacao-item" onclick="abrirEditarSolicitacaoAdmin('${barbeiro}',${idx})">
@@ -542,7 +559,7 @@
                 "</div>";
             });
         } else {
-          // Barbeiro: vê só as próprias solicitações
+          // Barbeiro: vê só as próprias solicitações (sem totais, mas pode adaptar igual se quiser)
           const meuDocId = nomeParaId(usuarioLogado.nome);
           db.collection("solicitacoes")
             .doc(meuDocId)
@@ -612,6 +629,7 @@
       });
     }
 
+    // ... (restante do seu código permanece igual) ...
     // Modal para Proprietario/Admin (pode editar status)
     function abrirEditarSolicitacaoAdmin(barbeiro, idx) {
       const lista = solicitacoesPorBarbeiro[barbeiro];
