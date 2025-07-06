@@ -89,12 +89,6 @@
       outline: none;
       margin-bottom: 2px;
     }
-    .semana-campo {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-left: 2px;
-    }
     #periodoSelecionado {
       color: #00c853;
       font-weight: bold;
@@ -115,7 +109,6 @@
       .container { width: 99vw; padding: 10px 2vw; }
       #graficoDesempenho { padding: 2px; }
       .filtros { gap: 7px; }
-      .semana-campo { flex-direction: column; align-items: flex-start; gap: 2px;}
       .filtro-linha { flex-direction: column; align-items: flex-start; gap: 4px;}
     }
   </style>
@@ -211,20 +204,7 @@
       if (filtro === "dia") {
         campo.innerHTML = `<input type="date" id="inputData" value="${new Date().toISOString().slice(0,10)}" onchange="carregarDados()">`;
       } else if (filtro === "semana") {
-        // Semana atual: domingo a sábado
-        const hoje = new Date();
-        const inicio = new Date(hoje);
-        inicio.setDate(hoje.getDate() - hoje.getDay());
-        const fim = new Date(inicio);
-        fim.setDate(inicio.getDate() + 6);
-        campo.innerHTML = `
-          <span class="semana-campo">
-            <label>De</label>
-            <input type="date" id="inputDataInicio" value="${inicio.toISOString().slice(0,10)}" onchange="carregarDados()">
-            <label>até</label>
-            <input type="date" id="inputDataFim" value="${fim.toISOString().slice(0,10)}" onchange="carregarDados()">
-          </span>
-        `;
+        campo.innerHTML = `<input type="date" id="inputDataSemana" value="${new Date().toISOString().slice(0,10)}" onchange="carregarDados()">`;
       } else if (filtro === "mes") {
         const hoje = new Date();
         campo.innerHTML = `<input type="month" id="inputData" value="${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}" onchange="carregarDados()">`;
@@ -233,28 +213,41 @@
 
     function mostrarPeriodoSelecionado() {
       const filtro = document.getElementById("filtroData")?.value || "dia";
-      const campo = document.getElementById("inputData");
       const div = document.getElementById("periodoSelecionado");
-      if (filtro === "dia" && campo && campo.value) {
-        const [ano, mes, dia] = campo.value.split('-');
-        const dt = new Date(Number(ano), Number(mes)-1, Number(dia));
-        div.textContent = "Dia: " + dt.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
-      } else if (filtro === "semana") {
-        const inicioCampo = document.getElementById("inputDataInicio");
-        const fimCampo = document.getElementById("inputDataFim");
-        if (inicioCampo && fimCampo && inicioCampo.value && fimCampo.value) {
-          const di = new Date(inicioCampo.value);
-          const df = new Date(fimCampo.value);
-          div.textContent = `Semana: de ${di.toLocaleDateString('pt-BR')} até ${df.toLocaleDateString('pt-BR')}`;
+      if (filtro === "semana") {
+        const campo = document.getElementById("inputDataSemana");
+        if (campo && campo.value) {
+          const dataSelecionada = new Date(campo.value + "T00:00:00");
+          // Domingo (início da semana)
+          const inicio = new Date(dataSelecionada);
+          inicio.setDate(dataSelecionada.getDate() - dataSelecionada.getDay());
+          // Sábado (fim da semana)
+          const fim = new Date(inicio);
+          fim.setDate(inicio.getDate() + 6);
+          div.textContent = `Semana: de ${inicio.toLocaleDateString('pt-BR')} até ${fim.toLocaleDateString('pt-BR')}`;
         } else {
           div.textContent = "";
         }
-      } else if (filtro === "mes" && campo && campo.value) {
-        const [ano, mes] = campo.value.split('-');
-        const data = new Date(Number(ano), Number(mes)-1, 1);
-        let txt = data.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-        txt = txt.charAt(0).toUpperCase() + txt.slice(1);
-        div.textContent = "Mês: " + txt;
+      } else if (filtro === "dia") {
+        const campo = document.getElementById("inputData");
+        if (campo && campo.value) {
+          const [ano, mes, dia] = campo.value.split('-');
+          const dt = new Date(Number(ano), Number(mes)-1, Number(dia));
+          div.textContent = "Dia: " + dt.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
+        } else {
+          div.textContent = "";
+        }
+      } else if (filtro === "mes") {
+        const campo = document.getElementById("inputData");
+        if (campo && campo.value) {
+          const [ano, mes] = campo.value.split('-');
+          const data = new Date(Number(ano), Number(mes)-1, 1);
+          let txt = data.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+          txt = txt.charAt(0).toUpperCase() + txt.slice(1);
+          div.textContent = "Mês: " + txt;
+        } else {
+          div.textContent = "";
+        }
       } else {
         div.textContent = "";
       }
@@ -263,11 +256,17 @@
     function filtrarPorData(lista, modo) {
       if (modo === "todos") return lista;
       if (modo === "semana") {
-        const inicioCampo = document.getElementById("inputDataInicio");
-        const fimCampo = document.getElementById("inputDataFim");
-        if (!inicioCampo || !inicioCampo.value || !fimCampo || !fimCampo.value) return lista;
-        const inicio = new Date(inicioCampo.value + "T00:00:00");
-        const fim = new Date(fimCampo.value + "T23:59:59.999");
+        const campo = document.getElementById("inputDataSemana");
+        if (!campo || !campo.value) return lista;
+        const dataSelecionada = new Date(campo.value + "T00:00:00");
+        // Domingo (início da semana)
+        const inicio = new Date(dataSelecionada);
+        inicio.setDate(dataSelecionada.getDate() - dataSelecionada.getDay());
+        // Sábado (fim da semana)
+        const fim = new Date(inicio);
+        fim.setDate(inicio.getDate() + 6);
+        // Considera todo o dia final
+        fim.setHours(23,59,59,999);
         return lista.filter(s => {
           if (!s.dataCriacao) return false;
           const data = new Date(s.dataCriacao);
