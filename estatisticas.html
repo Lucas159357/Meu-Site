@@ -35,7 +35,7 @@
       letter-spacing: 1px;
       font-weight: bold;
     }
-    #graficoDesempenho, #graficoServicos {
+    #graficoDesempenho, #graficoServicos, #graficoServicosBarbeiro {
       background: #fff;
       border-radius: 8px;
       padding: 10px;
@@ -112,7 +112,7 @@
       max-width: 400px;
       min-height: 20px;
     }
-    #mensagem, #mensagemServicos {
+    #mensagem, #mensagemServicos, #mensagemServicosBarbeiro {
       color: #ff5252;
       font-weight: bold;
       margin-top: 12px;
@@ -125,7 +125,7 @@
     }
     @media (max-width: 500px) {
       .container { width: 99vw; padding: 10px 2vw; }
-      #graficoDesempenho, #graficoServicos { padding: 2px; }
+      #graficoDesempenho, #graficoServicos, #graficoServicosBarbeiro { padding: 2px; }
       .filtros { gap: 7px; }
       .filtro-linha { flex-direction: column; align-items: flex-start; gap: 4px;}
       .filtro-linha select, .filtro-linha input[type="date"], .filtro-linha input[type="month"], .filtro-linha input[type="text"] { width: 100%; }
@@ -172,7 +172,7 @@
     <div class="filtros">
       <div class="filtro-linha">
         <label for="filtroStatus">Status:</label>
-        <select id="filtroStatus" onchange="carregarDados();carregarGraficoServicos();">
+        <select id="filtroStatus">
           <option value="todos">Todos</option>
           <option value="concluido">Concluídas</option>
           <option value="pendente">Pendentes</option>
@@ -181,13 +181,13 @@
       </div>
       <div class="filtro-linha" id="filtroBarbeiroLinha" style="display:none;">
         <label for="filtroBarbeiro">Barbeiro:</label>
-        <select id="filtroBarbeiro" onchange="carregarDados();carregarGraficoServicos();">
+        <select id="filtroBarbeiro">
           <option value="todos">Todos</option>
         </select>
       </div>
       <div class="filtro-linha">
         <label for="filtroData">Período:</label>
-        <select id="filtroData" onchange="mostrarCampoData();carregarDados();carregarGraficoServicos();">
+        <select id="filtroData">
           <option value="todos">Todos</option>
           <option value="dia" selected>Dia</option>
           <option value="semana">Semana</option>
@@ -204,6 +204,11 @@
     <div style="margin-bottom: 10px; color:#00c853; font-weight:bold;">Serviços Realizados</div>
     <canvas id="graficoServicos" height="220"></canvas>
     <div id="mensagemServicos"></div>
+
+    <hr>
+    <div style="margin-bottom: 10px; color:#00c853; font-weight:bold;">Serviços por Barbeiro</div>
+    <canvas id="graficoServicosBarbeiro" height="240"></canvas>
+    <div id="mensagemServicosBarbeiro"></div>
   </div>
   <script>
     const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
@@ -225,32 +230,21 @@
         .replace(/[^a-zA-Z0-9]/g, "_");
     }
 
-    const ctx = document.getElementById('graficoDesempenho').getContext('2d');
-    let grafico;
+    // Paletas de cores
+    const coresServicos = [
+      "#00c853", "#ff9800", "#2196f3", "#e91e63", "#ffeb3b", "#9c27b0", "#009688", "#f44336", "#607d8b", "#795548"
+    ];
+    const coresBarbeiros = [
+      "#00c853", "#ff9800", "#2196f3", "#e91e63", "#ffeb3b", "#9c27b0", "#009688", "#f44336", "#607d8b", "#795548"
+    ];
 
-    function getCorPorStatus(status) {
-      switch(status) {
-        case 'concluido': return 'rgba(0, 200, 83, 0.6)';
-        case 'pendente': return 'rgba(255, 235, 59, 0.85)';
-        case 'cancelado': return 'rgba(244, 67, 54, 0.85)';
-        default: return 'rgba(0, 200, 83, 0.6)';
-      }
-    }
-    function getCorBordaPorStatus(status) {
-      switch(status) {
-        case 'concluido': return 'rgba(0, 200, 83, 1)';
-        case 'pendente': return 'rgba(255, 235, 59, 1)';
-        case 'cancelado': return 'rgba(244, 67, 54, 1)';
-        default: return 'rgba(0, 200, 83, 1)';
-      }
-    }
-
+    // Filtros e período
     function mostrarCampoData() {
       const filtro = document.getElementById("filtroData").value;
       const campo = document.getElementById("campoData");
       campo.innerHTML = "";
       if (filtro === "dia") {
-        campo.innerHTML = `<input type="date" id="inputData" value="${new Date().toISOString().slice(0,10)}" onchange="carregarDados();carregarGraficoServicos();">`;
+        campo.innerHTML = `<input type="date" id="inputData" value="${new Date().toISOString().slice(0,10)}">`;
       } else if (filtro === "semana") {
         campo.innerHTML = `<input type="text" id="inputDataSemana" style="width: 170px;" readonly />`;
         setTimeout(() => {
@@ -258,7 +252,7 @@
         }, 50);
       } else if (filtro === "mes") {
         const hoje = new Date();
-        campo.innerHTML = `<input type="month" id="inputData" value="${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}" onchange="carregarDados();carregarGraficoServicos();">`;
+        campo.innerHTML = `<input type="month" id="inputData" value="${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}">`;
       }
     }
 
@@ -284,14 +278,6 @@
         endDate: moment(sabado),
         opens: "center",
         autoUpdateInput: true
-      }, function(start, end) {
-        carregarDados();
-        carregarGraficoServicos();
-      });
-
-      $('#inputDataSemana').on('apply.daterangepicker', function(ev, picker) {
-        carregarDados();
-        carregarGraficoServicos();
       });
     }
 
@@ -373,6 +359,24 @@
       return lista;
     }
 
+    // --- GRÁFICO 1: Solicitações por Barbeiro ---
+    let grafico;
+    function getCorPorStatus(status) {
+      switch(status) {
+        case 'concluido': return 'rgba(0, 200, 83, 0.6)';
+        case 'pendente': return 'rgba(255, 235, 59, 0.85)';
+        case 'cancelado': return 'rgba(244, 67, 54, 0.85)';
+        default: return 'rgba(0, 200, 83, 0.6)';
+      }
+    }
+    function getCorBordaPorStatus(status) {
+      switch(status) {
+        case 'concluido': return 'rgba(0, 200, 83, 1)';
+        case 'pendente': return 'rgba(255, 235, 59, 1)';
+        case 'cancelado': return 'rgba(244, 67, 54, 1)';
+        default: return 'rgba(0, 200, 83, 1)';
+      }
+    }
     async function carregarBarbeirosSelect() {
       const select = document.getElementById("filtroBarbeiro");
       select.innerHTML = `<option value="todos">Todos</option>`;
@@ -386,7 +390,6 @@
         });
       }
     }
-
     async function carregarDados() {
       document.getElementById('mensagem').textContent = "";
       mostrarPeriodoSelecionado();
@@ -402,7 +405,6 @@
       } else {
         document.getElementById("filtroBarbeiroLinha").style.display = "none";
       }
-
       try {
         let snapshot;
         if (
@@ -420,18 +422,15 @@
             }
           };
         }
-
         if (snapshot.empty) {
           document.getElementById('mensagem').textContent = "Nenhuma solicitação encontrada.";
           if (grafico) grafico.destroy();
           return;
         }
-
         const labels = [];
         const dadosConcluido = [];
         const dadosPendente = [];
         const dadosCancelado = [];
-
         snapshot.forEach(doc => {
           const barbeiro = doc.id;
           if (
@@ -439,10 +438,8 @@
             filtroBarbeiro !== "todos" &&
             barbeiro !== nomeParaId(filtroBarbeiro)
           ) return;
-
           const lista = Array.isArray(doc.data().lista) ? doc.data().lista : [];
           const listaFiltrada = filtrarPorData(lista, filtroData);
-
           let qtdConcluido = 0, qtdPendente = 0, qtdCancelado = 0;
           listaFiltrada.forEach(s => {
             const status = (s.status || '').toLowerCase();
@@ -464,9 +461,7 @@
             dadosCancelado.push(qtdCancelado > 0 ? qtdCancelado : null);
           }
         });
-
         if (grafico) grafico.destroy();
-
         let datasets = [];
         if (filtroStatus === "todos") {
           datasets = [
@@ -517,8 +512,7 @@
             datalabels: { color: "#222", font: { weight: 'bold', size: 15 } }
           }];
         }
-
-        grafico = new Chart(ctx, {
+        grafico = new Chart(document.getElementById('graficoDesempenho').getContext('2d'), {
           type: 'bar',
           data: {
             labels: labels,
@@ -570,13 +564,8 @@
       }
     }
 
-    // --- GRÁFICO DE SERVIÇOS ---
-
+    // --- GRÁFICO 2: Serviços Realizados (por serviço, cada serviço uma cor) ---
     let graficoServicos;
-    const coresServicos = [
-      "#00c853", "#ff9800", "#2196f3", "#e91e63", "#ffeb3b", "#9c27b0", "#009688", "#f44336", "#607d8b", "#795548"
-    ];
-
     function filtrarSolicPorPeriodoServicos(lista) {
       // Usa o mesmo filtro de período do topo
       const tipo = document.getElementById('filtroData').value;
@@ -621,7 +610,6 @@
       }
       return lista;
     }
-
     async function carregarGraficoServicos() {
       document.getElementById('mensagemServicos').textContent = "";
       try {
@@ -641,17 +629,13 @@
             }
           };
         }
-
         if (snapshot.empty) {
           document.getElementById('mensagemServicos').textContent = "Nenhum serviço encontrado.";
           if (graficoServicos) graficoServicos.destroy();
           return;
         }
-
-        // Montar contagem e valores por serviço
         const servicosQtd = {};
         const servicosValor = {};
-
         snapshot.forEach(doc => {
           const lista = Array.isArray(doc.data().lista) ? doc.data().lista : [];
           // AJUSTE: Ignora pedidos cancelados
@@ -666,14 +650,11 @@
             }
           });
         });
-
         const labels = Object.keys(servicosQtd);
         const dataQtd = labels.map(nome => servicosQtd[nome]);
         const dataValor = labels.map(nome => servicosValor[nome]);
         const backgroundColors = labels.map((_, i) => coresServicos[i % coresServicos.length]);
-
         if (graficoServicos) graficoServicos.destroy();
-
         graficoServicos = new Chart(document.getElementById('graficoServicos').getContext('2d'), {
           type: 'bar',
           data: {
@@ -754,7 +735,152 @@
       }
     }
 
-    // Inicialização dos gráficos
+    // --- GRÁFICO 3: Serviços por Barbeiro (cada barbeiro uma cor) ---
+    let graficoServicosBarbeiro;
+    async function carregarGraficoServicosBarbeiro() {
+      document.getElementById('mensagemServicosBarbeiro').textContent = "";
+      try {
+        let snapshot;
+        if (
+          usuarioLogado.categoria === "Administrador" ||
+          usuarioLogado.categoria === "Proprietario"
+        ) {
+          snapshot = await db.collection("solicitacoes").get();
+        } else {
+          const meuDocId = nomeParaId(usuarioLogado.nome);
+          const doc = await db.collection("solicitacoes").doc(meuDocId).get();
+          snapshot = {
+            empty: !doc.exists || !Array.isArray(doc.data().lista) || doc.data().lista.length === 0,
+            forEach: function(cb) {
+              if (!this.empty) cb(doc);
+            }
+          };
+        }
+        if (snapshot.empty) {
+          document.getElementById('mensagemServicosBarbeiro').textContent = "Nenhum serviço encontrado.";
+          if (graficoServicosBarbeiro) graficoServicosBarbeiro.destroy();
+          return;
+        }
+        const barbeiros = [];
+        const servicosSet = new Set();
+        const dadosPorBarbeiro = {};
+        snapshot.forEach(doc => {
+          const barbeiro = doc.id;
+          barbeiros.push(barbeiro);
+          const lista = Array.isArray(doc.data().lista) ? doc.data().lista : [];
+          // Filtra por período e ignora cancelados
+          const listaFiltrada = filtrarSolicPorPeriodoServicos(lista)
+            .filter(s => (s.status || '').toLowerCase() !== 'cancelado');
+          listaFiltrada.forEach(s => {
+            if (Array.isArray(s.servicos)) {
+              s.servicos.forEach(sv => {
+                servicosSet.add(sv.nome);
+                if (!dadosPorBarbeiro[barbeiro]) dadosPorBarbeiro[barbeiro] = {};
+                if (!dadosPorBarbeiro[barbeiro][sv.nome]) {
+                  dadosPorBarbeiro[barbeiro][sv.nome] = { qtd: 0, valor: 0 };
+                }
+                dadosPorBarbeiro[barbeiro][sv.nome].qtd += 1;
+                dadosPorBarbeiro[barbeiro][sv.nome].valor += Number(sv.preco || 0);
+              });
+            }
+          });
+        });
+        const servicos = Array.from(servicosSet);
+        const datasets = barbeiros.map((barbeiro, idx) => {
+          return {
+            label: barbeiro,
+            data: servicos.map(nome => (dadosPorBarbeiro[barbeiro] && dadosPorBarbeiro[barbeiro][nome]) ? dadosPorBarbeiro[barbeiro][nome].qtd : 0),
+            backgroundColor: coresBarbeiros[idx % coresBarbeiros.length],
+            borderColor: coresBarbeiros[idx % coresBarbeiros.length],
+            borderWidth: 2,
+            datalabels: { color: "#fff", font: { weight: 'bold', size: 13 } }
+          };
+        });
+        const valoresTotais = barbeiros.map(barbeiro =>
+          servicos.map(nome =>
+            (dadosPorBarbeiro[barbeiro] && dadosPorBarbeiro[barbeiro][nome])
+              ? dadosPorBarbeiro[barbeiro][nome].valor
+              : 0
+          )
+        );
+        if (graficoServicosBarbeiro) graficoServicosBarbeiro.destroy();
+        graficoServicosBarbeiro = new Chart(document.getElementById('graficoServicosBarbeiro').getContext('2d'), {
+          type: 'bar',
+          data: {
+            labels: servicos,
+            datasets: datasets
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                display: true,
+                labels: {
+                  color: '#fff',
+                  font: { size: 15 }
+                }
+              },
+              datalabels: {
+                anchor: 'end',
+                align: 'start',
+                color: '#fff',
+                font: { weight: 'bold', size: 13 },
+                formatter: function(value) { return value > 0 ? value : ''; }
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    const barbeiroIdx = context.datasetIndex;
+                    const servicoIdx = context.dataIndex;
+                    const barbeiro = barbeiros[barbeiroIdx];
+                    const servico = servicos[servicoIdx];
+                    const qtd = context.dataset.data[servicoIdx];
+                    const valor = valoresTotais[barbeiroIdx][servicoIdx];
+                    return [
+                      `Barbeiro: ${barbeiro}`,
+                      `Serviço: ${servico}`,
+                      `Quantidade: ${qtd}`,
+                      `Valor total: R$ ${valor.toFixed(2)}`
+                    ];
+                  }
+                }
+              }
+            },
+            scales: {
+              x: { 
+                stacked: true,
+                ticks: { color: '#fff', font: { size: 14 } },
+                title: { display: true, text: "Serviço", color: "#00c853", font: { size: 15, weight: "bold" } }
+              },
+              y: {
+                beginAtZero: true,
+                stacked: true,
+                ticks: { 
+                  color: '#fff', 
+                  font: { size: 14 }, 
+                  stepSize: 1,
+                  callback: function(value) { return value; }
+                },
+                title: { display: true, text: "Quantidade", color: "#00c853", font: { size: 15, weight: "bold" } }
+              }
+            }
+          },
+          plugins: [ChartDataLabels]
+        });
+      } catch (error) {
+        document.getElementById('mensagemServicosBarbeiro').textContent = "Erro ao carregar o gráfico: " + error.message;
+        if (graficoServicosBarbeiro) graficoServicosBarbeiro.destroy();
+      }
+    }
+
+    // Atualiza todos os gráficos ao mudar filtro
+    function atualizarTodosGraficos() {
+      carregarDados();
+      carregarGraficoServicos();
+      carregarGraficoServicosBarbeiro();
+    }
+
+    // Inicialização dos gráficos e filtros
     window.addEventListener("DOMContentLoaded", () => {
       if (
         usuarioLogado.categoria === "Administrador" ||
@@ -762,14 +888,23 @@
       ) {
         carregarBarbeirosSelect().then(() => {
           mostrarCampoData();
-          carregarDados();
-          carregarGraficoServicos();
+          atualizarTodosGraficos();
         });
       } else {
         mostrarCampoData();
-        carregarDados();
-        carregarGraficoServicos();
+        atualizarTodosGraficos();
       }
+      setTimeout(() => {
+        document.getElementById("filtroStatus").onchange = atualizarTodosGraficos;
+        document.getElementById("filtroBarbeiro").onchange = atualizarTodosGraficos;
+        document.getElementById("filtroData").onchange = function() {
+          mostrarCampoData();
+          atualizarTodosGraficos();
+        };
+        document.getElementById("inputData") && (document.getElementById("inputData").onchange = atualizarTodosGraficos);
+        document.getElementById("inputDataSemana") && ($('#inputDataSemana').on('apply.daterangepicker', atualizarTodosGraficos));
+        document.getElementById("inputMes") && (document.getElementById("inputMes").onchange = atualizarTodosGraficos);
+      }, 500);
     });
   </script>
 </body>
