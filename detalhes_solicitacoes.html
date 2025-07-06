@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Detalhes das Solicitações - Barbearia Pedro Rodrigues</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #222;
+        color: #fff;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+      }
+      .container {
+        background: #333;
+        padding: 40px 30px;
+        border-radius: 10px;
+        margin-top: 40px;
+        text-align: center;
+        width: 400px;
+        box-shadow: 0 0 10px #111;
+        max-width: 98vw;
+      }
+      .voltar-btn {
+        background: #007acc;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 22px;
+        font-size: 1em;
+        margin-bottom: 18px;
+        cursor: pointer;
+        transition: background 0.2s;
+        margin-top: 0;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .voltar-btn:hover {
+        background: #005fa3;
+      }
+      h1 {
+        color: #00c853;
+        margin-bottom: 20px;
+        font-size: 1.5em;
+        letter-spacing: 1px;
+        font-weight: bold;
+      }
+      .filtro-linha {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        margin-bottom: 8px;
+        width: 100%;
+        max-width: 400px;
+      }
+      .filtro-data,
+      .filtro-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .filtro-data label,
+      .filtro-status label {
+        color: #00c853;
+        font-weight: bold;
+        font-size: 1.07em;
+      }
+      .filtro-data select,
+      .filtro-status select {
+        padding: 6px 10px;
+        border-radius: 6px;
+        border: none;
+        font-size: 1em;
+        background: #222;
+        color: #00c853;
+        outline: none;
+      }
+      #periodoSelecionado {
+        color: #00c853;
+        font-weight: bold;
+        margin-bottom: 8px;
+        font-size: 1em;
+        text-align: left;
+        width: 100%;
+        max-width: 400px;
+      }
+      .solicitacoes-lista {
+        margin-top: 12px;
+        text-align: left;
+      }
+      .solicitacao-bloco {
+        background: #444;
+        border-radius: 8px;
+        margin-bottom: 18px;
+        padding: 16px 12px;
+        box-shadow: 0 2px 8px #1118;
+        font-size: 1.1em;
+      }
+      .solicitacao-barbeiro {
+        color: #b2ff59;
+        font-weight: bold;
+        margin-bottom: 8px;
+        font-size: 1.1em;
+      }
+      .solicitacao-resumo {
+        font-size: 0.97em;
+        color: #b2ff59;
+        margin-top: 4px;
+        margin-bottom: 8px;
+        line-height: 1.4;
+      }
+      .solicitacao-resumo div {
+        margin-bottom: 2px;
+      }
+      .solicitacao-item {
+        border-top: 1px solid #444a;
+        margin-top: 8px;
+        padding-top: 8px;
+        padding-bottom: 4px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .solicitacao-item:hover {
+        background: #555;
+      }
+      .solicitacao-servicos {
+        margin: 4px 0 8px 0;
+      }
+      .servico-linha {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 2px;
+        font-size: 1.08em;
+      }
+      .servico-linha:last-child {
+        margin-bottom: 0;
+      }
+      .servico-icone {
+        color: #00c853;
+        font-size: 1.1em;
+      }
+      .servico-nome {
+        color: #fff;
+        font-weight: bold;
+      }
+      .servico-preco {
+        color: #b2ff59;
+        font-size: 1em;
+        font-weight: bold;
+        margin-left: 8px;
+      }
+      .solicitacao-total {
+        color: #fff;
+        font-weight: bold;
+        margin-top: 3px;
+        margin-bottom: 1px;
+        font-size: 1.07em;
+      }
+      .solicitacao-status {
+        color: #00c853;
+        font-size: 1em;
+        font-weight: bold;
+      }
+      .solicitacao-pendente {
+        color: #ffeb3b;
+      }
+      .solicitacao-cancelado {
+        color: #ff5252;
+      }
+      .solicitacao-concluido {
+        color: #00c853;
+      }
+      .solicitacao-data {
+        color: #aaa;
+        font-size: 0.97em;
+        margin-bottom: 2px;
+      }
+      @media (max-width: 500px) {
+        .container {
+          padding: 18px 2vw;
+          width: 99vw;
+        }
+        .voltar-btn {
+          padding: 8px 10px;
+          font-size: 0.97em;
+        }
+        .filtro-linha,
+        .filtro-data,
+        .filtro-status,
+        #periodoSelecionado {
+          max-width: 99vw;
+        }
+        .filtro-linha {
+          flex-direction: column;
+          gap: 4px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <button class="voltar-btn" onclick="voltar()">
+        <i class="fa fa-arrow-left"></i> Voltar
+      </button>
+      <h1 id="tituloBarbeiro">Solicitações</h1>
+      <div class="filtro-linha">
+        <div class="filtro-data">
+          <label for="filtroData">Filtrar por:</label>
+          <select id="filtroData" onchange="carregarDetalhes()">
+            <option value="dia">Dia</option>
+            <option value="semana">Semana</option>
+            <option value="mes">Mês</option>
+            <option value="todos">Todos</option>
+          </select>
+        </div>
+        <div class="filtro-status">
+          <label for="filtroStatus">Status:</label>
+          <select id="filtroStatus" onchange="carregarDetalhes()">
+            <option value="todos">Todos</option>
+            <option value="pendente">Pendente</option>
+            <option value="concluido">Concluído</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+        </div>
+      </div>
+      <div id="periodoSelecionado"></div>
+      <div class="solicitacoes-lista" id="solicitacoes-lista">
+        <div style="color: #fff; text-align: center">Carregando...</div>
+      </div>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script>
+      const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
+      if (!usuarioLogado) window.location.href = "index.html";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyAY-Win6vQEHP1XR_fG3NOg0PAkNPAcxSg",
+        authDomain: "banco-de-dados-bd2a6.firebaseapp.com",
+        projectId: "banco-de-dados-bd2a6",
+        appId: "1:859895156791:web",
+      };
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+
+      function voltar() {
+        window.history.back();
+      }
+
+      function getBarbeiroFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get("barbeiro");
+      }
+
+      function mostrarPeriodoSelecionado() {
+        const filtro = document.getElementById("filtroData")?.value || "dia";
+        const div = document.getElementById("periodoSelecionado");
+        const agora = new Date();
+        if (filtro === "dia") {
+          div.textContent =
+            "Dia: " +
+            agora.toLocaleDateString("pt-BR", {
+              weekday: "long",
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            });
+        } else if (filtro === "semana") {
+          const primeiroDiaSemana = new Date(agora);
+          primeiroDiaSemana.setDate(agora.getDate() - agora.getDay());
+          const ultimoDiaSemana = new Date(primeiroDiaSemana);
+          ultimoDiaSemana.setDate(primeiroDiaSemana.getDate() + 6);
+          div.textContent = `Semana: de ${primeiroDiaSemana.toLocaleDateString(
+            "pt-BR"
+          )} até ${ultimoDiaSemana.toLocaleDateString("pt-BR")}`;
+        } else if (filtro === "mes") {
+          let mes = agora.toLocaleDateString("pt-BR", {
+            month: "long",
+            year: "numeric",
+          });
+          mes = mes.charAt(0).toUpperCase() + mes.slice(1);
+          div.textContent = "Mês: " + mes;
+        } else {
+          div.textContent = "";
+        }
+      }
+
+      function filtrarPorData(lista, modo) {
+        if (modo === "todos") return lista;
+        const agora = new Date();
+        return lista.filter((s) => {
+          if (!s.dataCriacao) return false;
+          const data = new Date(s.dataCriacao);
+          if (modo === "dia") {
+            return (
+              data.getDate() === agora.getDate() &&
+              data.getMonth() === agora.getMonth() &&
+              data.getFullYear() === agora.getFullYear()
+            );
+          }
+          if (modo === "semana") {
+            const primeiroDiaSemana = new Date(agora);
+            primeiroDiaSemana.setDate(agora.getDate() - agora.getDay());
+            primeiroDiaSemana.setHours(0, 0, 0, 0);
+            const ultimoDiaSemana = new Date(primeiroDiaSemana);
+            ultimoDiaSemana.setDate(primeiroDiaSemana.getDate() + 6);
+            ultimoDiaSemana.setHours(23, 59, 59, 999);
+            return data >= primeiroDiaSemana && data <= ultimoDiaSemana;
+          }
+          if (modo === "mes") {
+            return (
+              data.getMonth() === agora.getMonth() &&
+              data.getFullYear() === agora.getFullYear()
+            );
+          }
+          return true;
+        });
+      }
+
+      function filtrarPorStatus(lista, status) {
+        if (!status || status === "todos") return lista;
+        return lista.filter(
+          (s) => (s.status || "pendente").toLowerCase() === status
+        );
+      }
+
+      function formatarData(iso) {
+        if (!iso) return "";
+        const d = new Date(iso);
+        return `${d.getDate().toString().padStart(2, "0")}/${(d.getMonth() + 1)
+          .toString()
+          .padStart(2, "0")}/${d.getFullYear()} ${d
+          .getHours()
+          .toString()
+          .padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`;
+      }
+
+      function carregarDetalhes() {
+        mostrarPeriodoSelecionado();
+        const listaDiv = document.getElementById("solicitacoes-lista");
+        listaDiv.innerHTML =
+          '<div style="color:#fff;text-align:center;">Carregando...</div>';
+        const filtro = document.getElementById("filtroData")?.value || "dia";
+        const filtroStatus =
+          document.getElementById("filtroStatus")?.value || "todos";
+        const barbeiro = getBarbeiroFromUrl();
+        document.getElementById("tituloBarbeiro").textContent = barbeiro
+          ? `Solicitações de ${barbeiro}`
+          : "Solicitações";
+        if (!barbeiro) {
+          listaDiv.innerHTML =
+            '<div style="color:#ff5252;">Barbeiro não informado!</div>';
+          return;
+        }
+        db.collection("solicitacoes")
+          .doc(barbeiro)
+          .get()
+          .then((doc) => {
+            if (
+              !doc.exists ||
+              !Array.isArray(doc.data().lista) ||
+              doc.data().lista.length === 0
+            ) {
+              listaDiv.innerHTML =
+                '<div style="color:#fff;text-align:center;">Nenhuma solicitação encontrada.</div>';
+              return;
+            }
+            let listaSolic = filtrarPorData(doc.data().lista, filtro);
+            listaSolic = filtrarPorStatus(listaSolic, filtroStatus);
+            let totalGeral = 0,
+              totalConcluido = 0,
+              totalPendente = 0;
+            listaSolic.forEach((s) => {
+              totalGeral += Number(s.valorTotal || 0);
+              if ((s.status || "").toLowerCase() === "concluido")
+                totalConcluido += Number(s.valorTotal || 0);
+              if ((s.status || "").toLowerCase() === "pendente")
+                totalPendente += Number(s.valorTotal || 0);
+            });
+            let html = `<div class="solicitacao-bloco">
+            <div class="solicitacao-barbeiro">
+              ${barbeiro}
+              <div class="solicitacao-resumo">
+                <div>Valor Total: <b>R$ ${totalGeral.toFixed(2)}</b></div>
+                <div>Concluído: <b style="color:#00c853;">R$ ${totalConcluido.toFixed(
+                  2
+                )}</b></div>
+                <div>Pendente: <b style="color:#ffeb3b;">R$ ${totalPendente.toFixed(
+                  2
+                )}</b></div>
+              </div>
+            </div>
+            ${listaSolic
+              .map(
+                (s, idx) => `
+              <div class="solicitacao-item">
+                <div class="solicitacao-data"><i class="fa fa-calendar"></i> ${formatarData(
+                  s.dataCriacao
+                )}</div>
+                <div class="solicitacao-servicos">
+                  ${
+                    Array.isArray(s.servicos)
+                      ? s.servicos
+                          .map(
+                            (sv) =>
+                              `<div class="servico-linha">
+                                <span class="servico-icone"><i class="fa fa-scissors"></i></span>
+                                <span class="servico-nome">${sv.nome}</span>
+                                <span class="servico-preco">R$ ${sv.preco}</span>
+                              </div>`
+                          )
+                          .join("")
+                      : ""
+                  }
+                </div>
+                <div class="solicitacao-total">Total: <b>R$ ${
+                  s.valorTotal
+                }</b></div>
+                <div class="solicitacao-status solicitacao-${(
+                  s.status || "pendente"
+                ).toLowerCase()}">
+                  Status: ${
+                    s.status
+                      ? s.status.charAt(0).toUpperCase() + s.status.slice(1)
+                      : "Pendente"
+                  }
+                </div>
+              </div>
+            `
+              )
+              .join("")}
+          </div>`;
+            listaDiv.innerHTML = html;
+          })
+          .catch((error) => {
+            listaDiv.innerHTML =
+              '<div style="color:#ff5252;">Erro ao carregar solicitações: ' +
+              error.message +
+              "</div>";
+          });
+      }
+
+      window.onload = carregarDetalhes;
+    </script>
+  </body>
+</html>
