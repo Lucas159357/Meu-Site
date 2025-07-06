@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
   <style>
+    /* ... (estilos iguais ao código anterior, não alterados) ... */
     body {
       font-family: Arial, sans-serif;
       background: #222;
@@ -704,15 +705,14 @@
             listaSolicitacoes = doc.data().lista;
             let listaSolic = filtrarPorData(listaSolicitacoes);
             listaSolic = filtrarPorStatus(listaSolic, filtroStatus);
-            let totalGeral = 0,
-              totalConcluido = 0,
-              totalPendente = 0;
+            // AJUSTE: Cancelados não entram em nenhuma soma
+            let totalGeral = 0, totalConcluido = 0, totalPendente = 0;
             listaSolic.forEach((s) => {
+              const status = (s.status || "").toLowerCase();
+              if (status === "cancelado") return;
               totalGeral += Number(s.valorTotal || 0);
-              if ((s.status || "").toLowerCase() === "concluido")
-                totalConcluido += Number(s.valorTotal || 0);
-              if ((s.status || "").toLowerCase() === "pendente")
-                totalPendente += Number(s.valorTotal || 0);
+              if (status === "concluido") totalConcluido += Number(s.valorTotal || 0);
+              if (status === "pendente") totalPendente += Number(s.valorTotal || 0);
             });
             let html = `<div class="solicitacao-bloco">
             <div class="solicitacao-barbeiro">
