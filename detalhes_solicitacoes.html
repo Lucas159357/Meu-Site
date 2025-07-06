@@ -706,11 +706,6 @@
 
     // Modal de edição para admin/prop
     function abrirEditarSolicitacaoAdmin(idx) {
-      // Só permite editar se for admin ou proprietário
-      if (
-        usuarioLogado.categoria !== "Administrador" &&
-        usuarioLogado.categoria !== "Proprietario"
-      ) return;
       solicitacaoEditIdx = idx;
       const s = listaSolicitacoes[idx];
       document.getElementById("modalSolicitacaoTitulo").textContent =
