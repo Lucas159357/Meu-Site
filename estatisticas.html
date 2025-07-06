@@ -114,7 +114,10 @@
         <option value="todos">Todas</option>
       </select>
     </div>
-    <canvas id="graficoDesempenho" height="220"></canvas>
+    <div style="position:relative;">
+      <canvas id="graficoDesempenho" height="220"></canvas>
+      <div id="barbeiroLabels" style="position:absolute;left:0;right:0;bottom:0;pointer-events:none;"></div>
+    </div>
     <div id="mensagem"></div>
   </div>
   <script>
@@ -156,6 +159,7 @@
         if (snapshot.empty) {
           document.getElementById('mensagem').textContent = "Nenhuma solicitação encontrada.";
           if (grafico) grafico.destroy();
+          document.getElementById("barbeiroLabels").innerHTML = "";
           return;
         }
 
@@ -185,7 +189,6 @@
 
         let datasets = [];
         if (filtroStatus === "todos") {
-          // Só mostra barras se valor > 0 (null não exibe)
           datasets = [
             {
               label: "Concluídas",
@@ -256,7 +259,7 @@
             },
             scales: {
               x: { 
-                ticks: { color: '#fff', font: { size: 14 } },
+                ticks: { color: 'transparent', font: { size: 14 } }, // Esconde os labels padrão
                 title: { display: true, text: "Barbeiro", color: "#00c853", font: { size: 15, weight: "bold" } }
               },
               y: {
@@ -273,9 +276,26 @@
           },
           plugins: [ChartDataLabels]
         });
+
+        // Exibe nomes dos barbeiros centralizados embaixo dos grupos
+        setTimeout(() => {
+          const chartArea = grafico.chartArea;
+          const meta = grafico.getDatasetMeta(0);
+          let html = '<div style="display:flex;justify-content:space-between;width:100%;position:absolute;left:0;right:0;bottom:-15px;">';
+          meta.data.forEach((bar, i) => {
+            if (!bar) return;
+            // Largura do grupo
+            const x = bar.x;
+            html += `<span style="min-width:60px;text-align:center;color:#00c853;font-weight:bold;display:inline-block;">${labels[i]}</span>`;
+          });
+          html += '</div>';
+          document.getElementById("barbeiroLabels").innerHTML = html;
+        }, 300);
+
       } catch (error) {
         document.getElementById('mensagem').textContent = "Erro ao carregar dados: " + error.message;
         if (grafico) grafico.destroy();
+        document.getElementById("barbeiroLabels").innerHTML = "";
       }
     }
 
