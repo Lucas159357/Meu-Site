@@ -102,7 +102,7 @@
     .filtro-linha input[type="date"]::-webkit-calendar-picker-indicator {
       filter: invert(1) brightness(1.5);
     }
-    #periodoSelecionado, #periodoSelecionadoServicos {
+    #periodoSelecionado {
       color: #00c853;
       font-weight: bold;
       margin-bottom: 4px;
@@ -172,7 +172,7 @@
     <div class="filtros">
       <div class="filtro-linha">
         <label for="filtroStatus">Status:</label>
-        <select id="filtroStatus" onchange="carregarDados()">
+        <select id="filtroStatus" onchange="carregarDados();carregarGraficoServicos();">
           <option value="todos">Todos</option>
           <option value="concluido">Concluídas</option>
           <option value="pendente">Pendentes</option>
@@ -181,13 +181,13 @@
       </div>
       <div class="filtro-linha" id="filtroBarbeiroLinha" style="display:none;">
         <label for="filtroBarbeiro">Barbeiro:</label>
-        <select id="filtroBarbeiro" onchange="carregarDados()">
+        <select id="filtroBarbeiro" onchange="carregarDados();carregarGraficoServicos();">
           <option value="todos">Todos</option>
         </select>
       </div>
       <div class="filtro-linha">
         <label for="filtroData">Período:</label>
-        <select id="filtroData" onchange="mostrarCampoData();carregarDados();">
+        <select id="filtroData" onchange="mostrarCampoData();carregarDados();carregarGraficoServicos();">
           <option value="todos">Todos</option>
           <option value="dia" selected>Dia</option>
           <option value="semana">Semana</option>
@@ -202,19 +202,6 @@
 
     <hr>
     <div style="margin-bottom: 10px; color:#00c853; font-weight:bold;">Serviços Realizados</div>
-    <div class="filtros" id="filtrosServicos">
-      <div class="filtro-linha">
-        <label for="filtroPeriodoServicos">Período:</label>
-        <select id="filtroPeriodoServicos" onchange="mostrarCampoPeriodoServicos();carregarGraficoServicos();">
-          <option value="todos">Todos</option>
-          <option value="dia" selected>Dia</option>
-          <option value="semana">Semana</option>
-          <option value="mes">Mês</option>
-        </select>
-        <span id="campoPeriodoServicos"></span>
-      </div>
-      <div id="periodoSelecionadoServicos"></div>
-    </div>
     <canvas id="graficoServicos" height="220"></canvas>
     <div id="mensagemServicos"></div>
   </div>
@@ -263,7 +250,7 @@
       const campo = document.getElementById("campoData");
       campo.innerHTML = "";
       if (filtro === "dia") {
-        campo.innerHTML = `<input type="date" id="inputData" value="${new Date().toISOString().slice(0,10)}" onchange="carregarDados()">`;
+        campo.innerHTML = `<input type="date" id="inputData" value="${new Date().toISOString().slice(0,10)}" onchange="carregarDados();carregarGraficoServicos();">`;
       } else if (filtro === "semana") {
         campo.innerHTML = `<input type="text" id="inputDataSemana" style="width: 170px;" readonly />`;
         setTimeout(() => {
@@ -271,7 +258,7 @@
         }, 50);
       } else if (filtro === "mes") {
         const hoje = new Date();
-        campo.innerHTML = `<input type="month" id="inputData" value="${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}" onchange="carregarDados()">`;
+        campo.innerHTML = `<input type="month" id="inputData" value="${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}" onchange="carregarDados();carregarGraficoServicos();">`;
       }
     }
 
@@ -299,10 +286,12 @@
         autoUpdateInput: true
       }, function(start, end) {
         carregarDados();
+        carregarGraficoServicos();
       });
 
       $('#inputDataSemana').on('apply.daterangepicker', function(ev, picker) {
         carregarDados();
+        carregarGraficoServicos();
       });
     }
 
@@ -624,95 +613,16 @@
     // --- GRÁFICO DE SERVIÇOS ---
 
     let graficoServicos;
-
-    function mostrarCampoPeriodoServicos() {
-      const tipo = document.getElementById('filtroPeriodoServicos').value;
-      const campo = document.getElementById('campoPeriodoServicos');
-      campo.innerHTML = "";
-      if (tipo === "dia") {
-        campo.innerHTML = `<input type="date" id="inputDataServicos" class="filtro-input" value="${new Date().toISOString().slice(0,10)}" onchange="carregarGraficoServicos()">`;
-      } else if (tipo === "semana") {
-        campo.innerHTML = `<input type="text" id="inputSemanaServicos" class="filtro-input" readonly style="width: 170px;" />`;
-        setTimeout(() => {
-          inicializarRangePickerSemanaServicos();
-        }, 50);
-      } else if (tipo === "mes") {
-        const hoje = new Date();
-        campo.innerHTML = `<input type="month" id="inputMesServicos" class="filtro-input" value="${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}" onchange="carregarGraficoServicos()">`;
-      }
-    }
-
-    function inicializarRangePickerSemanaServicos() {
-      const hoje = new Date();
-      const domingo = new Date(hoje);
-      domingo.setDate(hoje.getDate() - hoje.getDay());
-      const sabado = new Date(domingo);
-      sabado.setDate(domingo.getDate() + 6);
-
-      $('#inputSemanaServicos').daterangepicker({
-        locale: {
-          format: 'DD/MM/YYYY',
-          applyLabel: "Aplicar",
-          cancelLabel: "Cancelar",
-          fromLabel: "De",
-          toLabel: "Até",
-          daysOfWeek: ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"],
-          monthNames: ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"],
-          firstDay: 0
-        },
-        startDate: moment(domingo),
-        endDate: moment(sabado),
-        opens: "center",
-        autoUpdateInput: true
-      }, function(start, end) {
-        carregarGraficoServicos();
-      });
-
-      $('#inputSemanaServicos').on('apply.daterangepicker', function(ev, picker) {
-        carregarGraficoServicos();
-      });
-    }
-
-    function mostrarPeriodoSelecionadoServicos() {
-      const tipo = document.getElementById('filtroPeriodoServicos').value;
-      const div = document.getElementById("periodoSelecionadoServicos");
-      if (tipo === "dia") {
-        const campo = document.getElementById("inputDataServicos");
-        if (campo && campo.value) {
-          const [ano, mes, dia] = campo.value.split('-');
-          const dt = new Date(Number(ano), Number(mes)-1, Number(dia));
-          div.textContent = "Dia: " + dt.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
-        } else {
-          div.textContent = "";
-        }
-      } else if (tipo === "semana") {
-        const picker = $('#inputSemanaServicos').data('daterangepicker');
-        if (picker) {
-          div.textContent = `Semana: de ${picker.startDate.format('DD/MM/YYYY')} até ${picker.endDate.format('DD/MM/YYYY')}`;
-        } else {
-          div.textContent = "";
-        }
-      } else if (tipo === "mes") {
-        const campo = document.getElementById("inputMesServicos");
-        if (campo && campo.value) {
-          const [ano, mes] = campo.value.split('-');
-          const data = new Date(Number(ano), Number(mes)-1, 1);
-          let txt = data.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-          txt = txt.charAt(0).toUpperCase() + txt.slice(1);
-          div.textContent = "Mês: " + txt;
-        } else {
-          div.textContent = "";
-        }
-      } else {
-        div.textContent = "";
-      }
-    }
+    const coresServicos = [
+      "#00c853", "#ff9800", "#2196f3", "#e91e63", "#ffeb3b", "#9c27b0", "#009688", "#f44336", "#607d8b", "#795548"
+    ];
 
     function filtrarSolicPorPeriodoServicos(lista) {
-      const tipo = document.getElementById('filtroPeriodoServicos').value;
+      // Usa o mesmo filtro de período do topo
+      const tipo = document.getElementById('filtroData').value;
       if (tipo === "todos") return lista;
       if (tipo === "dia") {
-        const campo = document.getElementById("inputDataServicos");
+        const campo = document.getElementById("inputData");
         if (!campo || !campo.value) return lista;
         const [anoFiltro, mesFiltro, diaFiltro] = campo.value.split('-').map(Number);
         return lista.filter(s => {
@@ -726,7 +636,7 @@
         });
       }
       if (tipo === "semana") {
-        const picker = $('#inputSemanaServicos').data('daterangepicker');
+        const picker = $('#inputDataSemana').data('daterangepicker');
         if (!picker) return lista;
         const inicio = picker.startDate.startOf('day');
         const fim = picker.endDate.endOf('day');
@@ -737,7 +647,7 @@
         });
       }
       if (tipo === "mes") {
-        const campo = document.getElementById("inputMesServicos");
+        const campo = document.getElementById("inputData");
         if (!campo || !campo.value) return lista;
         const [anoFiltro, mesFiltro] = campo.value.split('-').map(Number);
         return lista.filter(s => {
@@ -754,8 +664,6 @@
 
     async function carregarGraficoServicos() {
       document.getElementById('mensagemServicos').textContent = "";
-      mostrarPeriodoSelecionadoServicos();
-
       try {
         let snapshot;
         if (
@@ -800,6 +708,7 @@
         const labels = Object.keys(servicosQtd);
         const dataQtd = labels.map(nome => servicosQtd[nome]);
         const dataValor = labels.map(nome => servicosValor[nome]);
+        const backgroundColors = labels.map((_, i) => coresServicos[i % coresServicos.length]);
 
         if (graficoServicos) graficoServicos.destroy();
 
@@ -810,8 +719,8 @@
             datasets: [{
               label: "Quantidade",
               data: dataQtd,
-              backgroundColor: 'rgba(0, 200, 83, 0.6)',
-              borderColor: 'rgba(0, 200, 83, 1)',
+              backgroundColor: backgroundColors,
+              borderColor: backgroundColors,
               borderWidth: 2,
               borderRadius: 6,
               datalabels: { color: "#222", font: { weight: 'bold', size: 15 } }
@@ -820,8 +729,21 @@
           options: {
             responsive: true,
             plugins: {
-              legend: { labels: { color: '#00c853', font: { size: 15 } } },
-              title: { display: false },
+              legend: {
+                display: true,
+                labels: {
+                  generateLabels: function(chart) {
+                    return chart.data.labels.map((label, i) => ({
+                      text: label,
+                      fillStyle: backgroundColors[i],
+                      strokeStyle: backgroundColors[i],
+                      lineWidth: 2,
+                      hidden: false,
+                      index: i
+                    }));
+                  }
+                }
+              },
               datalabels: {
                 anchor: 'end',
                 align: 'start',
@@ -879,13 +801,13 @@
         carregarBarbeirosSelect().then(() => {
           mostrarCampoData();
           carregarDados();
+          carregarGraficoServicos();
         });
       } else {
         mostrarCampoData();
         carregarDados();
+        carregarGraficoServicos();
       }
-      mostrarCampoPeriodoServicos();
-      carregarGraficoServicos();
     });
   </script>
 </body>
