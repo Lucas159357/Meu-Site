@@ -78,7 +78,7 @@
       font-weight: bold;
       font-size: 1.07em;
     }
-    .filtro-linha select {
+    .filtro-linha select, .filtro-linha input {
       padding: 6px 10px;
       border-radius: 6px;
       border: none;
@@ -123,6 +123,15 @@
     </button>
     <h1>Solicitações por Barbeiro</h1>
     <div class="filtros">
+      <div class="filtro-linha">
+        <label for="filtroStatus">Status:</label>
+        <select id="filtroStatus" onchange="carregarDados()">
+          <option value="todos">Todos</option>
+          <option value="concluido">Concluídas</option>
+          <option value="pendente">Pendentes</option>
+          <option value="cancelado">Canceladas</option>
+        </select>
+      </div>
       <div class="filtro-linha" id="filtroBarbeiroLinha" style="display:none;">
         <label for="filtroBarbeiro">Barbeiro:</label>
         <select id="filtroBarbeiro" onchange="carregarDados()">
@@ -131,32 +140,23 @@
       </div>
       <div class="filtro-linha">
         <label for="filtroData">Período:</label>
-        <select id="filtroData" onchange="carregarDados()">
+        <select id="filtroData" onchange="mostrarCampoData();carregarDados();">
+          <option value="todos">Todos</option>
           <option value="dia">Dia</option>
           <option value="semana">Semana</option>
           <option value="mes">Mês</option>
         </select>
+        <span id="campoData"></span>
       </div>
       <div id="periodoSelecionado"></div>
-      <div class="filtro-linha">
-        <label for="filtroStatus">Status:</label>
-        <select id="filtroStatus" onchange="carregarDados()">
-          <option value="concluido">Concluídas</option>
-          <option value="pendente">Pendentes</option>
-          <option value="cancelado">Canceladas</option>
-          <option value="todos">Todas</option>
-        </select>
-      </div>
     </div>
     <canvas id="graficoDesempenho" height="220"></canvas>
     <div id="mensagem"></div>
   </div>
   <script>
-    // Proteção: só entra se estiver logado pelo localStorage
     const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
     if (!usuarioLogado) window.location.href = "index.html";
 
-    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyAY-Win6vQEHP1XR_fG3NOg0PAkNPAcxSg",
       authDomain: "banco-de-dados-bd2a6.firebaseapp.com",
@@ -193,22 +193,53 @@
       }
     }
 
-    function mostrarPeriodoSelecionado() {
-      const filtro = document.getElementById("filtroData")?.value || "dia";
-      const div = document.getElementById("periodoSelecionado");
-      const agora = new Date();
+    function mostrarCampoData() {
+      const filtro = document.getElementById("filtroData").value;
+      const campo = document.getElementById("campoData");
+      campo.innerHTML = "";
       if (filtro === "dia") {
-        div.textContent = "Dia: " + agora.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
+        campo.innerHTML = `<input type="date" id="inputData" value="${new Date().toISOString().slice(0,10)}" onchange="carregarDados()">`;
       } else if (filtro === "semana") {
-        const primeiroDiaSemana = new Date(agora);
-        primeiroDiaSemana.setDate(agora.getDate() - agora.getDay());
-        const ultimoDiaSemana = new Date(primeiroDiaSemana);
-        ultimoDiaSemana.setDate(primeiroDiaSemana.getDate() + 6);
-        div.textContent = `Semana: de ${primeiroDiaSemana.toLocaleDateString('pt-BR')} até ${ultimoDiaSemana.toLocaleDateString('pt-BR')}`;
+        // Padrão HTML: yyyy-W## (ex: 2025-W27)
+        const hoje = new Date();
+        const week = getISOWeek(hoje);
+        campo.innerHTML = `<input type="week" id="inputData" value="${hoje.getFullYear()}-W${week}" onchange="carregarDados()">`;
       } else if (filtro === "mes") {
-        let mes = agora.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-        mes = mes.charAt(0).toUpperCase() + mes.slice(1);
-        div.textContent = "Mês: " + mes;
+        const hoje = new Date();
+        campo.innerHTML = `<input type="month" id="inputData" value="${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}" onchange="carregarDados()">`;
+      }
+    }
+
+    function getISOWeek(date) {
+      const temp = new Date(date.valueOf());
+      const dayNr = (date.getDay() + 6) % 7;
+      temp.setDate(temp.getDate() - dayNr + 3);
+      const jan4 = new Date(temp.getFullYear(),0,4);
+      const dayDiff = (temp - jan4) / 86400000;
+      return String(1 + Math.floor(dayDiff / 7)).padStart(2,"0");
+    }
+
+    function mostrarPeriodoSelecionado() {
+      const filtro = document.getElementById("filtroData")?.value || "todos";
+      const campo = document.getElementById("inputData");
+      const div = document.getElementById("periodoSelecionado");
+      if (filtro === "dia" && campo && campo.value) {
+        const dt = new Date(campo.value);
+        div.textContent = "Dia: " + dt.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
+      } else if (filtro === "semana" && campo && campo.value) {
+        // campo.value: yyyy-W##
+        const [ano, semana] = campo.value.split("-W");
+        const primeiroDiaSemana = new Date(ano,0,1 + (semana-1)*7);
+        while (primeiroDiaSemana.getDay() !== 0) primeiroDiaSemana.setDate(primeiroDiaSemana.getDate()-1);
+        const ultimoDiaSemana = new Date(primeiroDiaSemana);
+        ultimoDiaSemana.setDate(primeiroDiaSemana.getDate()+6);
+        div.textContent = `Semana: de ${primeiroDiaSemana.toLocaleDateString('pt-BR')} até ${ultimoDiaSemana.toLocaleDateString('pt-BR')}`;
+      } else if (filtro === "mes" && campo && campo.value) {
+        const [ano, mes] = campo.value.split("-");
+        const data = new Date(ano, Number(mes)-1, 1);
+        let txt = data.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+        txt = txt.charAt(0).toUpperCase() + txt.slice(1);
+        div.textContent = "Mês: " + txt;
       } else {
         div.textContent = "";
       }
@@ -216,30 +247,41 @@
 
     function filtrarPorData(lista, modo) {
       if (modo === "todos") return lista;
-      const agora = new Date();
-      return lista.filter(s => {
-        if (!s.dataCriacao) return false;
-        const data = new Date(s.dataCriacao);
-        if (modo === "dia") {
-          return data.getDate() === agora.getDate() &&
-                 data.getMonth() === agora.getMonth() &&
-                 data.getFullYear() === agora.getFullYear();
-        }
-        if (modo === "semana") {
-          const primeiroDiaSemana = new Date(agora);
-          primeiroDiaSemana.setDate(agora.getDate() - agora.getDay());
-          primeiroDiaSemana.setHours(0,0,0,0);
-          const ultimoDiaSemana = new Date(primeiroDiaSemana);
-          ultimoDiaSemana.setDate(primeiroDiaSemana.getDate() + 6);
-          ultimoDiaSemana.setHours(23,59,59,999);
-          return data >= primeiroDiaSemana && data <= ultimoDiaSemana;
-        }
-        if (modo === "mes") {
-          return data.getMonth() === agora.getMonth() &&
-                 data.getFullYear() === agora.getFullYear();
-        }
-        return true;
-      });
+      const campo = document.getElementById("inputData");
+      if (!campo || !campo.value) return lista;
+      if (modo === "dia") {
+        const dataFiltro = campo.value;
+        return lista.filter(s => {
+          if (!s.dataCriacao) return false;
+          const data = new Date(s.dataCriacao);
+          const dataStr = data.toISOString().slice(0,10);
+          return dataStr === dataFiltro;
+        });
+      }
+      if (modo === "semana") {
+        // campo.value: yyyy-W##
+        const [ano, semana] = campo.value.split("-W");
+        if (!ano || !semana) return lista;
+        const primeiroDia = new Date(ano,0,1 + (semana-1)*7);
+        while (primeiroDia.getDay() !== 0) primeiroDia.setDate(primeiroDia.getDate()-1);
+        const ultimoDia = new Date(primeiroDia);
+        ultimoDia.setDate(primeiroDia.getDate()+6);
+        return lista.filter(s => {
+          if (!s.dataCriacao) return false;
+          const data = new Date(s.dataCriacao);
+          return data >= primeiroDia && data <= ultimoDia;
+        });
+      }
+      if (modo === "mes") {
+        const [ano, mes] = campo.value.split("-");
+        if (!ano || !mes) return lista;
+        return lista.filter(s => {
+          if (!s.dataCriacao) return false;
+          const data = new Date(s.dataCriacao);
+          return data.getFullYear() == ano && (data.getMonth()+1) == Number(mes);
+        });
+      }
+      return lista;
     }
 
     async function carregarBarbeirosSelect() {
@@ -305,7 +347,6 @@
 
         snapshot.forEach(doc => {
           const barbeiro = doc.id;
-          // Filtro de barbeiro (apenas para admin/prop)
           if (
             (usuarioLogado.categoria === "Administrador" || usuarioLogado.categoria === "Proprietario") &&
             filtroBarbeiro !== "todos" &&
@@ -313,7 +354,6 @@
           ) return;
 
           const lista = Array.isArray(doc.data().lista) ? doc.data().lista : [];
-          // Filtro por data
           const listaFiltrada = filtrarPorData(lista, filtroData);
 
           let qtdConcluido = 0, qtdPendente = 0, qtdCancelado = 0;
@@ -323,14 +363,12 @@
             else if (status === 'pendente') qtdPendente++;
             else if (status === 'cancelado') qtdCancelado++;
           });
-          // Só mostra barbeiro se tiver pelo menos um registro do status filtrado
           if (
             (filtroStatus === "concluido" && qtdConcluido > 0) ||
             (filtroStatus === "pendente" && qtdPendente > 0) ||
             (filtroStatus === "cancelado" && qtdCancelado > 0) ||
             (filtroStatus === "todos" && (qtdConcluido > 0 || qtdPendente > 0 || qtdCancelado > 0))
           ) {
-            // Para barbeiro comum, mostrar o nome correto
             let labelNome = barbeiro;
             if (usuarioLogado.categoria === "Barbeiro") labelNome = usuarioLogado.nome;
             labels.push(labelNome);
@@ -437,14 +475,17 @@
       }
     }
 
-    // Carrega barbeiros no filtro (apenas para admin/prop)
     window.addEventListener("DOMContentLoaded", () => {
       if (
         usuarioLogado.categoria === "Administrador" ||
         usuarioLogado.categoria === "Proprietario"
       ) {
-        carregarBarbeirosSelect().then(carregarDados);
+        carregarBarbeirosSelect().then(() => {
+          mostrarCampoData();
+          carregarDados();
+        });
       } else {
+        mostrarCampoData();
         carregarDados();
       }
     });
