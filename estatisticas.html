@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Estatísticas - Barbearia Pedro Rodrigues</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <!-- Date Range Picker CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
   <style>
     body {
       background: #222;
@@ -79,7 +81,7 @@
       font-weight: bold;
       font-size: 1.07em;
     }
-    .filtro-linha select, .filtro-linha input[type="date"], .filtro-linha input[type="month"] {
+    .filtro-linha select, .filtro-linha input[type="text"], .filtro-linha input[type="month"] {
       padding: 6px 10px;
       border-radius: 6px;
       border: none;
@@ -88,12 +90,6 @@
       color: #00c853;
       outline: none;
       margin-bottom: 2px;
-    }
-    .semana-campo {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-left: 2px;
     }
     #periodoSelecionado {
       color: #00c853;
@@ -115,11 +111,35 @@
       .container { width: 99vw; padding: 10px 2vw; }
       #graficoDesempenho { padding: 2px; }
       .filtros { gap: 7px; }
-      .semana-campo { flex-direction: column; align-items: flex-start; gap: 2px;}
       .filtro-linha { flex-direction: column; align-items: flex-start; gap: 4px;}
     }
+    /* Date range picker custom style */
+    .daterangepicker {
+      color: #222;
+    }
+    .daterangepicker .calendar-table {
+      background: #fff;
+      color: #222;
+    }
+    .daterangepicker td.active, .daterangepicker td.active:hover {
+      background-color: #00c853 !important;
+      color: #fff !important;
+    }
+    .daterangepicker .drp-buttons .btn {
+      background: #007acc;
+      color: #fff;
+      border-radius: 5px;
+      border: none;
+      padding: 4px 12px;
+      font-size: 1em;
+      margin: 0 2px;
+    }
   </style>
-  <!-- Chart.js CDN -->
+  <!-- jQuery, moment.js, daterangepicker.js -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Chart.js datalabels plugin -->
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
@@ -150,14 +170,8 @@
         </select>
       </div>
       <div class="filtro-linha">
-        <label for="filtroData">Período:</label>
-        <select id="filtroData" onchange="mostrarCampoData();carregarDados();">
-          <option value="todos">Todos</option>
-          <option value="dia" selected>Dia</option>
-          <option value="semana">Semana</option>
-          <option value="mes">Mês</option>
-        </select>
-        <span id="campoData"></span>
+        <label for="rangeData">Período:</label>
+        <input type="text" id="rangeData" style="width: 180px;" readonly />
       </div>
       <div id="periodoSelecionado"></div>
     </div>
@@ -204,103 +218,28 @@
       }
     }
 
-    function mostrarCampoData() {
-      const filtro = document.getElementById("filtroData").value;
-      const campo = document.getElementById("campoData");
-      campo.innerHTML = "";
-      if (filtro === "dia") {
-        campo.innerHTML = `<input type="date" id="inputData" value="${new Date().toISOString().slice(0,10)}" onchange="carregarDados()">`;
-      } else if (filtro === "semana") {
-        // Semana atual: domingo a sábado
-        const hoje = new Date();
-        const inicio = new Date(hoje);
-        inicio.setDate(hoje.getDate() - hoje.getDay());
-        const fim = new Date(inicio);
-        fim.setDate(inicio.getDate() + 6);
-        campo.innerHTML = `
-          <span class="semana-campo">
-            <label>De</label>
-            <input type="date" id="inputDataInicio" value="${inicio.toISOString().slice(0,10)}" onchange="carregarDados()">
-            <label>até</label>
-            <input type="date" id="inputDataFim" value="${fim.toISOString().slice(0,10)}" onchange="carregarDados()">
-          </span>
-        `;
-      } else if (filtro === "mes") {
-        const hoje = new Date();
-        campo.innerHTML = `<input type="month" id="inputData" value="${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}" onchange="carregarDados()">`;
-      }
+    function formatarDataBR(data) {
+      return moment(data).format('DD/MM/YYYY');
     }
 
-    function mostrarPeriodoSelecionado() {
-      const filtro = document.getElementById("filtroData")?.value || "dia";
-      const campo = document.getElementById("inputData");
+    function mostrarPeriodoSelecionado(start, end) {
       const div = document.getElementById("periodoSelecionado");
-      if (filtro === "dia" && campo && campo.value) {
-        const [ano, mes, dia] = campo.value.split('-');
-        const dt = new Date(Number(ano), Number(mes)-1, Number(dia));
-        div.textContent = "Dia: " + dt.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
-      } else if (filtro === "semana") {
-        const inicioCampo = document.getElementById("inputDataInicio");
-        const fimCampo = document.getElementById("inputDataFim");
-        if (inicioCampo && fimCampo && inicioCampo.value && fimCampo.value) {
-          const di = new Date(inicioCampo.value);
-          const df = new Date(fimCampo.value);
-          div.textContent = `Semana: de ${di.toLocaleDateString('pt-BR')} até ${df.toLocaleDateString('pt-BR')}`;
-        } else {
-          div.textContent = "";
-        }
-      } else if (filtro === "mes" && campo && campo.value) {
-        const [ano, mes] = campo.value.split('-');
-        const data = new Date(Number(ano), Number(mes)-1, 1);
-        let txt = data.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-        txt = txt.charAt(0).toUpperCase() + txt.slice(1);
-        div.textContent = "Mês: " + txt;
-      } else {
+      if (!start || !end) {
         div.textContent = "";
+        return;
       }
+      div.textContent = `Período: de ${formatarDataBR(start)} até ${formatarDataBR(end)}`;
     }
 
-    function filtrarPorData(lista, modo) {
-      if (modo === "todos") return lista;
-      if (modo === "semana") {
-        const inicioCampo = document.getElementById("inputDataInicio");
-        const fimCampo = document.getElementById("inputDataFim");
-        if (!inicioCampo || !inicioCampo.value || !fimCampo || !fimCampo.value) return lista;
-        // Ajuste: fim do dia final
-        const inicio = new Date(inicioCampo.value + "T00:00:00");
-        const fim = new Date(fimCampo.value + "T23:59:59.999");
-        return lista.filter(s => {
-          if (!s.dataCriacao) return false;
-          const data = new Date(s.dataCriacao);
-          return data >= inicio && data <= fim;
-        });
-      }
-      const campo = document.getElementById("inputData");
-      if (!campo || !campo.value) return lista;
-      if (modo === "dia") {
-        const [anoFiltro, mesFiltro, diaFiltro] = campo.value.split('-').map(Number);
-        return lista.filter(s => {
-          if (!s.dataCriacao) return false;
-          const data = new Date(s.dataCriacao);
-          return (
-            data.getFullYear() === anoFiltro &&
-            (data.getMonth() + 1) === mesFiltro &&
-            data.getDate() === diaFiltro
-          );
-        });
-      }
-      if (modo === "mes") {
-        const [anoFiltro, mesFiltro] = campo.value.split('-').map(Number);
-        return lista.filter(s => {
-          if (!s.dataCriacao) return false;
-          const data = new Date(s.dataCriacao);
-          return (
-            data.getFullYear() === anoFiltro &&
-            (data.getMonth() + 1) === mesFiltro
-          );
-        });
-      }
-      return lista;
+    function filtrarPorData(lista, start, end) {
+      if (!start || !end) return lista;
+      const inicio = moment(start).startOf('day');
+      const fim = moment(end).endOf('day');
+      return lista.filter(s => {
+        if (!s.dataCriacao) return false;
+        const data = moment(s.dataCriacao);
+        return data.isBetween(inicio, fim, null, '[]');
+      });
     }
 
     async function carregarBarbeirosSelect() {
@@ -319,9 +258,7 @@
 
     async function carregarDados() {
       document.getElementById('mensagem').textContent = "";
-      mostrarPeriodoSelecionado();
       const filtroStatus = document.getElementById("filtroStatus").value;
-      const filtroData = document.getElementById("filtroData").value;
       let filtroBarbeiro = "todos";
       if (
         usuarioLogado.categoria === "Administrador" ||
@@ -332,6 +269,12 @@
       } else {
         document.getElementById("filtroBarbeiroLinha").style.display = "none";
       }
+
+      // Obtenha o range selecionado
+      const range = $('#rangeData').data('daterangepicker');
+      let start = range ? range.startDate : moment().startOf('day');
+      let end = range ? range.endDate : moment().endOf('day');
+      mostrarPeriodoSelecionado(start, end);
 
       try {
         let snapshot;
@@ -371,7 +314,7 @@
           ) return;
 
           const lista = Array.isArray(doc.data().lista) ? doc.data().lista : [];
-          const listaFiltrada = filtrarPorData(lista, filtroData);
+          const listaFiltrada = filtrarPorData(lista, start, end);
 
           let qtdConcluido = 0, qtdPendente = 0, qtdCancelado = 0;
           listaFiltrada.forEach(s => {
@@ -492,17 +435,41 @@
       }
     }
 
-    window.addEventListener("DOMContentLoaded", () => {
+    // Inicialização do Date Range Picker
+    $(function() {
+      // Padrão: hoje
+      $('#rangeData').daterangepicker({
+        locale: {
+          format: 'DD/MM/YYYY',
+          applyLabel: "Aplicar",
+          cancelLabel: "Cancelar",
+          fromLabel: "De",
+          toLabel: "Até",
+          customRangeLabel: "Personalizado",
+          daysOfWeek: ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"],
+          monthNames: ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"],
+          firstDay: 0
+        },
+        startDate: moment().startOf('day'),
+        endDate: moment().endOf('day'),
+        opens: "center",
+        autoUpdateInput: true
+      }, function(start, end) {
+        carregarDados();
+      });
+
+      // Atualiza texto do período ao abrir
+      $('#rangeData').on('apply.daterangepicker', function(ev, picker) {
+        carregarDados();
+      });
+
+      // Carrega barbeiros e gráfico
       if (
         usuarioLogado.categoria === "Administrador" ||
         usuarioLogado.categoria === "Proprietario"
       ) {
-        carregarBarbeirosSelect().then(() => {
-          mostrarCampoData();
-          carregarDados();
-        });
+        carregarBarbeirosSelect().then(carregarDados);
       } else {
-        mostrarCampoData();
         carregarDados();
       }
     });
