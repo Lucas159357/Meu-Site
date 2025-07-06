@@ -77,7 +77,6 @@
       text-align: center;
       word-break: break-word;
     }
-    /* ... resto do seu CSS igual ... */
     .bloco-barbeiros {
       background: #444;
       border-radius: 10px;
@@ -443,9 +442,7 @@
     <h4>Menu</h4>
     <button onclick="window.location.href='estatisticas.html'">Estatísticas</button>
     <button onclick="window.location.href='ver_solicitacoes.html'">Ver Solicitações</button>
-    <button onclick="window.location.href='alterar_barbeiros.html'">Alterar Barbeiros</button>
-    <button onclick="window.location.href='alterar_servicos.html'">Alterar Serviços</button>
-    <button onclick="window.location.href='alterar_usuarios.html'">Alterar Usuários</button>
+    <div id="menu-admin"></div>
   </div>
 
   <!-- Firebase SDKs -->
@@ -698,6 +695,24 @@
     }
 
     window.onload = carregarServicos;
+
+    // Menu lateral dinâmico por categoria
+    window.addEventListener("DOMContentLoaded", function() {
+      const menuAdmin = document.getElementById("menu-admin");
+      if (!menuAdmin) return;
+      if (
+        usuarioLogado.categoria === "Administrador" ||
+        usuarioLogado.categoria === "Proprietario"
+      ) {
+        menuAdmin.innerHTML = `
+          <button onclick="window.location.href='alterar_barbeiros.html'">Alterar Barbeiros</button>
+          <button onclick="window.location.href='alterar_servicos.html'">Alterar Serviços</button>
+          <button onclick="window.location.href='alterar_usuarios.html'">Alterar Usuários</button>
+        `;
+      } else {
+        menuAdmin.innerHTML = ""; // Não mostra nada para barbeiro
+      }
+    });
   </script>
 </body>
 </html>
