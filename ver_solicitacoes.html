@@ -189,14 +189,245 @@
       font-size: 0.97em;
       margin-bottom: 2px;
     }
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 20;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.7);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: #181818;
+      padding: 28px 18px 18px 18px;
+      border-radius: 16px;
+      text-align: center;
+      min-width: 300px;
+      box-shadow: 0 0 15px #111;
+      position: relative;
+      width: 94vw;
+      max-width: 340px;
+    }
+    .modal-title {
+      color: #00c853;
+      font-size: 1.3em;
+      margin-bottom: 18px;
+      margin-top: 0;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+    .modal-content label {
+      display: block;
+      color: #00ff6a;
+      text-align: left;
+      margin-top: 12px;
+      margin-bottom: 3px;
+      font-size: 1em;
+      font-weight: bold;
+    }
+    .modal-status-label {
+      color: #00ff6a;
+      text-align: left;
+      font-size: 1em;
+      font-weight: bold;
+      margin-bottom: 2px;
+    }
+    .modal-status-value,
+    .modal-status-select {
+      background: #181818;
+      color: #00ff6a;
+      border-radius: 6px;
+      padding: 8px 0;
+      margin-bottom: 14px;
+      font-size: 1.13em;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      border: none;
+      width: 100%;
+      text-align: center;
+    }
+    .modal-status-select {
+      color: #00ff6a;
+      background: #222;
+      font-size: 1em;
+      font-weight: bold;
+      border: 2px solid #00ff6a;
+      outline: none;
+      margin-bottom: 14px;
+      padding: 8px 0;
+      text-align: center;
+    }
+    .servico-edit-lista {
+      margin-bottom: 12px;
+    }
+    .servico-edit-item {
+      background: #222;
+      border-radius: 10px;
+      padding: 14px 14px 10px 14px;
+      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      box-shadow: 0 1px 0 #333 inset;
+      position: relative;
+    }
+    .servico-edit-nome {
+      color: #00ff6a;
+      font-weight: bold;
+      font-size: 1.12em;
+      margin-bottom: 2px;
+      text-align: left;
+      letter-spacing: 0.2px;
+    }
+    .servico-edit-preco {
+      color: #fff;
+      font-size: 1.04em;
+      margin-bottom: 10px;
+      text-align: left;
+    }
+    .remover-servico-btn {
+      background: #ff5252;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 0;
+      font-size: 1.07em;
+      cursor: pointer;
+      font-weight: bold;
+      width: 100%;
+      margin: 0;
+      transition: background 0.18s;
+      display: block;
+    }
+    .remover-servico-btn:hover {
+      background: #c62828;
+    }
+    .adicionar-servico-bloco {
+      background: #111;
+      border-radius: 0 0 8px 8px;
+      padding: 16px 8px 12px 8px;
+      margin-bottom: 14px;
+      border-bottom: 3px solid #00ff6a;
+      box-shadow: 0 2px 0 #00ff6a inset;
+      text-align: left;
+    }
+    .adicionar-servico-label {
+      color: #00ff6a;
+      font-size: 1.17em;
+      font-weight: bold;
+      margin-bottom: 7px;
+      margin-left: 2px;
+      letter-spacing: 0.2px;
+    }
+    .adicionar-servico-select {
+      width: 100%;
+      background: #fff;
+      color: #111;
+      border: 1.5px solid #222;
+      border-radius: 6px;
+      padding: 8px 7px;
+      font-size: 1.07em;
+      transition: border 0.18s;
+      outline: none;
+      margin-bottom: 0;
+    }
+    .adicionar-servico-select:focus {
+      border: 1.5px solid #00ff6a;
+    }
+    .add-servico-btn {
+      background: #00ff6a;
+      color: #222;
+      border: none;
+      border-radius: 7px;
+      padding: 12px 0;
+      font-size: 1.12em;
+      cursor: pointer;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      font-weight: bold;
+      width: 100%;
+      transition: background 0.18s, color 0.18s;
+    }
+    .add-servico-btn:hover {
+      background: #009e46;
+      color: #fff;
+    }
+    .salvar-btn {
+      background: #fff;
+      color: #222;
+      border: none;
+      border-radius: 7px;
+      padding: 12px 0;
+      font-size: 1.12em;
+      cursor: pointer;
+      margin-top: 6px;
+      font-weight: bold;
+      width: 100%;
+      transition: background 0.18s, color 0.18s;
+      box-shadow: 0 1px 0 #333 inset;
+    }
+    .salvar-btn:hover {
+      background: #00c853;
+      color: #fff;
+    }
+    .close-modal {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      color: #fff;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.3em;
+      padding: 0 8px;
+      line-height: 1;
+      border-radius: 50%;
+      height: 32px;
+      width: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s, background 0.2s;
+    }
+    .close-modal:hover {
+      color: #00c853;
+      background: rgba(0, 0, 0, 0.08);
+    }
+    .modal-msg {
+      margin-top: 8px;
+      font-size: 1em;
+      color: #b2ff59;
+      min-height: 18px;
+    }
     @media (max-width: 500px) {
       .container {
         padding: 18px 2vw;
         width: 99vw;
       }
+      .solicitacao-bloco {
+        padding: 10px 7px;
+        font-size: 1em;
+      }
       .voltar-btn {
         padding: 8px 10px;
         font-size: 0.97em;
+      }
+      .modal-content {
+        padding: 16px 4vw 12px 4vw;
+        min-width: unset;
+        max-width: 99vw;
+      }
+      .close-modal {
+        font-size: 1em;
+        height: 28px;
+        width: 28px;
+        right: 6px;
+        top: 6px;
       }
       .filtro-linha, .filtro-data, .filtro-status, #periodoSelecionado { max-width: 99vw; }
       .filtro-linha { flex-direction: column; gap:4px;}
@@ -234,6 +465,25 @@
       <div style="color:#fff;text-align:center;">Carregando...</div>
     </div>
   </div>
+
+  <!-- Modal Editar Solicitação -->
+  <div class="modal" id="modalSolicitacao">
+    <div class="modal-content">
+      <button class="close-modal" onclick="fecharModalSolicitacao()" aria-label="Fechar">&times;</button>
+      <div class="modal-title" id="modalSolicitacaoTitulo">Editar Solicitação</div>
+      <div class="modal-status-label">Status</div>
+      <div id="statusSolicitacaoArea"></div>
+      <div id="servicosEdit" class="servico-edit-lista"></div>
+      <div class="adicionar-servico-bloco">
+        <div class="adicionar-servico-label">Adicionar serviço</div>
+        <select id="selectAdicionarServico" class="adicionar-servico-select"></select>
+      </div>
+      <button class="add-servico-btn" onclick="adicionarServicoEdit()">+ Adicionar Serviço</button>
+      <button class="salvar-btn" onclick="salvarSolicitacaoEditada()">Salvar Alteração</button>
+      <div class="modal-msg" id="modalSolicitacaoMsg"></div>
+    </div>
+  </div>
+
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script>
@@ -253,6 +503,7 @@
     let solicitacaoEditIdx = null;
     let servicosGlobais = [];
     let solicitacoesPorBarbeiro = {}; // só para admin/prop
+    let barbeiroAtual = null;
 
     function voltar() {
       window.history.back();
@@ -269,13 +520,6 @@
         .padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`;
     }
 
-    function nomeParaId(nome) {
-      return nome
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-zA-Z0-9]/g, "_");
-    }
-
     function mostrarPeriodoSelecionado() {
       const filtro = document.getElementById("filtroData")?.value || "dia";
       const div = document.getElementById("periodoSelecionado");
@@ -283,10 +527,8 @@
       if (filtro === "dia") {
         div.textContent = "Dia: " + agora.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
       } else if (filtro === "semana") {
-        // Domingo
         const primeiroDiaSemana = new Date(agora);
         primeiroDiaSemana.setDate(agora.getDate() - agora.getDay());
-        // Sábado
         const ultimoDiaSemana = new Date(primeiroDiaSemana);
         ultimoDiaSemana.setDate(primeiroDiaSemana.getDate() + 6);
         div.textContent = `Semana: de ${primeiroDiaSemana.toLocaleDateString('pt-BR')} até ${ultimoDiaSemana.toLocaleDateString('pt-BR')}`;
@@ -311,7 +553,6 @@
                  data.getFullYear() === agora.getFullYear();
         }
         if (modo === "semana") {
-          // Considera semana atual (domingo a sábado)
           const primeiroDiaSemana = new Date(agora);
           primeiroDiaSemana.setDate(agora.getDate() - agora.getDay());
           primeiroDiaSemana.setHours(0,0,0,0);
@@ -347,6 +588,11 @@
         });
     }
 
+    function getBarbeiroFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("barbeiro");
+    }
+
     function carregarSolicitacoes() {
       mostrarPeriodoSelecionado();
       const listaDiv = document.getElementById("solicitacoes-lista");
@@ -356,53 +602,83 @@
       carregarServicosGlobais(() => {
         const filtro = document.getElementById("filtroData")?.value || "dia";
         const filtroStatus = document.getElementById("filtroStatus")?.value || "todos";
+        barbeiroAtual = getBarbeiroFromUrl() || nomeParaId(usuarioLogado.nome);
+
         // Proprietario/Admin: vê todas as solicitações de todos os barbeiros
         if (
           usuarioLogado.categoria === "Proprietario" ||
           usuarioLogado.categoria === "Administrador"
         ) {
           db.collection("solicitacoes")
+            .doc(barbeiroAtual)
             .get()
-            .then((snapshot) => {
-              solicitacoesPorBarbeiro = {};
-              snapshot.forEach((doc) => {
-                const barbeiro = doc.id;
-                const lista = Array.isArray(doc.data().lista)
-                  ? doc.data().lista
-                  : [];
-                if (lista.length) {
-                  solicitacoesPorBarbeiro[barbeiro] = lista;
-                }
-              });
-              let html = "";
-              const barbeiros = Object.keys(solicitacoesPorBarbeiro);
-              if (barbeiros.length === 0) {
-                html =
+            .then((doc) => {
+              if (
+                !doc.exists ||
+                !Array.isArray(doc.data().lista) ||
+                doc.data().lista.length === 0
+              ) {
+                listaDiv.innerHTML =
                   '<div style="color:#fff;text-align:center;">Nenhuma solicitação encontrada.</div>';
-              } else {
-                barbeiros.forEach((barbeiro) => {
-                  let listaSolic = filtrarPorData(solicitacoesPorBarbeiro[barbeiro], filtro);
-                  listaSolic = filtrarPorStatus(listaSolic, filtroStatus);
-                  // Soma valores por status
-                  let totalGeral = 0, totalConcluido = 0, totalPendente = 0;
-                  listaSolic.forEach(s => {
-                    totalGeral += Number(s.valorTotal || 0);
-                    if ((s.status || '').toLowerCase() === 'concluido') totalConcluido += Number(s.valorTotal || 0);
-                    if ((s.status || '').toLowerCase() === 'pendente') totalPendente += Number(s.valorTotal || 0);
-                  });
-
-                  html += `<div class="solicitacao-bloco admin-link" onclick="window.location.href='detalhes_solicitacoes.html?barbeiro=${encodeURIComponent(barbeiro)}'">
-                    <div class="solicitacao-barbeiro">
-                      ${barbeiro}
-                      <div class="solicitacao-resumo">
-                        <div>Valor Total: <b>R$ ${totalGeral.toFixed(2)}</b></div>
-                        <div>Concluído: <b style="color:#00c853;">R$ ${totalConcluido.toFixed(2)}</b></div>
-                        <div>Pendente: <b style="color:#ffeb3b;">R$ ${totalPendente.toFixed(2)}</b></div>
-                      </div>
-                    </div>
-                  </div>`;
-                });
+                return;
               }
+              listaSolicitacoes = doc.data().lista;
+              let listaFiltrada = filtrarPorData(listaSolicitacoes, filtro);
+              listaFiltrada = filtrarPorStatus(listaFiltrada, filtroStatus);
+
+              let totalGeral = 0, totalConcluido = 0, totalPendente = 0;
+              listaFiltrada.forEach(s => {
+                totalGeral += Number(s.valorTotal || 0);
+                if ((s.status || '').toLowerCase() === 'concluido') totalConcluido += Number(s.valorTotal || 0);
+                if ((s.status || '').toLowerCase() === 'pendente') totalPendente += Number(s.valorTotal || 0);
+              });
+
+              let html = `<div class="solicitacao-bloco">
+                <div class="solicitacao-barbeiro">${barbeiroAtual}
+                  <div class="solicitacao-resumo">
+                    <div>Valor Total: <b>R$ ${totalGeral.toFixed(2)}</b></div>
+                    <div>Concluído: <b style="color:#00c853;">R$ ${totalConcluido.toFixed(2)}</b></div>
+                    <div>Pendente: <b style="color:#ffeb3b;">R$ ${totalPendente.toFixed(2)}</b></div>
+                  </div>
+                </div>
+                ${listaFiltrada
+                  .map(
+                    (s, idx) => `
+                  <div class="solicitacao-item" onclick="abrirEditarSolicitacao(${idx})">
+                    <div class="solicitacao-data"><i class="fa fa-calendar"></i> ${formatarData(
+                      s.dataCriacao
+                    )}</div>
+                    <div class="solicitacao-servicos">
+                      ${
+                        Array.isArray(s.servicos)
+                          ? s.servicos
+                              .map(
+                                (sv) =>
+                                  `<div class="servico-linha">
+                                    <span class="servico-icone"><i class="fa fa-scissors"></i></span>
+                                    <span class="servico-nome">${sv.nome}</span>
+                                    <span class="servico-preco">R$ ${sv.preco}</span>
+                                  </div>`
+                              )
+                              .join("")
+                          : ""
+                      }
+                    </div>
+                    <div class="solicitacao-total">Total: <b>R$ ${s.valorTotal}</b></div>
+                    <div class="solicitacao-status solicitacao-${(
+                      s.status || "pendente"
+                    ).toLowerCase()}">
+                      Status: ${
+                        s.status
+                          ? s.status.charAt(0).toUpperCase() + s.status.slice(1)
+                          : "Pendente"
+                      }
+                    </div>
+                  </div>
+                `
+                  )
+                  .join("")}
+              </div>`;
               listaDiv.innerHTML = html;
             })
             .catch((error) => {
@@ -430,13 +706,14 @@
               listaSolicitacoes = doc.data().lista;
               let listaFiltrada = filtrarPorData(listaSolicitacoes, filtro);
               listaFiltrada = filtrarPorStatus(listaFiltrada, filtroStatus);
-              // Resumo também para barbeiro comum
+
               let totalGeral = 0, totalConcluido = 0, totalPendente = 0;
               listaFiltrada.forEach(s => {
                 totalGeral += Number(s.valorTotal || 0);
                 if ((s.status || '').toLowerCase() === 'concluido') totalConcluido += Number(s.valorTotal || 0);
                 if ((s.status || '').toLowerCase() === 'pendente') totalPendente += Number(s.valorTotal || 0);
               });
+
               let html = `<div class="solicitacao-bloco">
                 <div class="solicitacao-barbeiro"><i class="fa fa-user"></i> ${usuarioLogado.nome}
                   <div class="solicitacao-resumo">
@@ -495,11 +772,138 @@
       });
     }
 
-    // ... Modal e funções de edição (se quiser manter para barbeiro) ...
+    // Modal de edição (admin/prop sempre pode, barbeiro só se não for concluído)
+    function abrirEditarSolicitacao(idx) {
+      const s = listaSolicitacoes[idx];
+      // Permite editar se for admin/prop OU barbeiro e status não concluído
+      const isAdmin = usuarioLogado.categoria === "Administrador" || usuarioLogado.categoria === "Proprietario";
+      const isBarbeiro = usuarioLogado.categoria === "Barbeiro";
+      const isConcluido = (s.status || '').toLowerCase() === 'concluido';
+
+      if (isAdmin || (isBarbeiro && !isConcluido)) {
+        solicitacaoEditIdx = idx;
+        document.getElementById("modalSolicitacaoTitulo").textContent =
+          "Editar Solicitação";
+        document.getElementById("statusSolicitacaoArea").innerHTML = `
+          <select id="statusSolicitacaoSelect" class="modal-status-select" ${isBarbeiro ? 'disabled' : ''}>
+            <option value="pendente" ${
+              s.status === "pendente" ? "selected" : ""
+            }>Pendente</option>
+            <option value="concluido" ${
+              s.status === "concluido" ? "selected" : ""
+            }>Concluído</option>
+            <option value="cancelado" ${
+              s.status === "cancelado" ? "selected" : ""
+            }>Cancelado</option>
+          </select>
+        `;
+        document.getElementById("modalSolicitacaoMsg").textContent = "";
+        renderServicosEdit(s.servicos || [], isBarbeiro && !isAdmin);
+        renderSelectAdicionarServico(s.servicos || [], isBarbeiro && !isAdmin);
+        // Botões só aparecem se pode editar
+        document.getElementById("selectAdicionarServico").disabled = isBarbeiro && !isAdmin ? false : false;
+        document.querySelector(".add-servico-btn").style.display = (isAdmin || (isBarbeiro && !isConcluido)) ? "block" : "none";
+        document.querySelector(".salvar-btn").style.display = (isAdmin || (isBarbeiro && !isConcluido)) ? "block" : "none";
+        setTimeout(() => {
+          document.querySelectorAll(".remover-servico-btn").forEach(btn => {
+            btn.style.display = (isAdmin || (isBarbeiro && !isConcluido)) ? "block" : "none";
+          });
+        }, 50);
+        document.getElementById("modalSolicitacao").style.display = "flex";
+      }
+    }
+
+    function fecharModalSolicitacao() {
+      document.getElementById("modalSolicitacao").style.display = "none";
+    }
+
+    function renderServicosEdit(servicos, isBarbeiro) {
+      const div = document.getElementById("servicosEdit");
+      let html = "";
+      servicos.forEach((sv, idx) => {
+        html += `
+          <div class="servico-edit-item" data-idx="${idx}">
+            <div class="servico-edit-nome">${sv.nome}</div>
+            <div class="servico-edit-preco">R$ ${sv.preco}</div>
+            <button type="button" class="remover-servico-btn" onclick="removerServicoEdit(${idx});event.stopPropagation();">Remover</button>
+          </div>
+        `;
+      });
+      div.innerHTML = html;
+    }
+
+    function renderSelectAdicionarServico(servicosAtuais, isBarbeiro) {
+      const select = document.getElementById("selectAdicionarServico");
+      select.innerHTML = "";
+      const nomesAtuais = servicosAtuais.map((sv) => sv.nome);
+      servicosGlobais.forEach((sv) => {
+        if (!nomesAtuais.includes(sv.nome)) {
+          const option = document.createElement("option");
+          option.value = sv.nome;
+          option.textContent = `${sv.nome} (R$ ${sv.preco})`;
+          select.appendChild(option);
+        }
+      });
+    }
+
+    function adicionarServicoEdit() {
+      if (solicitacaoEditIdx === null) return;
+      const s = listaSolicitacoes[solicitacaoEditIdx];
+      const select = document.getElementById("selectAdicionarServico");
+      const nomeServico = select.value;
+      if (!nomeServico) return;
+      const sv = servicosGlobais.find((sv) => sv.nome === nomeServico);
+      if (!sv) return;
+      if (!Array.isArray(s.servicos)) s.servicos = [];
+      s.servicos.push({ nome: sv.nome, preco: sv.preco });
+      renderServicosEdit(s.servicos);
+      renderSelectAdicionarServico(s.servicos);
+    }
+
+    function removerServicoEdit(idx) {
+      if (solicitacaoEditIdx === null) return;
+      const s = listaSolicitacoes[solicitacaoEditIdx];
+      if (!Array.isArray(s.servicos)) s.servicos = [];
+      s.servicos.splice(idx, 1);
+      renderServicosEdit(s.servicos);
+      renderSelectAdicionarServico(s.servicos);
+    }
+
+    function salvarSolicitacaoEditada() {
+      if (solicitacaoEditIdx === null) return;
+      const s = listaSolicitacoes[solicitacaoEditIdx];
+      // Atualiza status (admin/prop pode, barbeiro não)
+      if (usuarioLogado.categoria === "Administrador" || usuarioLogado.categoria === "Proprietario") {
+        s.status = document.getElementById("statusSolicitacaoSelect").value;
+      }
+      // Valor total recalculado
+      s.valorTotal = Array.isArray(s.servicos)
+        ? s.servicos.reduce((acc, sv) => acc + sv.preco, 0)
+        : 0;
+      db.collection("solicitacoes")
+        .doc(barbeiroAtual)
+        .set({ lista: listaSolicitacoes })
+        .then(() => {
+          document.getElementById("modalSolicitacaoMsg").textContent =
+            "Solicitação atualizada!";
+          document.getElementById("modalSolicitacaoMsg").style.color =
+            "#b2ff59";
+          setTimeout(() => {
+            fecharModalSolicitacao();
+            carregarSolicitacoes();
+          }, 800);
+        })
+        .catch((error) => {
+          document.getElementById("modalSolicitacaoMsg").textContent =
+            "Erro ao salvar: " + error.message;
+          document.getElementById("modalSolicitacaoMsg").style.color =
+            "#ff5252";
+        });
+    }
 
     window.onload = carregarSolicitacoes;
     window.addEventListener("keydown", function (e) {
-      if (e.key === "Escape") fecharModalSolicitacao && fecharModalSolicitacao();
+      if (e.key === "Escape") fecharModalSolicitacao();
     });
   </script>
 </body>
