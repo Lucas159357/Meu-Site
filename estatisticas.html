@@ -200,7 +200,6 @@
       if (filtro === "dia") {
         campo.innerHTML = `<input type="date" id="inputData" value="${new Date().toISOString().slice(0,10)}" onchange="carregarDados()">`;
       } else if (filtro === "semana") {
-        // Padrão HTML: yyyy-W## (ex: 2025-W27)
         const hoje = new Date();
         const week = getISOWeek(hoje);
         campo.innerHTML = `<input type="week" id="inputData" value="${hoje.getFullYear()}-W${week}" onchange="carregarDados()">`;
@@ -224,10 +223,10 @@
       const campo = document.getElementById("inputData");
       const div = document.getElementById("periodoSelecionado");
       if (filtro === "dia" && campo && campo.value) {
-        const dt = new Date(campo.value);
+        const [ano, mes, dia] = campo.value.split('-');
+        const dt = new Date(Number(ano), Number(mes)-1, Number(dia));
         div.textContent = "Dia: " + dt.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
       } else if (filtro === "semana" && campo && campo.value) {
-        // campo.value: yyyy-W##
         const [ano, semana] = campo.value.split("-W");
         const primeiroDiaSemana = new Date(ano,0,1 + (semana-1)*7);
         while (primeiroDiaSemana.getDay() !== 0) primeiroDiaSemana.setDate(primeiroDiaSemana.getDate()-1);
@@ -235,8 +234,8 @@
         ultimoDiaSemana.setDate(primeiroDiaSemana.getDate()+6);
         div.textContent = `Semana: de ${primeiroDiaSemana.toLocaleDateString('pt-BR')} até ${ultimoDiaSemana.toLocaleDateString('pt-BR')}`;
       } else if (filtro === "mes" && campo && campo.value) {
-        const [ano, mes] = campo.value.split("-");
-        const data = new Date(ano, Number(mes)-1, 1);
+        const [ano, mes] = campo.value.split('-');
+        const data = new Date(Number(ano), Number(mes)-1, 1);
         let txt = data.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
         txt = txt.charAt(0).toUpperCase() + txt.slice(1);
         div.textContent = "Mês: " + txt;
@@ -250,16 +249,18 @@
       const campo = document.getElementById("inputData");
       if (!campo || !campo.value) return lista;
       if (modo === "dia") {
-        const dataFiltro = campo.value;
+        const [anoFiltro, mesFiltro, diaFiltro] = campo.value.split('-').map(Number);
         return lista.filter(s => {
           if (!s.dataCriacao) return false;
           const data = new Date(s.dataCriacao);
-          const dataStr = data.toISOString().slice(0,10);
-          return dataStr === dataFiltro;
+          return (
+            data.getFullYear() === anoFiltro &&
+            (data.getMonth() + 1) === mesFiltro &&
+            data.getDate() === diaFiltro
+          );
         });
       }
       if (modo === "semana") {
-        // campo.value: yyyy-W##
         const [ano, semana] = campo.value.split("-W");
         if (!ano || !semana) return lista;
         const primeiroDia = new Date(ano,0,1 + (semana-1)*7);
@@ -273,12 +274,14 @@
         });
       }
       if (modo === "mes") {
-        const [ano, mes] = campo.value.split("-");
-        if (!ano || !mes) return lista;
+        const [anoFiltro, mesFiltro] = campo.value.split('-').map(Number);
         return lista.filter(s => {
           if (!s.dataCriacao) return false;
           const data = new Date(s.dataCriacao);
-          return data.getFullYear() == ano && (data.getMonth()+1) == Number(mes);
+          return (
+            data.getFullYear() === anoFiltro &&
+            (data.getMonth() + 1) === mesFiltro
+          );
         });
       }
       return lista;
@@ -322,7 +325,6 @@
         ) {
           snapshot = await db.collection("solicitacoes").get();
         } else {
-          // Barbeiro só vê as próprias solicitações
           const meuDocId = nomeParaId(usuarioLogado.nome);
           const doc = await db.collection("solicitacoes").doc(meuDocId).get();
           snapshot = {
@@ -339,7 +341,6 @@
           return;
         }
 
-        // Coleta nomes e quantidades
         const labels = [];
         const dadosConcluido = [];
         const dadosPendente = [];
