@@ -698,11 +698,14 @@
             barbeiros.forEach(barbeiro => {
               let listaSolic = filtrarPorData(solicitacoesPorBarbeiro[barbeiro]);
               listaSolic = filtrarPorStatus(listaSolic, status);
+              // AJUSTE: Ignorar cancelados nas somas
               let totalGeral = 0, totalConcluido = 0, totalPendente = 0;
               listaSolic.forEach(s => {
+                const statusSolic = (s.status || '').toLowerCase();
+                if (statusSolic === 'cancelado') return;
                 totalGeral += Number(s.valorTotal || 0);
-                if ((s.status || '').toLowerCase() === 'concluido') totalConcluido += Number(s.valorTotal || 0);
-                if ((s.status || '').toLowerCase() === 'pendente') totalPendente += Number(s.valorTotal || 0);
+                if (statusSolic === 'concluido') totalConcluido += Number(s.valorTotal || 0);
+                if (statusSolic === 'pendente') totalPendente += Number(s.valorTotal || 0);
               });
               html += `<div class="solicitacao-bloco admin-link" onclick="window.location.href='detalhes_solicitacoes.html?barbeiro=${encodeURIComponent(barbeiro)}'">
                 <div class="solicitacao-barbeiro">${barbeiro}
@@ -727,11 +730,14 @@
           listaSolicitacoes = doc.data().lista;
           let listaFiltrada = filtrarPorData(listaSolicitacoes);
           listaFiltrada = filtrarPorStatus(listaFiltrada, status);
+          // AJUSTE: Ignorar cancelados nas somas
           let totalGeral = 0, totalConcluido = 0, totalPendente = 0;
           listaFiltrada.forEach(s => {
+            const statusSolic = (s.status || '').toLowerCase();
+            if (statusSolic === 'cancelado') return;
             totalGeral += Number(s.valorTotal || 0);
-            if ((s.status || '').toLowerCase() === 'concluido') totalConcluido += Number(s.valorTotal || 0);
-            if ((s.status || '').toLowerCase() === 'pendente') totalPendente += Number(s.valorTotal || 0);
+            if (statusSolic === 'concluido') totalConcluido += Number(s.valorTotal || 0);
+            if (statusSolic === 'pendente') totalPendente += Number(s.valorTotal || 0);
           });
           let html = `<div class="solicitacao-bloco">
             <div class="solicitacao-barbeiro"><i class="fa fa-user"></i> ${usuarioLogado.nome}
