@@ -196,8 +196,6 @@
       font-size: 0.97em;
       margin-bottom: 2px;
     }
-
-    /* MODAL BONITO E MODERNO */
     .modal {
       display: none;
       position: fixed;
@@ -848,6 +846,7 @@
 
     function removerServicoEdit(idx) {
       if (solicitacaoEditIdx === null) return;
+      if (!confirm("Tem certeza que deseja remover este serviço?")) return;
       const s = listaSolicitacoes[solicitacaoEditIdx];
       if (!Array.isArray(s.servicos)) s.servicos = [];
       s.servicos.splice(idx, 1);
