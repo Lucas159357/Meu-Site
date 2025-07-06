@@ -133,20 +133,17 @@
 
     function getCorPorStatus(status) {
       switch(status) {
-        case 'concluido': return 'rgba(0, 200, 83, 0.6)'; // verde
-        case 'pendente': return 'rgba(255, 235, 59, 0.85)'; // amarelo
-        case 'cancelado': return 'rgba(244, 67, 54, 0.85)'; // vermelho
-        case 'todos': return 'rgba(33, 150, 243, 0.7)'; // azul
+        case 'concluido': return 'rgba(0, 200, 83, 0.6)';
+        case 'pendente': return 'rgba(255, 235, 59, 0.85)';
+        case 'cancelado': return 'rgba(244, 67, 54, 0.85)';
         default: return 'rgba(0, 200, 83, 0.6)';
       }
     }
-
     function getCorBordaPorStatus(status) {
       switch(status) {
         case 'concluido': return 'rgba(0, 200, 83, 1)';
         case 'pendente': return 'rgba(255, 235, 59, 1)';
         case 'cancelado': return 'rgba(244, 67, 54, 1)';
-        case 'todos': return 'rgba(33, 150, 243, 1)';
         default: return 'rgba(0, 200, 83, 1)';
       }
     }
@@ -162,11 +159,11 @@
           return;
         }
 
+        // Coleta nomes e quantidades
         const labels = [];
         const dadosConcluido = [];
         const dadosPendente = [];
         const dadosCancelado = [];
-        const dadosTotal = [];
 
         snapshot.forEach(doc => {
           const barbeiro = doc.id;
@@ -179,16 +176,16 @@
             else if (status === 'cancelado') qtdCancelado++;
           });
           labels.push(barbeiro);
-          dadosConcluido.push(qtdConcluido);
-          dadosPendente.push(qtdPendente);
-          dadosCancelado.push(qtdCancelado);
-          dadosTotal.push(lista.length);
+          dadosConcluido.push(qtdConcluido > 0 ? qtdConcluido : null);
+          dadosPendente.push(qtdPendente > 0 ? qtdPendente : null);
+          dadosCancelado.push(qtdCancelado > 0 ? qtdCancelado : null);
         });
 
         if (grafico) grafico.destroy();
 
         let datasets = [];
         if (filtroStatus === "todos") {
+          // Só mostra barras se valor > 0 (null não exibe)
           datasets = [
             {
               label: "Concluídas",
@@ -254,7 +251,7 @@
                 align: 'start',
                 color: '#222',
                 font: { weight: 'bold', size: 15 },
-                formatter: function(value) { return value; }
+                formatter: function(value) { return value !== null ? value : ''; }
               }
             },
             scales: {
