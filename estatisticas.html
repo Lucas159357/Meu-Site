@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Estatísticas - Barbearia Pedro Rodrigues</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <style>
@@ -59,6 +59,33 @@
     .voltar-btn:hover {
       background: #005fa3;
     }
+    .filtro-status {
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .filtro-status label {
+      color: #00c853;
+      font-weight: bold;
+      font-size: 1.07em;
+    }
+    .filtro-status select {
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: none;
+      font-size: 1em;
+      background: #222;
+      color: #00c853;
+      outline: none;
+    }
+    #mensagem {
+      color: #ff5252;
+      font-weight: bold;
+      margin-top: 12px;
+      min-height: 24px;
+    }
     @media (max-width: 500px) {
       .container { width: 99vw; padding: 12px 2vw; }
       #graficoDesempenho { padding: 2px; }
@@ -66,6 +93,8 @@
   </style>
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Chart.js datalabels plugin -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -75,9 +104,18 @@
     <button class="voltar-btn" onclick="window.history.back()">
       <i class="fa fa-arrow-left"></i> Voltar
     </button>
-    <h1>Solicitações Concluídas por Barbeiro</h1>
+    <h1>Solicitações por Barbeiro</h1>
+    <div class="filtro-status">
+      <label for="filtroStatus">Mostrar:</label>
+      <select id="filtroStatus" onchange="carregarDados()">
+        <option value="concluido">Só Concluídas</option>
+        <option value="pendente">Pendentes</option>
+        <option value="cancelado">Canceladas</option>
+        <option value="todos">Todas</option>
+      </select>
+    </div>
     <canvas id="graficoDesempenho" height="220"></canvas>
-    <div id="mensagem" style="color:#ff5252; font-weight:bold;"></div>
+    <div id="mensagem"></div>
   </div>
   <script>
     // Configuração Firebase (use a sua)
@@ -94,64 +132,87 @@
     let grafico;
 
     async function carregarDados() {
+      document.getElementById('mensagem').textContent = "";
+      const filtroStatus = document.getElementById("filtroStatus").value;
       try {
         const snapshot = await db.collection("solicitacoes").get();
         if (snapshot.empty) {
           document.getElementById('mensagem').textContent = "Nenhuma solicitação encontrada.";
+          if (grafico) grafico.destroy();
           return;
         }
 
         const labels = [];
-        const dadosConcluidos = [];
+        const dados = [];
 
         snapshot.forEach(doc => {
           const barbeiro = doc.id;
           const lista = Array.isArray(doc.data().lista) ? doc.data().lista : [];
-          // Soma das solicitações concluídas
-          const totalConcluido = lista.reduce((acc, s) => {
-            return acc + ((s.status || '').toLowerCase() === 'concluido' ? 1 : 0);
-          }, 0);
+          let qtd = 0;
+          if (filtroStatus === "todos") {
+            qtd = lista.length;
+          } else {
+            qtd = lista.reduce((acc, s) => {
+              return acc + ((s.status || '').toLowerCase() === filtroStatus ? 1 : 0);
+            }, 0);
+          }
           labels.push(barbeiro);
-          dadosConcluidos.push(totalConcluido);
+          dados.push(qtd);
         });
 
-        // Criar ou atualizar gráfico
-        if (grafico) {
-          grafico.data.labels = labels;
-          grafico.data.datasets[0].data = dadosConcluidos;
-          grafico.update();
-        } else {
-          grafico = new Chart(ctx, {
-            type: 'bar',
-            data: {
-              labels: labels,
-              datasets: [{
-                label: 'Solicitações Concluídas',
-                data: dadosConcluidos,
-                backgroundColor: 'rgba(0, 200, 83, 0.6)',
-                borderColor: 'rgba(0, 200, 83, 1)',
-                borderWidth: 2,
-                borderRadius: 6
-              }]
-            },
-            options: {
-              responsive: true,
-              plugins: {
-                legend: { labels: { color: '#00c853', font: { size: 15 } } },
-                title: { display: false }
-              },
-              scales: {
-                x: { ticks: { color: '#fff', font: { size: 14 } } },
-                y: {
-                  beginAtZero: true,
-                  ticks: { color: '#fff', font: { size: 14 }, stepSize: 1 }
+        if (grafico) grafico.destroy();
+
+        grafico = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: filtroStatus === "todos"
+                ? "Total de Solicitações"
+                : "Solicitações " + (
+                  filtroStatus === "concluido" ? "Concluídas" :
+                  filtroStatus === "pendente" ? "Pendentes" :
+                  filtroStatus === "cancelado" ? "Canceladas" : ""
+                ),
+              data: dados,
+              backgroundColor: 'rgba(0, 200, 83, 0.6)',
+              borderColor: 'rgba(0, 200, 83, 1)',
+              borderWidth: 2,
+              borderRadius: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { labels: { color: '#00c853', font: { size: 15 } } },
+              title: { display: false },
+              datalabels: {
+                anchor: 'end',
+                align: 'start',
+                color: '#222',
+                font: { weight: 'bold', size: 15 },
+                formatter: function(value) {
+                  return value;
                 }
               }
+            },
+            scales: {
+              x: { 
+                ticks: { color: '#fff', font: { size: 14 } },
+                title: { display: true, text: "Barbeiro", color: "#00c853", font: { size: 15, weight: "bold" } }
+              },
+              y: {
+                beginAtZero: true,
+                ticks: { color: '#fff', font: { size: 14 }, stepSize: 1 },
+                title: { display: true, text: "Quantidade", color: "#00c853", font: { size: 15, weight: "bold" } }
+              }
             }
-          });
-        }
+          },
+          plugins: [ChartDataLabels]
+        });
       } catch (error) {
         document.getElementById('mensagem').textContent = "Erro ao carregar dados: " + error.message;
+        if (grafico) grafico.destroy();
       }
     }
 
