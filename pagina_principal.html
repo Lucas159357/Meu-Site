@@ -4,9 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Página Principal - Barbearia Pedro Rodrigues</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-      /* ... Seu CSS permanece igual ... */
       body {
         font-family: Arial, sans-serif;
         background: #222;
@@ -437,7 +439,6 @@
         }
       }
 
-      // NOVA FUNÇÃO ENVIAR: salva na lista do documento do barbeiro em "solicitacoes"
       function enviar() {
         const mensagem = document.getElementById("mensagem");
         const selectBarbeiro = document.getElementById("selectBarbeiro");
@@ -454,46 +455,37 @@
           return;
         }
 
+        // Pega o email do usuário logado do localStorage
         const emailUsuario = usuarioLogado.email;
-        const selecionados = servicosSelecionados.map(idx => servicosFirestore[idx]);
+
+        const selecionados = servicosSelecionados.map(
+          (idx) => servicosFirestore[idx]
+        );
         const valorTotal = selecionados.reduce((acc, s) => acc + s.preco, 0);
 
         const solicitacao = {
           email: emailUsuario,
           barbeiro: barbeiro,
-          servicos: selecionados.map(s => ({ nome: s.nome, preco: s.preco })),
+          servicos: selecionados.map((s) => ({ nome: s.nome, preco: s.preco })),
           valorTotal: valorTotal,
           status: "pendente",
-          dataCriacao: new Date().toISOString()
+          dataCriacao: firebase.firestore.FieldValue.serverTimestamp(),
         };
 
-        // Limpa o nome do barbeiro para usar como ID de documento
-        const barbeiroId = barbeiro.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
-        const docRef = db.collection("solicitacoes").doc(barbeiroId);
-
-        docRef.get().then(doc => {
-          let lista = [];
-          if (doc.exists && Array.isArray(doc.data().lista)) {
-            lista = doc.data().lista;
-          }
-          lista.push(solicitacao);
-
-          docRef.set({ lista: lista })
-            .then(() => {
-              mensagem.textContent = "Solicitação enviada com sucesso!";
-              mensagem.style.color = "#b2ff59";
-              servicosSelecionados = [];
-              carregarServicos();
-              selectBarbeiro.selectedIndex = 0;
-            })
-            .catch((error) => {
-              mensagem.textContent = "Erro ao enviar solicitação: " + error.message;
-              mensagem.style.color = "#ff5252";
-            });
-        }).catch((error) => {
-          mensagem.textContent = "Erro ao buscar solicitações: " + error.message;
-          mensagem.style.color = "#ff5252";
-        });
+        db.collection("solicitacoes")
+          .add(solicitacao)
+          .then(() => {
+            mensagem.textContent = "Solicitação enviada com sucesso!";
+            mensagem.style.color = "#b2ff59";
+            servicosSelecionados = [];
+            carregarServicos();
+            selectBarbeiro.selectedIndex = 0;
+          })
+          .catch((error) => {
+            mensagem.textContent =
+              "Erro ao enviar solicitação: " + error.message;
+            mensagem.style.color = "#ff5252";
+          });
       }
 
       // Modal perfil dinâmico
@@ -505,7 +497,8 @@
         const opcoesDiv = document.getElementById("perfil-opcoes");
         opcoesDiv.innerHTML = "";
 
-        if (user && user.email === "lucas.alexandre.sf@gmail.com") {
+        // Mostra opções avançadas só para Proprietario ou Administrador
+        if (user && (user.categoria === "Proprietario" || user.categoria === "Administrador")) {
           opcoesDiv.innerHTML = `
             <button onclick="window.location.href='alterar_barbeiros.html'" style="width:100%;margin-bottom:8px;">Alterar Barbeiros</button>
             <button onclick="window.location.href='alterar_servicos.html'" style="width:100%;margin-bottom:8px;">Alterar Serviços</button>
@@ -542,35 +535,46 @@
           mensagem.style.color = "#ff5252";
           return;
         }
-        db.collection('usuarios').doc('usuarios').get().then(doc => {
-          if (doc.exists && Array.isArray(doc.data().lista)) {
-            let usuarios = doc.data().lista;
-            const idx = usuarios.findIndex(u => u.email === usuarioLogado.email);
-            if (idx >= 0) {
-              usuarios[idx].senha = novaSenha;
-              db.collection('usuarios').doc('usuarios').set({ lista: usuarios })
-                .then(() => {
-                  mensagem.textContent = "Senha alterada com sucesso!";
-                  mensagem.style.color = "#b2ff59";
-                  usuarioLogado.senha = novaSenha;
-                  localStorage.setItem("usuarioLogado", JSON.stringify(usuarioLogado));
-                })
-                .catch(error => {
-                  mensagem.textContent = "Erro ao salvar: " + error.message;
-                  mensagem.style.color = "#ff5252";
-                });
+        db.collection("usuarios")
+          .doc("usuarios")
+          .get()
+          .then((doc) => {
+            if (doc.exists && Array.isArray(doc.data().lista)) {
+              let usuarios = doc.data().lista;
+              const idx = usuarios.findIndex(
+                (u) => u.email === usuarioLogado.email
+              );
+              if (idx >= 0) {
+                usuarios[idx].senha = novaSenha;
+                db.collection("usuarios")
+                  .doc("usuarios")
+                  .set({ lista: usuarios })
+                  .then(() => {
+                    mensagem.textContent = "Senha alterada com sucesso!";
+                    mensagem.style.color = "#b2ff59";
+                    usuarioLogado.senha = novaSenha;
+                    localStorage.setItem(
+                      "usuarioLogado",
+                      JSON.stringify(usuarioLogado)
+                    );
+                  })
+                  .catch((error) => {
+                    mensagem.textContent = "Erro ao salvar: " + error.message;
+                    mensagem.style.color = "#ff5252";
+                  });
+              } else {
+                mensagem.textContent = "Usuário não encontrado!";
+                mensagem.style.color = "#ff5252";
+              }
             } else {
-              mensagem.textContent = "Usuário não encontrado!";
+              mensagem.textContent = "Base de usuários não encontrada!";
               mensagem.style.color = "#ff5252";
             }
-          } else {
-            mensagem.textContent = "Base de usuários não encontrada!";
+          })
+          .catch((error) => {
+            mensagem.textContent = "Erro: " + error.message;
             mensagem.style.color = "#ff5252";
-          }
-        }).catch(error => {
-          mensagem.textContent = "Erro: " + error.message;
-          mensagem.style.color = "#ff5252";
-        });
+          });
       }
 
       function logout() {
