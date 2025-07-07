@@ -119,6 +119,10 @@
       box-shadow: 0 0 10px #1112;
       max-width: 95vw;
       border: 1.5px solid #388e3c;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
     }
     h1 {
       color: #388e3c;
@@ -195,6 +199,7 @@
       gap: 15px;
       margin-top: 30px;
       flex-wrap: wrap;
+      width: 100%;
     }
     button:not(.perfil-btn):not(.menu-btn) {
       padding: 10px 22px;
@@ -221,15 +226,15 @@
     .bloco-pagamento {
       background: #fff;
       border-radius: 10px;
-      margin: 0 0 22px 0;
-      padding: 18px 15px;
+      margin: 0 0 18px 0;
+      padding: 18px 15px 12px 15px;
       display: flex;
       flex-direction: column;
       align-items: flex-start;
       box-shadow: 0 2px 8px #1112;
-      width: 350px;
-      max-width: 95vw;
+      width: 100%;
       border: 1.5px solid #ff9800;
+      position: relative;
     }
     .bloco-pagamento label {
       font-size: 1.2em;
@@ -260,164 +265,6 @@
     .valor-pagamento-label {
       color: #388e3c;
       font-weight: bold;
-    }
-    /* Modal, menu e responsivo igual ao anterior, só ajustando cores */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 10;
-      left: 0;
-      top: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.7);
-      justify-content: center;
-      align-items: center;
-    }
-    .modal-content {
-      background: #fff;
-      padding: 30px 25px 20px 25px;
-      border-radius: 10px;
-      text-align: center;
-      min-width: 300px;
-      box-shadow: 0 0 15px #1112;
-      position: relative;
-      width: 90vw;
-      max-width: 340px;
-      overflow: hidden;
-      border: 1.5px solid #388e3c;
-    }
-    .close-modal {
-      position: absolute;
-      left: 50%;
-      top: 10px;
-      transform: translateX(-50%);
-      color: #ff9800;
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 1.15em;
-      padding: 0 8px;
-      line-height: 1;
-      border-radius: 50%;
-      height: 32px;
-      width: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: color 0.2s, background 0.2s;
-    }
-    .close-modal:hover {
-      color: #388e3c;
-      background: rgba(0, 0, 0, 0.08);
-    }
-    .modal-content h3 {
-      color: #388e3c;
-      margin: 32px 0 15px 0;
-      font-size: 1.15em;
-      padding-top: 4px;
-      font-weight: bold;
-    }
-    .perfil-info {
-      margin-bottom: 18px;
-      text-align: left;
-      font-size: 1.07em;
-    }
-    .perfil-info span {
-      color: #ff9800;
-      font-weight: bold;
-    }
-    .modal-content input[type="password"] {
-      width: 90%;
-      padding: 10px;
-      margin: 10px 0 18px 0;
-      border-radius: 6px;
-      border: 1.5px solid #ff9800;
-      font-size: 1em;
-      background: #fff;
-      color: #222;
-      outline: none;
-    }
-    .modal-content button {
-      width: 100%;
-      margin-top: 0;
-      background: #ff9800;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      font-weight: bold;
-    }
-    .modal-content button:hover {
-      background: #388e3c;
-    }
-    #perfil-mensagem {
-      margin-top: 10px;
-      font-size: 1em;
-      word-break: break-word;
-      color: #388e3c;
-    }
-    .menu-modal {
-      display: none;
-      position: fixed;
-      z-index: 20;
-      left: 0;
-      top: 0;
-      height: 100vh;
-      width: 240px;
-      background: #fff;
-      box-shadow: 4px 0 16px #0002;
-      padding: 30px 18px 18px 18px;
-      border-radius: 0 18px 18px 0;
-      border-right: 2px solid #ff9800;
-      transition: left 0.2s;
-    }
-    .menu-modal .close-menu {
-      position: absolute;
-      left: 7px;
-      top: 7px;
-      font-size: 1.1em;
-      color: #388e3c;
-      background: none;
-      border: none;
-      cursor: pointer;
-      transition: color 0.2s;
-      padding: 0;
-      width: 22px;
-      height: 22px;
-      line-height: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .menu-modal .close-menu:hover {
-      color: #ff9800;
-    }
-    .menu-modal h4 {
-      color: #388e3c;
-      margin-top: 24px;
-      margin-bottom: 18px;
-      font-size: 1.15em;
-      text-align: center;
-      font-weight: bold;
-    }
-    .menu-modal button {
-      width: 100%;
-      margin: 8px 0;
-      background: #fff;
-      color: #388e3c;
-      border: 1.5px solid #ff9800;
-      border-radius: 6px;
-      padding: 12px 0;
-      font-size: 1.07em;
-      transition: background 0.2s, color 0.2s;
-      font-weight: bold;
-      cursor: pointer;
-      text-align: left;
-      padding-left: 18px;
-    }
-    .menu-modal button:hover {
-      background: #ff9800;
-      color: #fff;
     }
     @media (max-width: 500px) {
       .bloco-barbeiros,
@@ -458,6 +305,13 @@
       .menu-modal { width: 90vw; min-width: 170px; }
       .menu-modal .close-menu { font-size: 1em; width: 18px; height: 18px; }
     }
+    /* Ajuste largura campo nome do cliente */
+    .bloco-cliente input[type="text"] {
+      width: 100%;
+      box-sizing: border-box;
+      min-width: 0;
+      max-width: 100%;
+    }
   </style>
 </head>
 <body>
@@ -486,12 +340,7 @@
   <div class="container">
     <h1>Escolha seu serviço</h1>
     <div id="servicos-lista"></div>
-    <div class="botoes">
-      <button onclick="logout()">Sair</button>
-      <button onclick="enviar()">Enviar</button>
-    </div>
-    <div id="mensagem"></div>
-    <div class="bloco-pagamento" style="margin-top:32px;">
+    <div class="bloco-pagamento" style="margin-top:18px;">
       <label for="formasPagamento">Forma(s) de Pagamento</label>
       <select id="formasPagamento" multiple>
         <option value="Débito">Débito</option>
@@ -502,6 +351,11 @@
       </select>
       <div id="valoresPagamento"></div>
     </div>
+    <div class="botoes">
+      <button onclick="logout()">Sair</button>
+      <button onclick="enviar()">Enviar</button>
+    </div>
+    <div id="mensagem"></div>
   </div>
 
   <!-- Modal do perfil -->
