@@ -8,8 +8,8 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #222;
-      color: #fff;
+      background: #181818;
+      color: #e0e0e0;
       margin: 0;
       padding: 0;
       display: flex;
@@ -31,7 +31,7 @@
       left: 30px;
       top: 50%;
       transform: translateY(-50%);
-      background: #444;
+      background: #23272a;
       border: none;
       border-radius: 50%;
       width: 44px;
@@ -45,14 +45,14 @@
       outline: none;
       z-index: 2;
     }
-    .menu-btn:hover { background: #222; }
+    .menu-btn:hover { background: #181818; }
     .menu-btn i { color: #fff; font-size: 1.5em; }
     .perfil-btn {
       position: absolute;
       right: 30px;
       top: 50%;
       transform: translateY(-50%);
-      background: #00c853;
+      background: #00bcd4;
       border: none;
       border-radius: 50%;
       width: 48px;
@@ -65,10 +65,10 @@
       transition: background 0.2s;
       outline: none;
     }
-    .perfil-btn:hover { background: #009e46; }
+    .perfil-btn:hover { background: #008ba3; }
     .perfil-btn i { color: #fff; font-size: 1.7em; }
     .titulo-barbearia {
-      color: #00c853;
+      color: #00bcd4;
       letter-spacing: 2px;
       font-size: 2em;
       font-family: "Arial Black", Arial, sans-serif;
@@ -77,8 +77,8 @@
       text-align: center;
       word-break: break-word;
     }
-    .bloco-barbeiros {
-      background: #444;
+    .bloco-barbeiros, .bloco-cliente, .bloco-pagamento {
+      background: #23272a;
       border-radius: 10px;
       margin: 0 0 22px 0;
       padding: 18px 15px;
@@ -89,13 +89,17 @@
       width: 350px;
       max-width: 95vw;
     }
-    .bloco-barbeiros label {
+    .bloco-barbeiros label,
+    .bloco-cliente label,
+    .bloco-pagamento label {
       font-size: 1.2em;
-      color: #00c853;
+      color: #00bcd4;
       font-weight: bold;
       margin-bottom: 10px;
     }
-    .bloco-barbeiros select {
+    .bloco-barbeiros select,
+    .bloco-pagamento select,
+    .bloco-cliente input[type="text"] {
       width: 100%;
       padding: 10px;
       border-radius: 6px;
@@ -104,24 +108,25 @@
       background: #222;
       color: #fff;
       outline: none;
+      margin-bottom: 18px;
     }
     .container {
-      background: #333;
+      background: #23272a;
       padding: 40px 30px;
       border-radius: 10px;
       margin-top: 20px;
       text-align: center;
       width: 350px;
-      box-shadow: 0 0 10px #111;
+      box-shadow: 0 0 10px #000a;
       max-width: 95vw;
     }
     h1 {
-      color: #00c853;
+      color: #00bcd4;
       margin-bottom: 30px;
       font-size: 1.5em;
     }
     .servico {
-      background: #444;
+      background: #23272a;
       border-radius: 10px;
       margin: 18px 0;
       padding: 18px 15px;
@@ -134,14 +139,14 @@
       position: relative;
     }
     .servico.selected {
-      background: #00c85344;
-      border: 2px solid #00c853;
+      background: #00bcd444;
+      border: 2px solid #00bcd4;
     }
     .icone-servico {
       font-size: 2.5em;
       width: 56px;
       text-align: center;
-      color: #00c853;
+      color: #00bcd4;
       flex-shrink: 0;
     }
     .info-servico {
@@ -160,19 +165,19 @@
     .checkbox-custom {
       width: 26px;
       height: 26px;
-      border: 2px solid #00c853;
+      border: 2px solid #00bcd4;
       border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #222;
+      background: #23272a;
       cursor: pointer;
       margin-left: 10px;
       transition: background 0.2s;
       flex-shrink: 0;
     }
     .checkbox-custom.checked {
-      background: #00c853;
+      background: #00bcd4;
     }
     .checkbox-custom i {
       color: #fff;
@@ -191,7 +196,7 @@
     }
     button:not(.perfil-btn):not(.menu-btn) {
       padding: 10px 22px;
-      background: #007acc;
+      background: #00bcd4;
       color: white;
       border: none;
       border-radius: 5px;
@@ -201,7 +206,7 @@
       margin-bottom: 8px;
     }
     button:not(.perfil-btn):not(.menu-btn):hover {
-      background: #005fa3;
+      background: #008ba3;
     }
     #mensagem {
       margin-top: 20px;
@@ -223,7 +228,7 @@
       align-items: center;
     }
     .modal-content {
-      background: #333;
+      background: #23272a;
       padding: 30px 25px 20px 25px;
       border-radius: 10px;
       text-align: center;
@@ -255,11 +260,11 @@
       transition: color 0.2s, background 0.2s;
     }
     .close-modal:hover {
-      color: #00c853;
+      color: #00bcd4;
       background: rgba(0, 0, 0, 0.08);
     }
     .modal-content h3 {
-      color: #00c853;
+      color: #00bcd4;
       margin: 32px 0 15px 0;
       font-size: 1.15em;
       padding-top: 4px;
@@ -303,7 +308,7 @@
       top: 0;
       height: 100vh;
       width: 240px;
-      background: #222;
+      background: #181818;
       box-shadow: 4px 0 16px #000a;
       padding: 30px 18px 18px 18px;
       border-radius: 0 18px 18px 0;
@@ -328,10 +333,10 @@
       justify-content: center;
     }
     .menu-modal .close-menu:hover {
-      color: #00c853;
+      color: #00bcd4;
     }
     .menu-modal h4 {
-      color: #00c853;
+      color: #00bcd4;
       margin-top: 24px;
       margin-bottom: 18px;
       font-size: 1.15em;
@@ -341,7 +346,7 @@
     .menu-modal button {
       width: 100%;
       margin: 8px 0;
-      background: #444;
+      background: #23272a;
       color: #fff;
       border: none;
       border-radius: 6px;
@@ -354,20 +359,26 @@
       padding-left: 18px;
     }
     .menu-modal button:hover {
-      background: #00c853;
+      background: #00bcd4;
       color: #222;
     }
     @media (max-width: 500px) {
       .bloco-barbeiros,
+      .bloco-cliente,
+      .bloco-pagamento,
       .container {
         width: 98vw;
         max-width: 99vw;
         padding: 12px 2vw;
       }
-      .bloco-barbeiros label {
+      .bloco-barbeiros label,
+      .bloco-cliente label,
+      .bloco-pagamento label {
         font-size: 1em;
       }
-      .bloco-barbeiros select {
+      .bloco-barbeiros select,
+      .bloco-pagamento select,
+      .bloco-cliente input[type="text"] {
         font-size: 1em;
       }
       .modal-content {
@@ -390,6 +401,16 @@
       .menu-modal { width: 90vw; min-width: 170px; }
       .menu-modal .close-menu { font-size: 1em; width: 18px; height: 18px; }
     }
+    /* Estilo para inputs de valor de pagamento */
+    .valor-pagamento {
+      width: 120px;
+      padding: 6px;
+      margin-left: 8px;
+      border-radius: 4px;
+      border: none;
+      background: #181818;
+      color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -403,12 +424,28 @@
     </button>
   </header>
 
-  <!-- BLOCO DE BARBEIROS FORA DO CONTAINER -->
+  <div class="bloco-pagamento">
+    <label for="formasPagamento">Forma(s) de Pagamento</label>
+    <select id="formasPagamento" multiple>
+      <option value="Débito">Débito</option>
+      <option value="Crédito">Crédito</option>
+      <option value="Pix">Pix</option>
+      <option value="Dinheiro">Dinheiro</option>
+      <option value="Fiado">Fiado</option>
+    </select>
+    <div id="valoresPagamento"></div>
+  </div>
+
   <div class="bloco-barbeiros">
     <label for="selectBarbeiro">Barbeiros</label>
     <select id="selectBarbeiro" onfocus="carregarBarbeiros()">
       <option value="">Selecione o barbeiro</option>
     </select>
+  </div>
+
+  <div class="bloco-cliente">
+    <label for="nomeCliente">Nome do Cliente</label>
+    <input type="text" id="nomeCliente" placeholder="Digite o nome do cliente">
   </div>
 
   <div class="container">
@@ -445,7 +482,6 @@
     <div id="menu-admin"></div>
   </div>
 
-  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script>
@@ -481,7 +517,6 @@
               select.appendChild(option);
             });
 
-            // Se for Barbeiro, trava o select no próprio nome
             if (usuarioLogado.categoria === "Barbeiro") {
               select.value = usuarioLogado.nome;
               select.disabled = true;
@@ -513,15 +548,15 @@
                 toggleServico(idx);
               };
               div.innerHTML = `
-          <span class="icone-servico"><i class="fa-solid fa-scissors"></i></span>
-          <div class="info-servico">
-            <div class="nome-servico">${s.nome}</div>
-            <div class="preco-servico">R$ ${s.preco},00</div>
-          </div>
-          <div class="checkbox-custom" id="check-${idx}">
-            <i class="fa-solid fa-check"></i>
-          </div>
-        `;
+                <span class="icone-servico"><i class="fa-solid fa-scissors"></i></span>
+                <div class="info-servico">
+                  <div class="nome-servico">${s.nome}</div>
+                  <div class="preco-servico">R$ ${s.preco},00</div>
+                </div>
+                <div class="checkbox-custom" id="check-${idx}">
+                  <i class="fa-solid fa-check"></i>
+                </div>
+              `;
               lista.appendChild(div);
             });
           } else {
@@ -545,6 +580,21 @@
       }
     }
 
+    // Campo dinâmico de pagamento
+    document.getElementById("formasPagamento").addEventListener("change", function() {
+      const selecionadas = Array.from(this.selectedOptions).map(opt => opt.value);
+      const valoresDiv = document.getElementById("valoresPagamento");
+      valoresDiv.innerHTML = "";
+      selecionadas.forEach(forma => {
+        valoresDiv.innerHTML += `
+          <div style="margin:8px 0;">
+            <label style="color:#00bcd4;">${forma}:</label>
+            <input type="number" min="0" step="0.01" class="valor-pagamento" data-forma="${forma}" placeholder="Valor em R$">
+          </div>
+        `;
+      });
+    });
+
     // Função para gerar o ID do documento de solicitações
     function barbeiroNomeParaId(nome) {
       return nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
@@ -555,7 +605,6 @@
       const selectBarbeiro = document.getElementById("selectBarbeiro");
       let barbeiro = selectBarbeiro.value;
 
-      // Se for Barbeiro, força o nome do próprio usuário
       if (usuarioLogado.categoria === "Barbeiro") {
         barbeiro = usuarioLogado.nome;
       }
@@ -571,23 +620,54 @@
         return;
       }
 
-      const emailUsuario = usuarioLogado.email;
+      // Nome do cliente
+      const nomeCliente = document.getElementById("nomeCliente").value.trim();
+      if (!nomeCliente) {
+        mensagem.textContent = "Insira o nome do cliente!";
+        mensagem.style.color = "#ff5252";
+        return;
+      }
+
+      // Captura formas e valores
+      const pagamentos = [];
+      let somaPagamentos = 0;
+      document.querySelectorAll('.valor-pagamento').forEach(input => {
+        const forma = input.getAttribute('data-forma');
+        const valor = parseFloat(input.value) || 0;
+        if (valor > 0) {
+          pagamentos.push({ forma, valor });
+          somaPagamentos += valor;
+        }
+      });
+
       const selecionados = servicosSelecionados.map((idx) => servicosFirestore[idx]);
       const valorTotal = selecionados.reduce((acc, s) => acc + s.preco, 0);
 
-      // Para salvar data local, pois serverTimestamp não funciona em arrayUnion
+      if (pagamentos.length === 0) {
+        mensagem.textContent = "Informe o valor para pelo menos uma forma de pagamento!";
+        mensagem.style.color = "#ff5252";
+        return;
+      }
+      if (Math.abs(somaPagamentos - valorTotal) > 0.01) {
+        mensagem.textContent = "A soma dos pagamentos deve ser igual ao valor total dos serviços!";
+        mensagem.style.color = "#ff5252";
+        return;
+      }
+
+      const emailUsuario = usuarioLogado.email;
       const dataCriacao = new Date().toISOString();
 
       const solicitacao = {
         email: emailUsuario,
         barbeiro: barbeiro,
+        nomeCliente: nomeCliente,
         servicos: selecionados.map((s) => ({ nome: s.nome, preco: s.preco })),
         valorTotal: valorTotal,
+        pagamentos: pagamentos,
         status: "pendente",
         dataCriacao: dataCriacao,
       };
 
-      // Salva no documento correto (solicitacoes/{id_do_barbeiro})
       const docId = barbeiroNomeParaId(barbeiro);
 
       db.collection("solicitacoes")
@@ -607,6 +687,9 @@
               mensagem.style.color = "#b2ff59";
               servicosSelecionados = [];
               carregarServicos();
+              document.getElementById("nomeCliente").value = "";
+              document.getElementById("formasPagamento").selectedIndex = -1;
+              document.getElementById("valoresPagamento").innerHTML = "";
               if (usuarioLogado.categoria !== "Barbeiro") {
                 selectBarbeiro.selectedIndex = 0;
               }
@@ -710,7 +793,7 @@
           <button onclick="window.location.href='alterar_usuarios.html'">Alterar Usuários</button>
         `;
       } else {
-        menuAdmin.innerHTML = ""; // Não mostra nada para barbeiro
+        menuAdmin.innerHTML = "";
       }
     });
   </script>
