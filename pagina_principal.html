@@ -266,6 +266,14 @@
       color: #388e3c;
       font-weight: bold;
     }
+    #valor-total {
+      margin-top:16px;
+      font-size:1.2em;
+      color:#ff9800;
+      font-weight:bold;
+      text-align:right;
+      width:100%;
+    }
     @media (max-width: 500px) {
       .bloco-barbeiros,
       .bloco-cliente,
@@ -305,7 +313,6 @@
       .menu-modal { width: 90vw; min-width: 170px; }
       .menu-modal .close-menu { font-size: 1em; width: 18px; height: 18px; }
     }
-    /* Ajuste largura campo nome do cliente */
     .bloco-cliente input[type="text"] {
       width: 100%;
       box-sizing: border-box;
@@ -340,6 +347,7 @@
   <div class="container">
     <h1>Escolha seu serviço</h1>
     <div id="servicos-lista"></div>
+    <div id="valor-total"></div>
     <div class="bloco-pagamento" style="margin-top:18px;">
       <label for="formasPagamento">Forma(s) de Pagamento</label>
       <select id="formasPagamento" multiple>
@@ -459,9 +467,11 @@
               `;
               lista.appendChild(div);
             });
+            atualizarValorTotal();
           } else {
             lista.innerHTML =
               '<div style="color:#ff5252;">Nenhum serviço cadastrado!</div>';
+            atualizarValorTotal();
           }
         });
     }
@@ -478,24 +488,82 @@
         div.classList.add("selected");
         checkbox.classList.add("checked");
       }
+      atualizarValorTotal();
+      atualizarPagamentos();
     }
 
-    // Campo dinâmico de pagamento
-    document.getElementById("formasPagamento").addEventListener("change", function() {
-      const selecionadas = Array.from(this.selectedOptions).map(opt => opt.value);
+    function atualizarValorTotal() {
+      const selecionados = servicosSelecionados.map((idx) => servicosFirestore[idx]);
+      const valorTotal = selecionados.reduce((acc, s) => acc + s.preco, 0);
+      document.getElementById("valor-total").textContent =
+        "Valor Total: R$ " + valorTotal.toFixed(2).replace(".", ",");
+    }
+
+    // Atualiza os campos de pagamento quando muda valor total ou formas de pagamento
+    function atualizarPagamentos() {
+      const formasSelect = document.getElementById("formasPagamento");
+      const selecionadas = Array.from(formasSelect.selectedOptions).map(opt => opt.value);
       const valoresDiv = document.getElementById("valoresPagamento");
       valoresDiv.innerHTML = "";
       if (selecionadas.length > 1) {
-        selecionadas.forEach(forma => {
+        const selecionados = servicosSelecionados.map((idx) => servicosFirestore[idx]);
+        const valorTotal = selecionados.reduce((acc, s) => acc + s.preco, 0);
+        selecionadas.forEach((forma, idx) => {
           valoresDiv.innerHTML += `
             <div style="margin:8px 0;">
               <span class="valor-pagamento-label">${forma}:</span>
-              <input type="number" min="0" step="0.01" class="valor-pagamento" data-forma="${forma}" placeholder="Valor em R$">
+              <input type="number" min="0" step="0.01" class="valor-pagamento" data-forma="${forma}" placeholder="Valor em R$" oninput="validarSomaPagamentos()">
             </div>
           `;
         });
       }
+    }
+
+    document.getElementById("formasPagamento").addEventListener("change", function() {
+      atualizarPagamentos();
     });
+
+    // Validação dos valores de pagamento
+    window.validarSomaPagamentos = function() {
+      const selecionados = servicosSelecionados.map((idx) => servicosFirestore[idx]);
+      const valorTotal = selecionados.reduce((acc, s) => acc + s.preco, 0);
+      let soma = 0;
+      let inputs = document.querySelectorAll('.valor-pagamento');
+      inputs.forEach(input => {
+        let v = parseFloat(input.value.replace(",", ".")) || 0;
+        soma += v;
+      });
+      // Limita o valor máximo em cada campo para não ultrapassar o valor total restante
+      let restante = valorTotal;
+      inputs.forEach((input, idx) => {
+        let outros = 0;
+        inputs.forEach((inp2, j) => {
+          if (j !== idx) {
+            outros += parseFloat(inp2.value.replace(",", ".")) || 0;
+          }
+        });
+        let max = Math.max(0, valorTotal - outros);
+        if (parseFloat(input.value.replace(",", ".")) > max) {
+          input.value = max.toFixed(2);
+        }
+      });
+      // Mostra aviso visual se a soma passar do total
+      let valoresDiv = document.getElementById("valoresPagamento");
+      let aviso = valoresDiv.querySelector('.aviso-soma');
+      if (!aviso) {
+        aviso = document.createElement('div');
+        aviso.className = 'aviso-soma';
+        aviso.style.color = '#ff5252';
+        aviso.style.fontWeight = 'bold';
+        aviso.style.marginTop = '6px';
+        valoresDiv.appendChild(aviso);
+      }
+      if (Math.abs(soma - valorTotal) > 0.01) {
+        aviso.textContent = "A soma deve ser igual ao valor total!";
+      } else {
+        aviso.textContent = "";
+      }
+    };
 
     // Função para gerar o ID do documento de solicitações
     function barbeiroNomeParaId(nome) {
@@ -550,7 +618,7 @@
       } else {
         document.querySelectorAll('.valor-pagamento').forEach(input => {
           const forma = input.getAttribute('data-forma');
-          const valor = parseFloat(input.value) || 0;
+          const valor = parseFloat(input.value.replace(",", ".")) || 0;
           if (valor > 0) {
             pagamentos.push({ forma, valor });
             somaPagamentos += valor;
@@ -604,6 +672,7 @@
               document.getElementById("nomeCliente").value = "";
               formasSelect.selectedIndex = -1;
               document.getElementById("valoresPagamento").innerHTML = "";
+              document.getElementById("valor-total").textContent = "";
               if (usuarioLogado.categoria !== "Barbeiro") {
                 selectBarbeiro.selectedIndex = 0;
               }
