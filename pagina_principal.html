@@ -314,12 +314,12 @@
       background: none;
       border: none;
       cursor: pointer;
-      font-size: 1.15em;
+      font-size: 1.1em !important;
       padding: 0 8px;
       line-height: 1;
       border-radius: 50%;
-      height: 32px;
-      width: 32px;
+      height: 24px;
+      width: 24px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -460,6 +460,7 @@
         <option value="Fiado">Fiado</option>
       </select>
       <div id="valoresPagamento"></div>
+      <div id="soma-pagamentos" style="margin-top:8px;color:#388e3c;font-weight:bold;"></div>
     </div>
     <div class="botoes">
       <button onclick="logout()">Sair</button>
@@ -572,10 +573,12 @@
               lista.appendChild(div);
             });
             atualizarValorTotal();
+            atualizarPagamentos();
           } else {
             lista.innerHTML =
               '<div style="color:#ff5252;">Nenhum serviço cadastrado!</div>';
             atualizarValorTotal();
+            atualizarPagamentos();
           }
         });
     }
@@ -621,6 +624,7 @@
           `;
         });
       }
+      validarSomaPagamentos();
     }
 
     document.getElementById("formasPagamento").addEventListener("change", function() {
@@ -667,6 +671,9 @@
       } else {
         aviso.textContent = "";
       }
+      // Atualiza a soma dos pagamentos embaixo dos campos
+      document.getElementById("soma-pagamentos").textContent =
+        "Soma dos pagamentos: R$ " + soma.toFixed(2).replace(".", ",");
     };
 
     // Função para gerar o ID do documento de solicitações
@@ -777,6 +784,7 @@
               formasSelect.selectedIndex = -1;
               document.getElementById("valoresPagamento").innerHTML = "";
               document.getElementById("valor-total").textContent = "";
+              document.getElementById("soma-pagamentos").textContent = "";
               if (usuarioLogado.categoria !== "Barbeiro") {
                 selectBarbeiro.selectedIndex = 0;
               }
