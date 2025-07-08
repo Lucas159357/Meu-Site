@@ -768,6 +768,12 @@
         });
     }
 
+    // Função de logout corrigida
+    function logout() {
+      localStorage.removeItem("usuarioLogado");
+      window.location.href = "index.html";
+    }
+
     // Modal perfil dinâmico
     function abrirPerfil() {
       document.getElementById("modalPerfil").style.display = "flex";
