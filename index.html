@@ -11,8 +11,8 @@
       height: 100%;
       margin: 0;
       padding: 0;
-      background: #222;
-      color: #fff;
+      background: #fff; /* fundo branco */
+      color: #222;
       font-family: Arial, sans-serif;
     }
     body {
@@ -23,19 +23,19 @@
       box-sizing: border-box;
     }
     .login-box {
-      background: #333;
+      background: #fff;
       padding: 32px 28px;
       border-radius: 14px;
       width: 320px;
       max-width: 95vw;
       text-align: center;
-      box-shadow: 0 0 14px #111;
+      box-shadow: 0 0 14px #e0e0e0;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
     .login-box h2 {
-      color: #00c853;
+      color: #00c853; /* verde */
       margin-bottom: 26px;
       font-size: 1.5em;
       letter-spacing: 1px;
@@ -45,21 +45,22 @@
       padding: 14px 10px;
       margin: 10px 0;
       border-radius: 8px;
-      border: none;
-      background: #222;
-      color: #fff;
+      border: 1px solid #ccc;
+      background: #f9f9f9;
+      color: #222;
       font-size: 1.1em;
       box-sizing: border-box;
       outline: none;
-      transition: box-shadow 0.2s;
+      transition: box-shadow 0.2s, border 0.2s;
     }
     input:focus {
       box-shadow: 0 0 0 2px #00c853;
+      border: 1px solid #00c853;
     }
     button {
       padding: 14px 0;
-      background: #00c853;
-      color: #222;
+      background: #00c853; /* verde */
+      color: #fff;
       border: none;
       width: 100%;
       border-radius: 8px;
@@ -70,7 +71,7 @@
       transition: background 0.2s, color 0.2s;
     }
     button:hover {
-      background: #009e46;
+      background: #ff9800; /* laranja */
       color: #fff;
     }
     #mensagem {
@@ -126,12 +127,12 @@
 
       if (!email || !senha) {
         mensagem.textContent = "Preencha email e senha!";
-        mensagem.style.color = "orange";
+        mensagem.style.color = "#ff9800"; // laranja
         return;
       }
 
       mensagem.textContent = "Verificando...";
-      mensagem.style.color = "#fff";
+      mensagem.style.color = "#00c853"; // verde
 
       db.collection('usuarios').doc('usuarios').get().then(doc => {
         if (doc.exists && Array.isArray(doc.data().lista)) {
@@ -140,7 +141,7 @@
           const user = usuarios.find(u => u.email === email && u.senha === senha);
           if (user) {
             mensagem.textContent = "Bem-vindo, " + (user.nome || user.email);
-            mensagem.style.color = "lightgreen";
+            mensagem.style.color = "#00c853"; // verde
             // Salva no localStorage para uso em outras páginas (opcional)
             localStorage.setItem("usuarioLogado", JSON.stringify(user));
             setTimeout(() => {
@@ -148,15 +149,15 @@
             }, 1000);
           } else {
             mensagem.textContent = "Email ou senha incorretos!";
-            mensagem.style.color = "red";
+            mensagem.style.color = "#ff9800"; // laranja
           }
         } else {
           mensagem.textContent = "Base de usuários não encontrada!";
-          mensagem.style.color = "red";
+          mensagem.style.color = "#ff9800"; // laranja
         }
       }).catch(error => {
         mensagem.textContent = "Erro: " + error.message;
-        mensagem.style.color = "red";
+        mensagem.style.color = "#ff9800"; // laranja
       });
     }
   </script>
