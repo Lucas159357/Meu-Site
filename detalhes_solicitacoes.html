@@ -148,6 +148,14 @@
     .solicitacao-servicos {
       margin: 4px 0 8px 0;
     }
+    .cliente-nome {
+      color: #00c853;
+      font-weight: bold;
+      font-size: 1.06em;
+      margin-bottom: 2px;
+      margin-top: 2px;
+      display: inline-block;
+    }
     .servico-linha {
       display: flex;
       align-items: center;
@@ -257,6 +265,83 @@
       border: 1.5px solid #ff9800;
       width: 100%;
       text-align: center;
+    }
+    .modal-input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1.5px solid #ff9800;
+      font-size: 1em;
+      background: #fff;
+      color: #222;
+      margin-bottom: 10px;
+      outline: none;
+      transition: border 0.2s;
+      box-sizing: border-box;
+    }
+    .modal-input:focus {
+      border: 2px solid #00c853;
+      background: #f9f9f9;
+    }
+    .modal-label {
+      color: #00c853;
+      font-weight: bold;
+      margin-bottom: 3px;
+      text-align: left;
+      display: block;
+      font-size: 1.07em;
+    }
+    .pagamento-edit-bloco {
+      margin: 18px 0 0 0;
+      text-align: left;
+      width: 100%;
+    }
+    .pagamento-edit-label {
+      color: #ff9800;
+      font-weight: bold;
+      margin-bottom: 4px;
+      display: block;
+      font-size: 1.07em;
+    }
+    .pagamento-edit-select {
+      width: 100%;
+      padding: 7px;
+      border-radius: 6px;
+      border: 1.5px solid #00c853;
+      font-size: 1em;
+      background: #fff;
+      color: #222;
+      margin-bottom: 10px;
+      outline: none;
+      transition: border 0.2s;
+    }
+    .pagamento-edit-select:focus {
+      border: 2px solid #ff9800;
+    }
+    .pagamento-edit-valores {
+      margin-bottom: 8px;
+    }
+    .pagamento-edit-valor {
+      width: 80px;
+      padding: 5px;
+      border-radius: 4px;
+      border: 1.5px solid #ff9800;
+      background: #fff;
+      color: #222;
+      margin-left: 8px;
+    }
+    .pagamento-edit-valor-label {
+      color: #00c853;
+      font-weight: bold;
+      margin-right: 2px;
+    }
+    .pagamento-edit-aviso {
+      color: #ff5252;
+      font-weight: bold;
+      font-size: 0.97em;
+      margin-top: 2px;
+      min-height: 18px;
+      display: block;
     }
     .servico-edit-lista {
       margin-bottom: 12px;
@@ -490,6 +575,20 @@
       <div class="modal-title" id="modalSolicitacaoTitulo">Editar Solicitação</div>
       <div class="modal-status-label">Status</div>
       <div id="statusSolicitacaoArea"></div>
+      <label class="modal-label" for="editNomeCliente">Cliente</label>
+      <input id="editNomeCliente" class="modal-input" type="text" placeholder="Nome do Cliente" />
+      <div class="pagamento-edit-bloco">
+        <label class="pagamento-edit-label" for="editFormasPagamento">Forma(s) de Pagamento</label>
+        <select id="editFormasPagamento" class="pagamento-edit-select" multiple>
+          <option value="Débito">Débito</option>
+          <option value="Crédito">Crédito</option>
+          <option value="Pix">Pix</option>
+          <option value="Dinheiro">Dinheiro</option>
+          <option value="Fiado">Fiado</option>
+        </select>
+        <div id="editValoresPagamento" class="pagamento-edit-valores"></div>
+        <span id="editPagamentoAviso" class="pagamento-edit-aviso"></span>
+      </div>
       <div id="servicosEdit" class="servico-edit-lista"></div>
       <div class="adicionar-servico-bloco">
         <div class="adicionar-servico-label">Adicionar serviço</div>
@@ -661,7 +760,6 @@
       return lista.filter(s => (s.status || "pendente").toLowerCase() === status);
     }
 
-    // NOVO: Filtro por tipo de pagamento
     function filtrarPorPagamento(lista, tipoPag) {
       if (!tipoPag || tipoPag === "todos") return lista;
       return lista.filter(s => {
@@ -759,6 +857,7 @@
                 <div class="solicitacao-data"><i class="fa fa-calendar"></i> ${formatarData(
                   s.dataCriacao
                 )}</div>
+                <div class="cliente-nome">Cliente: ${s.nomeCliente ? s.nomeCliente : '<i>Não informado</i>'}</div>
                 <div class="solicitacao-servicos">
                   ${
                     Array.isArray(s.servicos)
@@ -836,7 +935,8 @@
           }>Cancelado</option>
         </select>
       `;
-      document.getElementById("modalSolicitacaoMsg").textContent = "";
+      document.getElementById("editNomeCliente").value = s.nomeCliente || "";
+      renderPagamentosEdit(s);
       renderServicosEdit(s.servicos || []);
       renderSelectAdicionarServico(s.servicos || []);
       document.getElementById("selectAdicionarServico").disabled = false;
@@ -896,6 +996,7 @@
       s.servicos.push({ nome: sv.nome, preco: sv.preco });
       renderServicosEdit(s.servicos);
       renderSelectAdicionarServico(s.servicos);
+      renderPagamentosEdit(s); // Atualiza pagamentos se valor total mudar
     }
 
     function removerServicoEdit(idx) {
@@ -906,6 +1007,140 @@
       s.servicos.splice(idx, 1);
       renderServicosEdit(s.servicos);
       renderSelectAdicionarServico(s.servicos);
+      renderPagamentosEdit(s); // Atualiza pagamentos se valor total mudar
+    }
+
+    // Pagamento edição
+    function renderPagamentosEdit(s) {
+      const select = document.getElementById("editFormasPagamento");
+      const valoresDiv = document.getElementById("editValoresPagamento");
+      // Limpa seleção e valores
+      Array.from(select.options).forEach(opt => opt.selected = false);
+      valoresDiv.innerHTML = "";
+      let formas = [];
+      if (Array.isArray(s.pagamentos)) {
+        formas = s.pagamentos.map(p => p.forma);
+        Array.from(select.options).forEach(opt => {
+          if (formas.includes(opt.value)) opt.selected = true;
+        });
+      }
+      // Renderiza campos de valor se mais de uma forma selecionada
+      if (formas.length > 1) {
+        formas.forEach(forma => {
+          let valor = "";
+          if (Array.isArray(s.pagamentos)) {
+            const pag = s.pagamentos.find(p => p.forma === forma);
+            valor = pag && pag.valor ? pag.valor : "";
+          }
+          valoresDiv.innerHTML += `
+            <div style="margin:7px 0;">
+              <span class="pagamento-edit-valor-label">${forma}:</span>
+              <input type="number" min="0" step="0.01" class="pagamento-edit-valor" data-forma="${forma}" value="${valor}" oninput="validarPagamentoEdit()">
+            </div>
+          `;
+        });
+      }
+      validarPagamentoEdit();
+    }
+
+    document.getElementById("editFormasPagamento").addEventListener("change", function() {
+      if (solicitacaoEditIdx === null) return;
+      const s = listaSolicitacoes[solicitacaoEditIdx];
+      let formas = Array.from(this.selectedOptions).map(opt => opt.value);
+      if (!Array.isArray(s.pagamentos)) s.pagamentos = [];
+      // Atualiza pagamentos mantendo valores já digitados
+      let novosPagamentos = [];
+      formas.forEach(forma => {
+        let existente = s.pagamentos.find(p => p.forma === forma);
+        novosPagamentos.push({ forma, valor: existente ? existente.valor : "" });
+      });
+      s.pagamentos = novosPagamentos;
+      renderPagamentosEdit(s);
+    });
+
+    function validarPagamentoEdit() {
+      if (solicitacaoEditIdx === null) return;
+      const s = listaSolicitacoes[solicitacaoEditIdx];
+      let formas = Array.from(document.getElementById("editFormasPagamento").selectedOptions).map(opt => opt.value);
+      let aviso = document.getElementById("editPagamentoAviso");
+      if (!Array.isArray(s.servicos)) s.servicos = [];
+      let valorTotal = s.servicos.reduce((acc, sv) => acc + Number(sv.preco || 0), 0);
+      if (formas.length === 1) {
+        aviso.textContent = "";
+        return true;
+      }
+      // Soma dos campos
+      let soma = 0;
+      let inputs = document.querySelectorAll('.pagamento-edit-valor');
+      inputs.forEach(input => {
+        let v = parseFloat(input.value.replace(",", ".")) || 0;
+        soma += v;
+      });
+      if (formas.length > 1 && Math.abs(soma - valorTotal) > 0.01) {
+        aviso.textContent = "A soma dos pagamentos deve ser igual ao valor total!";
+        return false;
+      } else {
+        aviso.textContent = "";
+        return true;
+      }
+    }
+
+    function getPagamentosEditados() {
+      let formas = Array.from(document.getElementById("editFormasPagamento").selectedOptions).map(opt => opt.value);
+      if (formas.length === 0) return [];
+      if (formas.length === 1) {
+        return [{ forma: formas[0], valor: null }];
+      }
+      let pagamentos = [];
+      let inputs = document.querySelectorAll('.pagamento-edit-valor');
+      inputs.forEach(input => {
+        let forma = input.getAttribute('data-forma');
+        let valor = parseFloat(input.value.replace(",", ".")) || 0;
+        pagamentos.push({ forma, valor });
+      });
+      return pagamentos;
+    }
+
+    function salvarSolicitacaoEditada() {
+      if (solicitacaoEditIdx === null) return;
+      const s = listaSolicitacoes[solicitacaoEditIdx];
+      // Atualiza status
+      const novoStatus = document.getElementById("statusSolicitacaoSelect").value;
+      s.status = novoStatus;
+      // Atualiza nome do cliente
+      s.nomeCliente = document.getElementById("editNomeCliente").value.trim();
+      // Atualiza pagamentos
+      let formas = Array.from(document.getElementById("editFormasPagamento").selectedOptions).map(opt => opt.value);
+      if (formas.length === 0) {
+        document.getElementById("editPagamentoAviso").textContent = "Selecione pelo menos uma forma de pagamento!";
+        return;
+      }
+      if (!validarPagamentoEdit()) return;
+      let pagamentos = getPagamentosEditados();
+      s.pagamentos = pagamentos;
+      // Valor total recalculado
+      s.valorTotal = Array.isArray(s.servicos)
+        ? s.servicos.reduce((acc, sv) => acc + Number(sv.preco), 0)
+        : 0;
+      db.collection("solicitacoes")
+        .doc(barbeiroAtual)
+        .set({ lista: listaSolicitacoes })
+        .then(() => {
+          document.getElementById("modalSolicitacaoMsg").textContent =
+            "Solicitação atualizada!";
+          document.getElementById("modalSolicitacaoMsg").style.color =
+            "#00c853";
+          setTimeout(() => {
+            fecharModalSolicitacao();
+            carregarDetalhes();
+          }, 800);
+        })
+        .catch((error) => {
+          document.getElementById("modalSolicitacaoMsg").textContent =
+            "Erro ao salvar: " + error.message;
+          document.getElementById("modalSolicitacaoMsg").style.color =
+            "#ff5252";
+        });
     }
 
     function excluirSolicitacao() {
@@ -928,39 +1163,6 @@
         .catch((error) => {
           document.getElementById("modalSolicitacaoMsg").textContent =
             "Erro ao excluir: " + error.message;
-          document.getElementById("modalSolicitacaoMsg").style.color =
-            "#ff5252";
-        });
-    }
-
-    function salvarSolicitacaoEditada() {
-      if (solicitacaoEditIdx === null) return;
-      const s = listaSolicitacoes[solicitacaoEditIdx];
-      // Atualiza status
-      const novoStatus = document.getElementById(
-        "statusSolicitacaoSelect"
-      ).value;
-      s.status = novoStatus;
-      // Valor total recalculado
-      s.valorTotal = Array.isArray(s.servicos)
-        ? s.servicos.reduce((acc, sv) => acc + sv.preco, 0)
-        : 0;
-      db.collection("solicitacoes")
-        .doc(barbeiroAtual)
-        .set({ lista: listaSolicitacoes })
-        .then(() => {
-          document.getElementById("modalSolicitacaoMsg").textContent =
-            "Solicitação atualizada!";
-          document.getElementById("modalSolicitacaoMsg").style.color =
-            "#00c853";
-          setTimeout(() => {
-            fecharModalSolicitacao();
-            carregarDetalhes();
-          }, 800);
-        })
-        .catch((error) => {
-          document.getElementById("modalSolicitacaoMsg").textContent =
-            "Erro ao salvar: " + error.message;
           document.getElementById("modalSolicitacaoMsg").style.color =
             "#ff5252";
         });
