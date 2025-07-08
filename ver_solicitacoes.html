@@ -353,29 +353,143 @@
       width: 94vw;
       max-width: 340px;
       color: #222;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
     }
     .close-modal {
       position: absolute;
       right: 10px;
       top: 10px;
       color: #ff9800;
-      background: none;
-      border: none;
+      background: #fff;
+      border: 1.5px solid #ff9800;
       cursor: pointer;
       font-size: 1em;
-      padding: 0 8px;
+      padding: 0;
       line-height: 1;
       border-radius: 50%;
-      height: 20px;
-      width: 20px;
+      height: 22px;
+      width: 22px;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: color 0.2s, background 0.2s;
+      transition: color 0.2s, background 0.2s, border 0.2s;
+      box-shadow: 0 1px 2px #1112;
     }
     .close-modal:hover {
+      color: #fff;
+      background: #ff9800;
+      border: 1.5px solid #388e3c;
+    }
+    /* Modal visualização barbeiro */
+    .modal-content.barbeiro-view {
+      align-items: flex-start;
+      padding: 24px 16px 16px 16px;
+    }
+    .modal-content.barbeiro-view .modal-title {
       color: #388e3c;
-      background: rgba(0, 0, 0, 0.08);
+      font-size: 1.2em;
+      font-weight: bold;
+      margin-bottom: 12px;
+      width: 100%;
+      text-align: left;
+    }
+    .modal-content.barbeiro-view .modal-status-label {
+      color: #ff9800;
+      font-weight: bold;
+      margin-bottom: 2px;
+      font-size: 1em;
+      text-align: left;
+      width: 100%;
+    }
+    .modal-content.barbeiro-view .modal-status-value {
+      color: #388e3c;
+      font-weight: bold;
+      margin-bottom: 8px;
+      font-size: 1em;
+      text-align: left;
+      width: 100%;
+    }
+    .modal-content.barbeiro-view .servico-edit-lista {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    .modal-content.barbeiro-view .servico-edit-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid #eee;
+      width: 100%;
+      font-size: 1.05em;
+    }
+    .modal-content.barbeiro-view .servico-edit-nome {
+      color: #222;
+      font-weight: bold;
+    }
+    .modal-content.barbeiro-view .servico-edit-preco {
+      color: #ff9800;
+      font-weight: bold;
+    }
+    .modal-content.barbeiro-view .modal-total-label {
+      color: #388e3c;
+      font-weight: bold;
+      margin-top: 10px;
+      width: 100%;
+      text-align: left;
+      font-size: 1.08em;
+    }
+    .modal-content.barbeiro-view .modal-total-value {
+      color: #222;
+      font-weight: bold;
+      font-size: 1.15em;
+      margin-bottom: 10px;
+      width: 100%;
+      text-align: left;
+    }
+    .modal-content.barbeiro-view .modal-pagamentos-label {
+      color: #ff9800;
+      font-weight: bold;
+      margin-top: 10px;
+      width: 100%;
+      text-align: left;
+      font-size: 1.08em;
+    }
+    .modal-content.barbeiro-view .modal-pagamentos-lista {
+      width: 100%;
+      margin-top: 2px;
+      margin-bottom: 10px;
+      text-align: left;
+    }
+    .modal-content.barbeiro-view .modal-pagamento-item {
+      font-size: 1em;
+      color: #222;
+      margin-bottom: 2px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .modal-content.barbeiro-view .modal-pagamento-forma {
+      color: #388e3c;
+      font-weight: bold;
+    }
+    .modal-content.barbeiro-view .modal-pagamento-valor {
+      color: #ff9800;
+      font-weight: bold;
+    }
+    .modal-content.barbeiro-view .modal-data-label {
+      color: #888;
+      font-size: 0.97em;
+      margin-top: 12px;
+      width: 100%;
+      text-align: left;
+    }
+    .modal-content.barbeiro-view .modal-data-value {
+      color: #222;
+      font-size: 0.97em;
+      width: 100%;
+      text-align: left;
+      margin-bottom: 6px;
     }
     @media (max-width: 700px) {
       .container {
@@ -407,22 +521,6 @@
       #rangeSemana,
       .filtro-multiselect {
         width: 100%;
-      }
-    }
-    /* DESKTOP MELHORIA: Coloca totais em coluna e centraliza */
-    @media (min-width: 700px) {
-      #totaisBarbeiros > div {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0;
-      }
-      #totaisBarbeiros .total-label,
-      #totaisBarbeiros .total-geral,
-      #totaisBarbeiros .total-concluido,
-      #totaisBarbeiros .total-pendente {
-        margin-bottom: 2px;
-        margin-top: 0;
       }
     }
   </style>
@@ -475,12 +573,15 @@
   </div>
   <!-- Modal para edição/visualização -->
   <div class="modal" id="modalSolicitacao">
-    <div class="modal-content">
+    <div class="modal-content" id="modalSolicitacaoContent">
       <button class="close-modal" onclick="fecharModalSolicitacao()" aria-label="Fechar">&times;</button>
       <div class="modal-title" id="modalSolicitacaoTitulo">Solicitação</div>
       <div class="modal-status-label">Status</div>
       <div id="statusSolicitacaoArea"></div>
       <div id="servicosEdit" class="servico-edit-lista"></div>
+      <div id="modalTotaisArea"></div>
+      <div id="modalPagamentosArea"></div>
+      <div id="modalDataArea"></div>
       <button class="salvar-btn" id="btnSalvarSolicitacao" onclick="salvarSolicitacaoEditada()">Salvar Alteração</button>
       <div class="modal-msg" id="modalSolicitacaoMsg"></div>
     </div>
@@ -696,7 +797,6 @@
       if (!tipos || !tipos.length) return lista;
       return lista.filter((s) => {
         if (!Array.isArray(s.pagamentos)) return false;
-        // Se qualquer uma das formas selecionadas estiver presente, inclui
         return tipos.some(tipo => s.pagamentos.some((p) => p.forma === tipo));
       });
     }
@@ -723,7 +823,6 @@
         '<div style="color:#222;text-align:center;">Carregando...</div>';
       totaisDiv.innerHTML = "";
       const status = document.getElementById("filtroStatus").value;
-      // Multi-seleção de tipo de pagamento
       const tipoPagamentoSel = document.getElementById("filtroTipoPagamento");
       const tiposPagamento = Array.from(tipoPagamentoSel.selectedOptions).map(opt => opt.value);
 
@@ -874,20 +973,58 @@
       const s = listaSolicitacoes[idx];
       solicitacaoEditIdx = idx;
       const statusLower = (s.status || "pendente").toLowerCase();
-      document.getElementById("modalSolicitacaoTitulo").textContent =
-        "Solicitação";
-      document.getElementById(
-        "statusSolicitacaoArea"
-      ).innerHTML = `<div class="modal-status-value">${
+      const modal = document.getElementById("modalSolicitacao");
+      const modalContent = document.getElementById("modalSolicitacaoContent");
+      document.getElementById("modalSolicitacaoTitulo").textContent = "Solicitação";
+      document.getElementById("statusSolicitacaoArea").innerHTML = `<div class="modal-status-value">${
         s.status
           ? s.status.charAt(0).toUpperCase() + s.status.slice(1)
           : "Pendente"
       }</div>`;
       document.getElementById("modalSolicitacaoMsg").textContent = "";
-      renderServicosEdit(s.servicos || [], statusLower === "pendente");
-      document.getElementById("btnSalvarSolicitacao").style.display =
-        statusLower === "pendente" ? "block" : "none";
-      document.getElementById("modalSolicitacao").style.display = "flex";
+
+      // Visualização especial para barbeiro (apenas visualizar, layout melhorado)
+      if (usuarioLogado.categoria === "Barbeiro") {
+        modalContent.classList.add("barbeiro-view");
+        renderServicosEditBarbeiro(s.servicos || []);
+        document.getElementById("btnSalvarSolicitacao").style.display = "none";
+        document.getElementById("modalTotaisArea").innerHTML = `
+          <div class="modal-total-label">Valor Total:</div>
+          <div class="modal-total-value">R$ ${s.valorTotal}</div>
+        `;
+        document.getElementById("modalPagamentosArea").innerHTML = `
+          <div class="modal-pagamentos-label">Pagamentos:</div>
+          <div class="modal-pagamentos-lista">
+            ${
+              Array.isArray(s.pagamentos)
+                ? s.pagamentos
+                    .map(
+                      (p) => `
+                  <div class="modal-pagamento-item">
+                    <span class="modal-pagamento-forma">${p.forma}</span>
+                    <span class="modal-pagamento-valor">R$ ${p.valor}</span>
+                  </div>
+                `
+                    )
+                    .join("")
+                : ""
+            }
+          </div>
+        `;
+        document.getElementById("modalDataArea").innerHTML = `
+          <div class="modal-data-label">Data:</div>
+          <div class="modal-data-value">${formatarData(s.dataCriacao)}</div>
+        `;
+      } else {
+        modalContent.classList.remove("barbeiro-view");
+        renderServicosEdit(s.servicos || [], statusLower === "pendente");
+        document.getElementById("btnSalvarSolicitacao").style.display =
+          statusLower === "pendente" ? "block" : "none";
+        document.getElementById("modalTotaisArea").innerHTML = "";
+        document.getElementById("modalPagamentosArea").innerHTML = "";
+        document.getElementById("modalDataArea").innerHTML = "";
+      }
+      modal.style.display = "flex";
     }
 
     function fecharModalSolicitacao() {
@@ -907,6 +1044,21 @@
               ? `<button type="button" class="remover-servico-btn" onclick="removerServicoEdit(${idx});event.stopPropagation();">Remover</button>`
               : ""
           }
+        </div>
+      `;
+      });
+      div.innerHTML = html;
+    }
+
+    // Versão visual para barbeiro (apenas visualização)
+    function renderServicosEditBarbeiro(servicos) {
+      const div = document.getElementById("servicosEdit");
+      let html = "";
+      servicos.forEach((sv, idx) => {
+        html += `
+        <div class="servico-edit-item" data-idx="${idx}">
+          <div class="servico-edit-nome">${sv.nome}</div>
+          <div class="servico-edit-preco">R$ ${sv.preco}</div>
         </div>
       `;
       });
