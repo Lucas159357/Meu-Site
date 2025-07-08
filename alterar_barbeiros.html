@@ -1,487 +1,519 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Alterar Barbeiros - Barbearia Pedro Rodrigues</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-    <style>
-      /* ... seu CSS igual ... */
-      body {
-        font-family: Arial, sans-serif;
-        background: #222;
-        color: #fff;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        min-height: 100vh;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alterar Barbeiros - Barbearia Pedro Rodrigues</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff;
+      color: #222;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      background: #fff;
+      padding: 40px 30px;
+      border-radius: 10px;
+      margin-top: 40px;
+      text-align: center;
+      width: 380px;
+      box-shadow: 0 0 10px #1112;
+      max-width: 98vw;
+      border: 1.5px solid #388e3c;
+    }
+    h1 {
+      color: #388e3c;
+      margin-bottom: 30px;
+      font-size: 1.5em;
+      letter-spacing: 1px;
+      text-shadow: 1px 1px 6px #ccc;
+    }
+    .barbeiros-lista {
+      margin-top: 20px;
+      text-align: left;
+    }
+    .barbeiro-item {
+      background: #fff;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      padding: 16px 12px;
+      box-shadow: 0 2px 8px #1112;
+      font-size: 1.1em;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      cursor: pointer;
+      transition: background 0.2s, border 0.2s;
+      border: 1.5px solid #388e3c;
+    }
+    .barbeiro-item:hover {
+      background: #e8f5e9;
+      border: 2px solid #ff9800;
+    }
+    .barbeiro-nome {
+      color: #388e3c;
+      font-weight: bold;
+      word-break: break-all;
+    }
+    .voltar-btn,
+    .novo-btn {
+      background: #ff9800;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 22px;
+      font-size: 1em;
+      margin-bottom: 25px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      font-weight: bold;
+      box-shadow: 0 2px 8px #1112;
+      border: 1.5px solid #ff9800;
+    }
+    .novo-btn {
+      margin-bottom: 0;
+      margin-top: 20px;
+      background: #ff9800;
+      color: #fff;
+    }
+    .voltar-btn:hover,
+    .novo-btn:hover {
+      background: #388e3c;
+      color: #fff;
+      border: 1.5px solid #388e3c;
+    }
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 20;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.7);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: #fff;
+      padding: 30px 25px 20px 25px;
+      border-radius: 10px;
+      text-align: center;
+      min-width: 300px;
+      box-shadow: 0 0 15px #1112;
+      position: relative;
+      width: 90vw;
+      max-width: 340px;
+      border: 1.5px solid #388e3c;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .modal-content label {
+      display: block;
+      color: #388e3c;
+      text-align: left;
+      margin-top: 12px;
+      margin-bottom: 3px;
+      font-size: 1em;
+      font-weight: bold;
+    }
+    .modal-content input {
+      width: 96%;
+      padding: 8px;
+      margin-bottom: 8px;
+      border-radius: 6px;
+      border: 1.5px solid #ff9800;
+      font-size: 1em;
+      background: #fff;
+      color: #222;
+      outline: none;
+    }
+    .modal-content button:not(.close-menu) {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px 0;
+      border-radius: 5px;
+      font-size: 1em;
+      font-weight: bold;
+      background: #ff9800;
+      color: #fff;
+      border: 1.5px solid #ff9800;
+      transition: background 0.2s, color 0.2s, border 0.2s;
+      box-shadow: 0 2px 8px #1112;
+      cursor: pointer;
+    }
+    .modal-content button:not(.close-menu):hover {
+      background: #388e3c;
+      color: #fff;
+      border: 1.5px solid #388e3c;
+    }
+    .btn-excluir {
+      background: #ff5252 !important;
+      color: #fff !important;
+      margin-top: 8px;
+      margin-bottom: 0;
+      font-weight: bold;
+      border: 1.5px solid #ff5252 !important;
+    }
+    .btn-excluir:hover {
+      background: #c62828 !important;
+      border: 1.5px solid #c62828 !important;
+    }
+    /* Botão de fechar bonito, pequeno, igual ao sistema principal */
+    .close-menu {
+      width: 22px !important;
+      height: 22px !important;
+      min-width: 0 !important;
+      min-height: 0 !important;
+      max-width: 22px !important;
+      max-height: 22px !important;
+      font-size: 1em !important;
+      padding: 0 !important;
+      background: #fff !important;
+      color: #ff9800 !important;
+      border: 1.5px solid #ff9800 !important;
+      border-radius: 50% !important;
+      position: absolute !important;
+      top: 10px !important;
+      right: 10px !important;
+      box-shadow: 0 1px 2px #1112 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      z-index: 2 !important;
+      transition: color 0.2s, background 0.2s, border 0.2s !important;
+      line-height: 1 !important;
+    }
+    .close-menu:hover {
+      background: #ff9800 !important;
+      color: #fff !important;
+      border: 1.5px solid #388e3c !important;
+    }
+    .modal-title {
+      color: #388e3c;
+      font-size: 1.2em;
+      margin-bottom: 12px;
+      margin-top: 0;
+      font-weight: bold;
+    }
+    .modal-msg {
+      margin-top: 8px;
+      font-size: 1em;
+      color: #388e3c;
+      min-height: 18px;
+    }
+    @media (max-width: 500px) {
       .container {
-        background: #333;
-        padding: 40px 30px;
-        border-radius: 10px;
-        margin-top: 40px;
-        text-align: center;
-        width: 380px;
-        box-shadow: 0 0 10px #111;
-        max-width: 98vw;
-      }
-      h1 {
-        color: #00c853;
-        margin-bottom: 30px;
-        font-size: 1.5em;
-        letter-spacing: 1px;
-      }
-      .barbeiros-lista {
-        margin-top: 20px;
-        text-align: left;
+        padding: 18px 2vw;
+        width: 99vw;
       }
       .barbeiro-item {
-        background: #444;
-        border-radius: 8px;
-        margin-bottom: 15px;
-        padding: 16px 12px;
-        box-shadow: 0 2px 8px #1118;
-        font-size: 1.1em;
-        display: flex;
-        flex-direction: column;
-        gap: 3px;
-        cursor: pointer;
-        transition: background 0.2s;
-      }
-      .barbeiro-item:hover {
-        background: #555;
-      }
-      .barbeiro-nome {
-        color: #b2ff59;
-        font-weight: bold;
-        word-break: break-all;
+        padding: 10px 7px;
+        font-size: 1em;
       }
       .voltar-btn,
       .novo-btn {
-        background: #007acc;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        padding: 10px 22px;
-        font-size: 1em;
-        margin-bottom: 25px;
-        cursor: pointer;
-        transition: background 0.2s;
-      }
-      .novo-btn {
-        margin-bottom: 0;
-        margin-top: 20px;
-        background: #00c853;
-        color: #222;
-        font-weight: bold;
-      }
-      .voltar-btn:hover {
-        background: #005fa3;
-      }
-      .novo-btn:hover {
-        background: #009e46;
-        color: #fff;
-      }
-      /* Modal */
-      .modal {
-        display: none;
-        position: fixed;
-        z-index: 20;
-        left: 0;
-        top: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.7);
-        justify-content: center;
-        align-items: center;
+        padding: 8px 10px;
+        font-size: 0.97em;
       }
       .modal-content {
-        background: #333;
-        padding: 30px 25px 20px 25px;
-        border-radius: 10px;
-        text-align: center;
-        min-width: 300px;
-        box-shadow: 0 0 15px #111;
-        position: relative;
-        width: 90vw;
-        max-width: 340px;
+        padding: 16px 4vw 12px 4vw;
+        min-width: unset;
+        max-width: 99vw;
       }
-      .modal-content label {
-        display: block;
-        color: #b2ff59;
-        text-align: left;
-        margin-top: 12px;
-        margin-bottom: 3px;
-        font-size: 1em;
+      .close-menu {
+        font-size: 1em !important;
+        height: 20px !important;
+        width: 20px !important;
+        right: 6px !important;
+        top: 6px !important;
       }
-      .modal-content input {
-        width: 96%;
-        padding: 8px;
-        margin-bottom: 8px;
-        border-radius: 6px;
-        border: none;
-        font-size: 1em;
-        background: #222;
-        color: #fff;
-        outline: none;
-      }
-      .modal-content button {
-        width: 100%;
-        margin-top: 10px;
-        padding: 10px 0;
-        border-radius: 5px;
-        font-size: 1em;
-      }
-      .btn-excluir {
-        background: #ff5252;
-        color: #fff;
-        margin-top: 8px;
-        margin-bottom: 0;
-        font-weight: bold;
-      }
-      .btn-excluir:hover {
-        background: #c62828;
-      }
-      .close-modal {
-        position: absolute;
-        right: 10px;
-        top: 10px;
-        color: #fff;
-        background: none;
-        border: none;
-        cursor: pointer;
-        font-size: 1.3em;
-        padding: 0 8px;
-        line-height: 1;
-        border-radius: 50%;
-        height: 32px;
-        width: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: color 0.2s, background 0.2s;
-      }
-      .close-modal:hover {
-        color: #00c853;
-        background: rgba(0, 0, 0, 0.08);
-      }
-      .modal-title {
-        color: #00c853;
-        font-size: 1.2em;
-        margin-bottom: 12px;
-        margin-top: 0;
-      }
-      .modal-msg {
-        margin-top: 8px;
-        font-size: 1em;
-        color: #b2ff59;
-        min-height: 18px;
-      }
-      @media (max-width: 500px) {
-        .container {
-          padding: 18px 2vw;
-          width: 99vw;
-        }
-        .barbeiro-item {
-          padding: 10px 7px;
-          font-size: 1em;
-        }
-        .voltar-btn,
-        .novo-btn {
-          padding: 8px 10px;
-          font-size: 0.97em;
-        }
-        .modal-content {
-          padding: 16px 4vw 12px 4vw;
-          min-width: unset;
-          max-width: 99vw;
-        }
-        .close-modal {
-          font-size: 1em;
-          height: 28px;
-          width: 28px;
-          right: 6px;
-          top: 6px;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <button class="voltar-btn" onclick="voltar()">
-        <i class="fa fa-arrow-left"></i> Voltar
-      </button>
-      <h1>Alterar Barbeiros</h1>
-      <div class="barbeiros-lista" id="barbeiros-lista">
-        <div style="color: #fff; text-align: center">Carregando...</div>
-      </div>
-      <button class="novo-btn" onclick="abrirNovoBarbeiro()">
-        Novo Barbeiro
-      </button>
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button class="voltar-btn" onclick="voltar()">
+      <i class="fa fa-arrow-left"></i> Voltar
+    </button>
+    <h1>Alterar Barbeiros</h1>
+    <div class="barbeiros-lista" id="barbeiros-lista">
+      <div style="color: #388e3c; text-align: center">Carregando...</div>
     </div>
+    <button class="novo-btn" onclick="abrirNovoBarbeiro()">
+      Novo Barbeiro
+    </button>
+  </div>
 
-    <!-- Modal Editar/Criar Barbeiro -->
-    <div class="modal" id="modalBarbeiro">
-      <div class="modal-content">
-        <button
-          class="close-modal"
-          onclick="fecharModalBarbeiro()"
-          aria-label="Fechar"
-        >
-          &times;
-        </button>
-        <div class="modal-title" id="modalBarbeiroTitulo">Editar Barbeiro</div>
-        <label for="barbeiroNome">Nome</label>
-        <input
-          type="text"
-          id="barbeiroNome"
-          placeholder="Nome do barbeiro"
-          autocomplete="off"
-        />
-        <button id="btnSalvarBarbeiro" onclick="salvarBarbeiro()">
-          Salvar
-        </button>
-        <button id="btnExcluirBarbeiro" class="btn-excluir" style="display:none;" onclick="excluirBarbeiro()">Excluir</button>
-        <div class="modal-msg" id="modalBarbeiroMsg"></div>
-      </div>
+  <!-- Modal Editar/Criar Barbeiro -->
+  <div class="modal" id="modalBarbeiro">
+    <div class="modal-content">
+      <button
+        class="close-menu"
+        onclick="fecharModalBarbeiro()"
+        aria-label="Fechar"
+      >
+        &times;
+      </button>
+      <div class="modal-title" id="modalBarbeiroTitulo">Editar Barbeiro</div>
+      <label for="barbeiroNome">Nome</label>
+      <input
+        type="text"
+        id="barbeiroNome"
+        placeholder="Nome do barbeiro"
+        autocomplete="off"
+      />
+      <button id="btnSalvarBarbeiro" onclick="salvarBarbeiro()">
+        Salvar
+      </button>
+      <button id="btnExcluirBarbeiro" class="btn-excluir" style="display:none;" onclick="excluirBarbeiro()">Excluir</button>
+      <div class="modal-msg" id="modalBarbeiroMsg"></div>
     </div>
+  </div>
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-    <script>
-      const firebaseConfig = {
-        apiKey: "AIzaSyAY-Win6vQEHP1XR_fG3NOg0PAkNPAcxSg",
-        authDomain: "banco-de-dados-bd2a6.firebaseapp.com",
-        projectId: "banco-de-dados-bd2a6",
-        appId: "1:859895156791:web",
-      };
-      firebase.initializeApp(firebaseConfig);
-      const db = firebase.firestore();
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script>
+    // ... Seu JS permanece igual ...
+    const firebaseConfig = {
+      apiKey: "AIzaSyAY-Win6vQEHP1XR_fG3NOg0PAkNPAcxSg",
+      authDomain: "banco-de-dados-bd2a6.firebaseapp.com",
+      projectId: "banco-de-dados-bd2a6",
+      appId: "1:859895156791:web",
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-      let barbeiros = [];
-      let barbeiroEditIdx = null;
+    let barbeiros = [];
+    let barbeiroEditIdx = null;
 
-      function voltar() {
-        window.history.back();
-      }
+    function voltar() {
+      window.history.back();
+    }
 
-      function carregarBarbeiros() {
-        const lista = document.getElementById("barbeiros-lista");
-        lista.innerHTML =
-          '<div style="color:#fff;text-align:center;">Carregando...</div>';
+    function carregarBarbeiros() {
+      const lista = document.getElementById("barbeiros-lista");
+      lista.innerHTML =
+        '<div style="color:#388e3c;text-align:center;">Carregando...</div>';
 
-        db.collection("barbeiros")
-          .doc("barbeiros")
-          .get()
-          .then((doc) => {
-            if (doc.exists && Array.isArray(doc.data().lista)) {
-              barbeiros = doc.data().lista;
-              if (barbeiros.length === 0) {
-                lista.innerHTML =
-                  '<div style="color:#fff;text-align:center;">Nenhum barbeiro encontrado.</div>';
-                return;
-              }
-              let html = "";
-              barbeiros.forEach((b, idx) => {
-                html += `
-                <div class="barbeiro-item" onclick="abrirEditarBarbeiro(${idx})">
-                  <div class="barbeiro-nome"><i class="fa fa-user"></i> ${
-                    b.nome || "(sem nome)"
-                  }</div>
-                </div>
-              `;
-              });
-              lista.innerHTML = html;
-            } else {
-              barbeiros = [];
+      db.collection("barbeiros")
+        .doc("barbeiros")
+        .get()
+        .then((doc) => {
+          if (doc.exists && Array.isArray(doc.data().lista)) {
+            barbeiros = doc.data().lista;
+            if (barbeiros.length === 0) {
               lista.innerHTML =
-                '<div style="color:#fff;text-align:center;">Nenhum barbeiro encontrado.</div>';
+                '<div style="color:#388e3c;text-align:center;">Nenhum barbeiro encontrado.</div>';
+              return;
             }
-          })
-          .catch((error) => {
+            let html = "";
+            barbeiros.forEach((b, idx) => {
+              html += `
+              <div class="barbeiro-item" onclick="abrirEditarBarbeiro(${idx})">
+                <div class="barbeiro-nome"><i class="fa fa-user"></i> ${
+                  b.nome || "(sem nome)"
+                }</div>
+              </div>
+            `;
+            });
+            lista.innerHTML = html;
+          } else {
+            barbeiros = [];
             lista.innerHTML =
-              '<div style="color:#ff5252;">Erro ao carregar barbeiros: ' +
-              error.message +
-              "</div>";
-          });
-      }
-
-      function abrirEditarBarbeiro(idx) {
-        barbeiroEditIdx = idx;
-        const b = barbeiros[idx];
-        document.getElementById("modalBarbeiroTitulo").textContent =
-          "Editar Barbeiro";
-        document.getElementById("barbeiroNome").value = b.nome || "";
-        document.getElementById("modalBarbeiroMsg").textContent = "";
-        document.getElementById("modalBarbeiro").style.display = "flex";
-        document.getElementById("btnSalvarBarbeiro").textContent = "Salvar";
-        document.getElementById("btnExcluirBarbeiro").style.display = "block";
-      }
-
-      function abrirNovoBarbeiro() {
-        barbeiroEditIdx = null;
-        document.getElementById("modalBarbeiroTitulo").textContent =
-          "Novo Barbeiro";
-        document.getElementById("barbeiroNome").value = "";
-        document.getElementById("modalBarbeiroMsg").textContent = "";
-        document.getElementById("modalBarbeiro").style.display = "flex";
-        document.getElementById("btnSalvarBarbeiro").textContent = "Adicionar";
-        document.getElementById("btnExcluirBarbeiro").style.display = "none";
-      }
-
-      function fecharModalBarbeiro() {
-        document.getElementById("modalBarbeiro").style.display = "none";
-      }
-
-      // Função para limpar nome para ID do documento
-      function barbeiroNomeParaId(nome) {
-        return nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
-      }
-
-      // Atualiza nome do barbeiro na lista de usuários (se houver)
-      async function atualizarNomeUsuarioBarbeiro(nomeAntigo, nomeNovo) {
-        const usuariosDoc = await db.collection("usuarios").doc("usuarios").get();
-        if (usuariosDoc.exists && Array.isArray(usuariosDoc.data().lista)) {
-          let lista = usuariosDoc.data().lista;
-          let alterado = false;
-          lista.forEach(u => {
-            if (u.nome === nomeAntigo) {
-              u.nome = nomeNovo;
-              alterado = true;
-            }
-          });
-          if (alterado) {
-            await db.collection("usuarios").doc("usuarios").set({ lista });
+              '<div style="color:#388e3c;text-align:center;">Nenhum barbeiro encontrado.</div>';
           }
-        }
-      }
+        })
+        .catch((error) => {
+          lista.innerHTML =
+            '<div style="color:#ff5252;">Erro ao carregar barbeiros: ' +
+            error.message +
+            "</div>";
+        });
+    }
 
-      // Remove barbeiro da lista de usuários (se houver)
-      async function removerUsuarioBarbeiro(nome) {
-        const usuariosDoc = await db.collection("usuarios").doc("usuarios").get();
-        if (usuariosDoc.exists && Array.isArray(usuariosDoc.data().lista)) {
-          let lista = usuariosDoc.data().lista;
-          const novaLista = lista.filter(u => u.nome !== nome);
-          if (novaLista.length !== lista.length) {
-            await db.collection("usuarios").doc("usuarios").set({ lista: novaLista });
+    function abrirEditarBarbeiro(idx) {
+      barbeiroEditIdx = idx;
+      const b = barbeiros[idx];
+      document.getElementById("modalBarbeiroTitulo").textContent =
+        "Editar Barbeiro";
+      document.getElementById("barbeiroNome").value = b.nome || "";
+      document.getElementById("modalBarbeiroMsg").textContent = "";
+      document.getElementById("modalBarbeiro").style.display = "flex";
+      document.getElementById("btnSalvarBarbeiro").textContent = "Salvar";
+      document.getElementById("btnExcluirBarbeiro").style.display = "block";
+    }
+
+    function abrirNovoBarbeiro() {
+      barbeiroEditIdx = null;
+      document.getElementById("modalBarbeiroTitulo").textContent =
+        "Novo Barbeiro";
+      document.getElementById("barbeiroNome").value = "";
+      document.getElementById("modalBarbeiroMsg").textContent = "";
+      document.getElementById("modalBarbeiro").style.display = "flex";
+      document.getElementById("btnSalvarBarbeiro").textContent = "Adicionar";
+      document.getElementById("btnExcluirBarbeiro").style.display = "none";
+    }
+
+    function fecharModalBarbeiro() {
+      document.getElementById("modalBarbeiro").style.display = "none";
+    }
+
+    // Função para limpar nome para ID do documento
+    function barbeiroNomeParaId(nome) {
+      return nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
+    }
+
+    // Atualiza nome do barbeiro na lista de usuários (se houver)
+    async function atualizarNomeUsuarioBarbeiro(nomeAntigo, nomeNovo) {
+      const usuariosDoc = await db.collection("usuarios").doc("usuarios").get();
+      if (usuariosDoc.exists && Array.isArray(usuariosDoc.data().lista)) {
+        let lista = usuariosDoc.data().lista;
+        let alterado = false;
+        lista.forEach(u => {
+          if (u.nome === nomeAntigo) {
+            u.nome = nomeNovo;
+            alterado = true;
           }
+        });
+        if (alterado) {
+          await db.collection("usuarios").doc("usuarios").set({ lista });
         }
       }
+    }
 
-      function salvarBarbeiro() {
-        const nome = document.getElementById("barbeiroNome").value.trim();
-        const msg = document.getElementById("modalBarbeiroMsg");
-
-        if (!nome) {
-          msg.textContent = "Preencha o nome!";
-          msg.style.color = "#ff5252";
-          return;
-        }
-
-        const barbeiroId = barbeiroNomeParaId(nome);
-
-        if (barbeiroEditIdx !== null) {
-          const nomeAntigo = barbeiros[barbeiroEditIdx].nome;
-          const barbeiroIdAntigo = barbeiroNomeParaId(nomeAntigo);
-
-          barbeiros[barbeiroEditIdx] = { nome };
-
-          db.collection("barbeiros")
-            .doc("barbeiros")
-            .set({ lista: barbeiros })
-            .then(async () => {
-              // Se o nome mudou, renomeia o documento em solicitacoes e atualiza em usuarios
-              if (barbeiroIdAntigo !== barbeiroId) {
-                const solicitacoesRef = db.collection("solicitacoes");
-                const docAntigo = await solicitacoesRef.doc(barbeiroIdAntigo).get();
-                if (docAntigo.exists) {
-                  await solicitacoesRef.doc(barbeiroId).set(docAntigo.data());
-                  await solicitacoesRef.doc(barbeiroIdAntigo).delete();
-                } else {
-                  await solicitacoesRef.doc(barbeiroId).set({ lista: [] });
-                }
-                // Atualiza na lista de usuários
-                await atualizarNomeUsuarioBarbeiro(nomeAntigo, nome);
-              }
-              msg.textContent = "Barbeiro salvo com sucesso!";
-              msg.style.color = "#b2ff59";
-              setTimeout(() => {
-                fecharModalBarbeiro();
-                carregarBarbeiros();
-              }, 800);
-            })
-            .catch((error) => {
-              msg.textContent = "Erro ao salvar: " + error.message;
-              msg.style.color = "#ff5252";
-            });
-
-        } else {
-          // Novo barbeiro
-          barbeiros.push({ nome });
-
-          db.collection("barbeiros")
-            .doc("barbeiros")
-            .set({ lista: barbeiros })
-            .then(() => {
-              db.collection("solicitacoes").doc(barbeiroId).get().then((doc) => {
-                if (!doc.exists) {
-                  db.collection("solicitacoes").doc(barbeiroId).set({ lista: [] });
-                }
-              });
-              msg.textContent = "Barbeiro salvo com sucesso!";
-              msg.style.color = "#b2ff59";
-              setTimeout(() => {
-                fecharModalBarbeiro();
-                carregarBarbeiros();
-              }, 800);
-            })
-            .catch((error) => {
-              msg.textContent = "Erro ao salvar: " + error.message;
-              msg.style.color = "#ff5252";
-            });
+    // Remove barbeiro da lista de usuários (se houver)
+    async function removerUsuarioBarbeiro(nome) {
+      const usuariosDoc = await db.collection("usuarios").doc("usuarios").get();
+      if (usuariosDoc.exists && Array.isArray(usuariosDoc.data().lista)) {
+        let lista = usuariosDoc.data().lista;
+        const novaLista = lista.filter(u => u.nome !== nome);
+        if (novaLista.length !== lista.length) {
+          await db.collection("usuarios").doc("usuarios").set({ lista: novaLista });
         }
       }
+    }
 
-      function excluirBarbeiro() {
-        if (barbeiroEditIdx === null) return;
-        const msg = document.getElementById("modalBarbeiroMsg");
-        if (!confirm("Tem certeza que deseja excluir este barbeiro?")) return;
+    function salvarBarbeiro() {
+      const nome = document.getElementById("barbeiroNome").value.trim();
+      const msg = document.getElementById("modalBarbeiroMsg");
 
+      if (!nome) {
+        msg.textContent = "Preencha o nome!";
+        msg.style.color = "#ff5252";
+        return;
+      }
+
+      const barbeiroId = barbeiroNomeParaId(nome);
+
+      if (barbeiroEditIdx !== null) {
         const nomeAntigo = barbeiros[barbeiroEditIdx].nome;
         const barbeiroIdAntigo = barbeiroNomeParaId(nomeAntigo);
 
-        // Remove barbeiro da lista
-        barbeiros.splice(barbeiroEditIdx, 1);
+        barbeiros[barbeiroEditIdx] = { nome };
 
         db.collection("barbeiros")
           .doc("barbeiros")
           .set({ lista: barbeiros })
           .then(async () => {
-            // Remove documento em solicitacoes
-            await db.collection("solicitacoes").doc(barbeiroIdAntigo).delete();
-            // Remove também da lista de usuários
-            await removerUsuarioBarbeiro(nomeAntigo);
-            msg.textContent = "Barbeiro excluído com sucesso!";
-            msg.style.color = "#b2ff59";
+            // Se o nome mudou, renomeia o documento em solicitacoes e atualiza em usuarios
+            if (barbeiroIdAntigo !== barbeiroId) {
+              const solicitacoesRef = db.collection("solicitacoes");
+              const docAntigo = await solicitacoesRef.doc(barbeiroIdAntigo).get();
+              if (docAntigo.exists) {
+                await solicitacoesRef.doc(barbeiroId).set(docAntigo.data());
+                await solicitacoesRef.doc(barbeiroIdAntigo).delete();
+              } else {
+                await solicitacoesRef.doc(barbeiroId).set({ lista: [] });
+              }
+              // Atualiza na lista de usuários
+              await atualizarNomeUsuarioBarbeiro(nomeAntigo, nome);
+            }
+            msg.textContent = "Barbeiro salvo com sucesso!";
+            msg.style.color = "#388e3c";
             setTimeout(() => {
               fecharModalBarbeiro();
               carregarBarbeiros();
             }, 800);
           })
           .catch((error) => {
-            msg.textContent = "Erro ao excluir: " + error.message;
+            msg.textContent = "Erro ao salvar: " + error.message;
+            msg.style.color = "#ff5252";
+          });
+
+      } else {
+        // Novo barbeiro
+        barbeiros.push({ nome });
+
+        db.collection("barbeiros")
+          .doc("barbeiros")
+          .set({ lista: barbeiros })
+          .then(() => {
+            db.collection("solicitacoes").doc(barbeiroId).get().then((doc) => {
+              if (!doc.exists) {
+                db.collection("solicitacoes").doc(barbeiroId).set({ lista: [] });
+              }
+            });
+            msg.textContent = "Barbeiro salvo com sucesso!";
+            msg.style.color = "#388e3c";
+            setTimeout(() => {
+              fecharModalBarbeiro();
+              carregarBarbeiros();
+            }, 800);
+          })
+          .catch((error) => {
+            msg.textContent = "Erro ao salvar: " + error.message;
             msg.style.color = "#ff5252";
           });
       }
+    }
 
-      window.onload = carregarBarbeiros;
-      window.addEventListener("keydown", function (e) {
-        if (e.key === "Escape") fecharModalBarbeiro();
-      });
-    </script>
-  </body>
+    function excluirBarbeiro() {
+      if (barbeiroEditIdx === null) return;
+      const msg = document.getElementById("modalBarbeiroMsg");
+      if (!confirm("Tem certeza que deseja excluir este barbeiro?")) return;
+
+      const nomeAntigo = barbeiros[barbeiroEditIdx].nome;
+      const barbeiroIdAntigo = barbeiroNomeParaId(nomeAntigo);
+
+      // Remove barbeiro da lista
+      barbeiros.splice(barbeiroEditIdx, 1);
+
+      db.collection("barbeiros")
+        .doc("barbeiros")
+        .set({ lista: barbeiros })
+        .then(async () => {
+          // Remove documento em solicitacoes
+          await db.collection("solicitacoes").doc(barbeiroIdAntigo).delete();
+          // Remove também da lista de usuários
+          await removerUsuarioBarbeiro(nomeAntigo);
+          msg.textContent = "Barbeiro excluído com sucesso!";
+          msg.style.color = "#388e3c";
+          setTimeout(() => {
+            fecharModalBarbeiro();
+            carregarBarbeiros();
+          }, 800);
+        })
+        .catch((error) => {
+          msg.textContent = "Erro ao excluir: " + error.message;
+          msg.style.color = "#ff5252";
+        });
+    }
+
+    window.onload = carregarBarbeiros;
+    window.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") fecharModalBarbeiro();
+    });
+  </script>
+</body>
 </html>
