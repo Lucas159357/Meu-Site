@@ -12,10 +12,70 @@
       color: #222;
       margin: 0;
       padding: 0;
+      min-height: 100vh;
+    }
+    /* Sidebar Menu */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 220px;
+      height: 100vh;
+      background: #388e3c;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding-top: 40px;
+      z-index: 100;
+      box-shadow: 2px 0 8px #0002;
+    }
+    .sidebar h4 {
+      width: 100%;
+      text-align: center;
+      color: #ff9800;
+      font-size: 1.1em;
+      font-weight: bold;
+      margin-bottom: 22px;
+    }
+    .sidebar button,
+    .sidebar .close-menu {
+      width: 90%;
+      margin: 8px 5%;
+      background: #fff;
+      color: #388e3c;
+      border: 1.5px solid #ff9800;
+      border-radius: 6px;
+      padding: 12px 0;
+      font-size: 1.07em;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.2s, color 0.2s;
+      display: block;
+    }
+    .sidebar button:hover,
+    .sidebar .close-menu:hover {
+      background: #ff9800;
+      color: #fff;
+    }
+    .sidebar .close-menu {
+      background: none;
+      color: #fff;
+      border: none;
+      text-align: right;
+      font-size: 1.5em;
+      margin-bottom: 12px;
+      padding: 0;
+    }
+    /* Main Content */
+    .main-content {
+      margin-left: 220px;
+      padding: 0;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      min-height: 100vh;
     }
     header {
       width: 100%;
@@ -27,26 +87,8 @@
       position: relative;
     }
     .menu-btn {
-      position: absolute;
-      left: 30px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: #fff;
-      border: 2px solid #ff9800;
-      border-radius: 50%;
-      width: 44px;
-      height: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 2px 8px #1112;
-      transition: background 0.2s;
-      outline: none;
-      z-index: 2;
+      display: none;
     }
-    .menu-btn:hover { background: #ff9800; }
-    .menu-btn i { color: #388e3c; font-size: 1.5em; }
     .perfil-btn {
       position: absolute;
       right: 30px;
@@ -274,44 +316,133 @@
       text-align:right;
       width:100%;
     }
-    @media (max-width: 500px) {
-      .bloco-barbeiros,
-      .bloco-cliente,
-      .bloco-pagamento,
-      .container {
+    /* Modal centralizado */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.7);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: #fff;
+      padding: 30px 25px 20px 25px;
+      border-radius: 10px;
+      text-align: center;
+      min-width: 300px;
+      box-shadow: 0 0 15px #1112;
+      width: 90vw;
+      max-width: 340px;
+      overflow: hidden;
+      border: 1.5px solid #388e3c;
+      position: relative;
+      margin: auto;
+      top: 0; left: 0; right: 0; bottom: 0;
+    }
+    .close-modal {
+      position: absolute;
+      left: 50%;
+      top: 10px;
+      transform: translateX(-50%);
+      color: #ff9800;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.15em;
+      padding: 0 8px;
+      line-height: 1;
+      border-radius: 50%;
+      height: 32px;
+      width: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s, background 0.2s;
+    }
+    .close-modal:hover {
+      color: #388e3c;
+      background: rgba(0, 0, 0, 0.08);
+    }
+    .modal-content h3 {
+      color: #388e3c;
+      margin: 32px 0 15px 0;
+      font-size: 1.15em;
+      padding-top: 4px;
+      font-weight: bold;
+    }
+    .perfil-info {
+      margin-bottom: 18px;
+      text-align: left;
+      font-size: 1.07em;
+    }
+    .perfil-info span {
+      color: #ff9800;
+      font-weight: bold;
+    }
+    .modal-content input[type="password"] {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0 18px 0;
+      border-radius: 6px;
+      border: 1.5px solid #ff9800;
+      font-size: 1em;
+      background: #fff;
+      color: #222;
+      outline: none;
+    }
+    .modal-content button {
+      width: 100%;
+      margin-top: 0;
+      background: #ff9800;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+    .modal-content button:hover {
+      background: #388e3c;
+    }
+    #perfil-mensagem {
+      margin-top: 10px;
+      font-size: 1em;
+      word-break: break-word;
+      color: #388e3c;
+    }
+    @media (max-width: 700px) {
+      .sidebar {
+        width: 100vw;
+        height: auto;
+        position: static;
+        flex-direction: row;
+        padding-top: 0;
+        justify-content: flex-start;
+        align-items: center;
+      }
+      .main-content {
+        margin-left: 0;
+      }
+      .container, .bloco-barbeiros, .bloco-cliente, .bloco-pagamento {
         width: 98vw;
         max-width: 99vw;
         padding: 12px 2vw;
       }
-      .bloco-barbeiros label,
-      .bloco-cliente label,
-      .bloco-pagamento label {
-        font-size: 1em;
-      }
-      .bloco-barbeiros select,
-      .bloco-pagamento select,
-      .bloco-cliente input[type="text"] {
-        font-size: 1em;
+    }
+    @media (max-width: 500px) {
+      .container, .bloco-barbeiros, .bloco-cliente, .bloco-pagamento {
+        width: 98vw;
+        max-width: 99vw;
+        padding: 12px 2vw;
       }
       .modal-content {
         padding: 16px 4vw 12px 4vw;
         min-width: unset;
         max-width: 99vw;
       }
-      .close-modal {
-        font-size: 1em;
-        height: 28px;
-        width: 28px;
-        padding: 0 4px;
-        top: 6px;
-      }
-      .modal-content h3 {
-        font-size: 1em;
-        padding-top: 2px;
-        margin-top: 28px;
-      }
-      .menu-modal { width: 90vw; min-width: 170px; }
-      .menu-modal .close-menu { font-size: 1em; width: 18px; height: 18px; }
     }
     .bloco-cliente input[type="text"] {
       width: 100%;
@@ -322,48 +453,52 @@
   </style>
 </head>
 <body>
-  <header>
-    <button class="menu-btn" onclick="abrirMenu()" title="Menu">
-      <i class="fa fa-bars"></i>
-    </button>
-    <h2 class="titulo-barbearia">Barbearia Pedro Rodrigues</h2>
-    <button class="perfil-btn" onclick="abrirPerfil()" title="Perfil">
-      <i class="fa-solid fa-user"></i>
-    </button>
-  </header>
-
-  <div class="bloco-barbeiros">
-    <label for="selectBarbeiro">Barbeiros</label>
-    <select id="selectBarbeiro" onfocus="carregarBarbeiros()">
-      <option value="">Selecione o barbeiro</option>
-    </select>
-  </div>
-
-  <div class="bloco-cliente">
-    <label for="nomeCliente">Nome do Cliente</label>
-    <input type="text" id="nomeCliente" placeholder="Digite o nome do cliente">
-  </div>
-
-  <div class="container">
-    <h1>Escolha seu serviço</h1>
-    <div id="servicos-lista"></div>
-    <div id="valor-total"></div>
-    <div class="bloco-pagamento" style="margin-top:18px;">
-      <label for="formasPagamento">Forma(s) de Pagamento</label>
-      <select id="formasPagamento" multiple>
-        <option value="Débito">Débito</option>
-        <option value="Crédito">Crédito</option>
-        <option value="Pix">Pix</option>
-        <option value="Dinheiro">Dinheiro</option>
-        <option value="Fiado">Fiado</option>
+  <!-- Sidebar Menu -->
+  <nav class="sidebar" id="sidebar">
+    <button class="close-menu" onclick="document.getElementById('sidebar').style.display='none'" title="Fechar Menu" style="display:none;">&times;</button>
+    <h4>Menu</h4>
+    <button onclick="window.location.href='estatisticas.html'">Estatísticas</button>
+    <button onclick="window.location.href='ver_solicitacoes.html'">Ver Solicitações</button>
+    <div id="menu-admin"></div>
+  </nav>
+  <div class="main-content">
+    <header>
+      <h2 class="titulo-barbearia">Barbearia Pedro Rodrigues</h2>
+      <button class="perfil-btn" onclick="abrirPerfil()" title="Perfil">
+        <i class="fa-solid fa-user"></i>
+      </button>
+    </header>
+    <div class="bloco-barbeiros">
+      <label for="selectBarbeiro">Barbeiros</label>
+      <select id="selectBarbeiro" onfocus="carregarBarbeiros()">
+        <option value="">Selecione o barbeiro</option>
       </select>
-      <div id="valoresPagamento"></div>
     </div>
-    <div class="botoes">
-      <button onclick="logout()">Sair</button>
-      <button onclick="enviar()">Enviar</button>
+    <div class="bloco-cliente">
+      <label for="nomeCliente">Nome do Cliente</label>
+      <input type="text" id="nomeCliente" placeholder="Digite o nome do cliente">
     </div>
-    <div id="mensagem"></div>
+    <div class="container">
+      <h1>Escolha seu serviço</h1>
+      <div id="servicos-lista"></div>
+      <div id="valor-total"></div>
+      <div class="bloco-pagamento" style="margin-top:18px;">
+        <label for="formasPagamento">Forma(s) de Pagamento</label>
+        <select id="formasPagamento" multiple>
+          <option value="Débito">Débito</option>
+          <option value="Crédito">Crédito</option>
+          <option value="Pix">Pix</option>
+          <option value="Dinheiro">Dinheiro</option>
+          <option value="Fiado">Fiado</option>
+        </select>
+        <div id="valoresPagamento"></div>
+      </div>
+      <div class="botoes">
+        <button onclick="logout()">Sair</button>
+        <button onclick="enviar()">Enviar</button>
+      </div>
+      <div id="mensagem"></div>
+    </div>
   </div>
 
   <!-- Modal do perfil -->
@@ -379,15 +514,6 @@
       <button onclick="alterarSenha()">Alterar Senha</button>
       <div id="perfil-mensagem"></div>
     </div>
-  </div>
-
-  <!-- Menu lateral (hamburguer) -->
-  <div class="menu-modal" id="menuModal">
-    <button class="close-menu" onclick="fecharMenu()" aria-label="Fechar">&times;</button>
-    <h4>Menu</h4>
-    <button onclick="window.location.href='estatisticas.html'">Estatísticas</button>
-    <button onclick="window.location.href='ver_solicitacoes.html'">Ver Solicitações</button>
-    <div id="menu-admin"></div>
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -751,16 +877,6 @@
       localStorage.removeItem("usuarioLogado");
       window.location.href = "index.html";
     }
-
-    // Menu lateral (hamburguer)
-    function abrirMenu() {
-      document.getElementById("menuModal").style.display = "block";
-    }
-    function fecharMenu() {
-      document.getElementById("menuModal").style.display = "none";
-    }
-
-    window.onload = carregarServicos;
 
     // Menu lateral dinâmico por categoria
     window.addEventListener("DOMContentLoaded", function() {
