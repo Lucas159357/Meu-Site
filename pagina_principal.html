@@ -267,47 +267,15 @@
       font-weight: bold;
     }
     #valor-total {
-      margin-top: 16px;
-      font-size: 1.2em;
-      color: #ff9800;
-      font-weight: bold;
-      text-align: right;
-      width: 100%;
+      margin-top:16px;
+      font-size:1.2em;
+      color:#ff9800;
+      font-weight:bold;
+      text-align:right;
+      width:100%;
     }
-    @media (max-width: 500px) {
-      .bloco-barbeiros,
-      .bloco-cliente,
-      .bloco-pagamento,
-      .container {
-        width: 98vw;
-        max-width: 99vw;
-        padding: 12px 2vw;
-      }
-      .bloco-barbeiros label,
-      .bloco-cliente label,
-      .bloco-pagamento label {
-        font-size: 1em;
-      }
-      .bloco-barbeiros select,
-      .bloco-pagamento select,
-      .bloco-cliente input[type="text"] {
-        font-size: 1em;
-      }
-      .modal-content,
-      .menu-modal-content {
-        padding: 16px 4vw 12px 4vw;
-        min-width: unset;
-        max-width: 99vw;
-      }
-    }
-    .bloco-cliente input[type="text"] {
-      width: 100%;
-      box-sizing: border-box;
-      min-width: 0;
-      max-width: 100%;
-    }
-    .modal,
-    .menu-modal {
+    /* Modais centralizados */
+    .modal, .menu-modal {
       display: none;
       position: fixed;
       z-index: 9999;
@@ -319,8 +287,7 @@
       justify-content: center;
       align-items: center;
     }
-    .modal-content,
-    .menu-modal-content {
+    .modal-content, .menu-modal-content {
       background: #fff;
       padding: 30px 25px 20px 25px;
       border-radius: 10px;
@@ -333,40 +300,33 @@
       border: 1.5px solid #388e3c;
       position: relative;
       margin: auto;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      top: 0; left: 0; right: 0; bottom: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
-    /* Botão de fechar PEQUENO e igual para ambos os modais */
-    .close-modal {
+    .close-modal, .close-menu {
       position: absolute;
-      top: 8px;
-      right: 8px;
+      top: 10px;
+      right: 10px;
       color: #ff9800;
-      background: #fff;
-      border: 1.5px solid #ff9800;
+      background: none;
+      border: none;
       cursor: pointer;
-      font-size: 0.9em;
+      font-size: 1em;
       padding: 0;
       line-height: 1;
       border-radius: 50%;
-      height: 18px;
-      width: 18px;
+      height: 20px;
+      width: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: color 0.2s, background 0.2s, border 0.2s;
-      box-shadow: 0 1px 2px #1112;
-      z-index: 2;
+      transition: color 0.2s, background 0.2s;
     }
-    .close-modal:hover {
-      color: #fff;
-      background: #ff9800;
-      border: 1.5px solid #388e3c;
+    .close-modal:hover, .close-menu:hover {
+      color: #388e3c;
+      background: rgba(0, 0, 0, 0.08);
     }
     .menu-modal-content h4 {
       color: #388e3c;
@@ -416,14 +376,14 @@
 
   <div class="bloco-cliente">
     <label for="nomeCliente">Nome do Cliente</label>
-    <input type="text" id="nomeCliente" placeholder="Digite o nome do cliente" />
+    <input type="text" id="nomeCliente" placeholder="Digite o nome do cliente">
   </div>
 
   <div class="container">
     <h1>Escolha seu serviço</h1>
     <div id="servicos-lista"></div>
     <div id="valor-total"></div>
-    <div class="bloco-pagamento" style="margin-top: 18px">
+    <div class="bloco-pagamento" style="margin-top:18px;">
       <label for="formasPagamento">Forma(s) de Pagamento</label>
       <select id="formasPagamento" multiple>
         <option value="Débito">Débito</option>
@@ -433,7 +393,6 @@
         <option value="Fiado">Fiado</option>
       </select>
       <div id="valoresPagamento"></div>
-      <div id="soma-pagamentos" style="margin-top:8px;color:#388e3c;font-weight:bold;"></div>
     </div>
     <div class="botoes">
       <button onclick="logout()">Sair</button>
@@ -460,7 +419,7 @@
   <!-- Modal do menu -->
   <div class="menu-modal" id="menuModal">
     <div class="menu-modal-content">
-      <button class="close-modal" onclick="fecharMenu()" aria-label="Fechar">&times;</button>
+      <button class="close-menu" onclick="fecharMenu()" aria-label="Fechar">&times;</button>
       <h4>Menu</h4>
       <button onclick="window.location.href='estatisticas.html'">Estatísticas</button>
       <button onclick="window.location.href='ver_solicitacoes.html'">Ver Solicitações</button>
@@ -628,7 +587,7 @@
           input.value = max.toFixed(2);
         }
       });
-      // Mostra aviso visual SOMENTE SE houver erro de soma e mais de uma forma selecionada
+      // Mostra aviso visual se a soma passar do total
       let valoresDiv = document.getElementById("valoresPagamento");
       let aviso = valoresDiv.querySelector('.aviso-soma');
       if (!aviso) {
@@ -639,24 +598,16 @@
         aviso.style.marginTop = '6px';
         valoresDiv.appendChild(aviso);
       }
-      if (inputs.length > 1 && Math.abs(soma - valorTotal) > 0.01) {
+      if (Math.abs(soma - valorTotal) > 0.01) {
         aviso.textContent = "A soma deve ser igual ao valor total!";
       } else {
         aviso.textContent = "";
       }
-      // Atualiza a soma dos pagamentos embaixo dos campos
-      document.getElementById("soma-pagamentos").textContent =
-        inputs.length > 1
-          ? "Soma dos pagamentos: R$ " + soma.toFixed(2).replace(".", ",")
-          : "";
     };
 
     // Função para gerar o ID do documento de solicitações
     function barbeiroNomeParaId(nome) {
-      return nome
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-zA-Z0-9]/g, "_");
+      return nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
     }
 
     function enviar() {
@@ -762,7 +713,6 @@
               formasSelect.selectedIndex = -1;
               document.getElementById("valoresPagamento").innerHTML = "";
               document.getElementById("valor-total").textContent = "";
-              document.getElementById("soma-pagamentos").textContent = "";
               if (usuarioLogado.categoria !== "Barbeiro") {
                 selectBarbeiro.selectedIndex = 0;
               }
@@ -783,7 +733,6 @@
       document.getElementById("perfil-nome").textContent = usuarioLogado.nome || "";
       document.getElementById("novaSenha").value = "";
     }
-
     function fecharPerfil() {
       document.getElementById("modalPerfil").style.display = "none";
     }
@@ -808,8 +757,6 @@
       }
     };
 
-    window.onload = carregarServicos;
-
     // Menu lateral dinâmico por categoria
     window.addEventListener("DOMContentLoaded", function() {
       const menuAdmin = document.getElementById("menu-admin");
@@ -827,6 +774,8 @@
         menuAdmin.innerHTML = "";
       }
     });
+
+    window.onload = carregarServicos;
   </script>
 </body>
 </html>
