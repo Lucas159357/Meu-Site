@@ -24,7 +24,7 @@
       border-radius: 10px;
       margin-top: 40px;
       text-align: center;
-      width: 420px;
+      width: 430px;
       box-shadow: 0 0 10px #1112;
       max-width: 98vw;
       border: 1.5px solid #388e3c;
@@ -155,19 +155,25 @@
       margin-right: 8px;
     }
     #totaisBarbeiros .total-pendente {
-      color: #ffeb3b;
+      color: #ffb300;
       font-weight: bold;
       margin-right: 8px;
+      display: block;
+      margin-top: 4px;
     }
     #totaisBarbeiros .total-concluido {
       color: #388e3c;
       font-weight: bold;
       margin-right: 8px;
+      display: block;
+      margin-top: 4px;
     }
     #totaisBarbeiros .total-geral {
       color: #222;
       font-weight: bold;
       margin-right: 8px;
+      display: block;
+      margin-top: 4px;
     }
     .solicitacoes-lista {
       margin-top: 12px;
@@ -203,9 +209,13 @@
       margin-top: 4px;
       margin-bottom: 8px;
       line-height: 1.4;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
     }
     .solicitacao-resumo div {
       margin-bottom: 2px;
+      display: block;
     }
     .solicitacao-item {
       border-top: 1px solid #388e3c22;
@@ -260,7 +270,13 @@
       font-weight: bold;
     }
     .solicitacao-pendente {
-      color: #ff9800;
+      color: #ffb300;
+      background: #fffbe7;
+      border-radius: 4px;
+      padding: 2px 8px;
+      display: inline-block;
+      font-weight: bold;
+      margin-top: 4px;
     }
     .solicitacao-cancelado {
       color: #ff5252;
@@ -361,7 +377,7 @@
       color: #388e3c;
       background: rgba(0, 0, 0, 0.08);
     }
-    @media (max-width: 500px) {
+    @media (max-width: 700px) {
       .container {
         padding: 18px 2vw;
         width: 99vw;
@@ -391,6 +407,22 @@
       #rangeSemana,
       .filtro-multiselect {
         width: 100%;
+      }
+    }
+    /* DESKTOP MELHORIA: Coloca totais em coluna e centraliza */
+    @media (min-width: 700px) {
+      #totaisBarbeiros > div {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0;
+      }
+      #totaisBarbeiros .total-label,
+      #totaisBarbeiros .total-geral,
+      #totaisBarbeiros .total-concluido,
+      #totaisBarbeiros .total-pendente {
+        margin-bottom: 2px;
+        margin-top: 0;
       }
     }
   </style>
