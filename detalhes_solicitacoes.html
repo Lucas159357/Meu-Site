@@ -7,11 +7,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
   <style>
-    /* ... (estilos iguais ao código anterior, não alterados) ... */
     body {
       font-family: Arial, sans-serif;
-      background: #222;
-      color: #fff;
+      background: #fff;
+      color: #222;
       margin: 0;
       padding: 0;
       display: flex;
@@ -20,17 +19,18 @@
       min-height: 100vh;
     }
     .container {
-      background: #333;
+      background: #fff;
       padding: 40px 30px;
       border-radius: 10px;
       margin-top: 40px;
       text-align: center;
       width: 400px;
-      box-shadow: 0 0 10px #111;
+      box-shadow: 0 0 10px #e0e0e0;
       max-width: 98vw;
+      border: 1.5px solid #00c853;
     }
     .voltar-btn {
-      background: #007acc;
+      background: #ff9800;
       color: #fff;
       border: none;
       border-radius: 5px;
@@ -43,9 +43,10 @@
       display: block;
       margin-left: auto;
       margin-right: auto;
+      font-weight: bold;
     }
     .voltar-btn:hover {
-      background: #005fa3;
+      background: #00c853;
     }
     h1 {
       color: #00c853;
@@ -79,13 +80,12 @@
     .filtro-select, .filtro-input, #rangeSemana {
       padding: 6px 10px;
       border-radius: 6px;
-      border: none;
+      border: 1.5px solid #ff9800;
       font-size: 1em;
-      background: #181818;
-      color: #00c853;
+      background: #fff;
+      color: #222;
       outline: none;
       min-width: 130px;
-      border: 1.5px solid #00c853;
       transition: border 0.2s;
       box-sizing: border-box;
       cursor: pointer;
@@ -93,7 +93,7 @@
     }
     .filtro-select:focus, .filtro-input:focus, #rangeSemana:focus {
       border: 2px solid #00c853;
-      background: #222;
+      background: #f9f9f9;
     }
     #periodoSelecionado {
       color: #00c853;
@@ -110,22 +110,23 @@
       text-align: left;
     }
     .solicitacao-bloco {
-      background: #444;
+      background: #f9f9f9;
       border-radius: 8px;
       margin-bottom: 18px;
       padding: 16px 12px;
-      box-shadow: 0 2px 8px #1118;
+      box-shadow: 0 2px 8px #e0e0e0;
       font-size: 1.1em;
+      border: 1.5px solid #00c853;
     }
     .solicitacao-barbeiro {
-      color: #b2ff59;
+      color: #00c853;
       font-weight: bold;
       margin-bottom: 8px;
       font-size: 1.1em;
     }
     .solicitacao-resumo {
       font-size: 0.97em;
-      color: #b2ff59;
+      color: #00c853;
       margin-top: 4px;
       margin-bottom: 8px;
       line-height: 1.4;
@@ -134,7 +135,7 @@
       margin-bottom: 2px;
     }
     .solicitacao-item {
-      border-top: 1px solid #444a;
+      border-top: 1px solid #e0e0e0;
       margin-top: 8px;
       padding-top: 8px;
       padding-bottom: 4px;
@@ -142,7 +143,7 @@
       transition: background 0.2s;
     }
     .solicitacao-item:hover {
-      background: #555;
+      background: #ffe0b2;
     }
     .solicitacao-servicos {
       margin: 4px 0 8px 0;
@@ -162,17 +163,17 @@
       font-size: 1.1em;
     }
     .servico-nome {
-      color: #fff;
+      color: #222;
       font-weight: bold;
     }
     .servico-preco {
-      color: #b2ff59;
+      color: #ff9800;
       font-size: 1em;
       font-weight: bold;
       margin-left: 8px;
     }
     .solicitacao-total {
-      color: #fff;
+      color: #222;
       font-weight: bold;
       margin-top: 3px;
       margin-bottom: 1px;
@@ -184,7 +185,7 @@
       font-weight: bold;
     }
     .solicitacao-pendente {
-      color: #ffeb3b;
+      color: #ff9800;
     }
     .solicitacao-cancelado {
       color: #ff5252;
@@ -193,7 +194,7 @@
       color: #00c853;
     }
     .solicitacao-data {
-      color: #aaa;
+      color: #888;
       font-size: 0.97em;
       margin-bottom: 2px;
     }
@@ -213,12 +214,12 @@
       display: flex !important;
     }
     .modal-content {
-      background: #23272b;
+      background: #fff;
       padding: 32px 18px 18px 18px;
       border-radius: 18px;
       text-align: center;
       min-width: 300px;
-      box-shadow: 0 0 18px #111;
+      box-shadow: 0 0 18px #e0e0e0;
       position: relative;
       width: 94vw;
       max-width: 380px;
@@ -239,21 +240,21 @@
       letter-spacing: 0.5px;
     }
     .modal-status-label {
-      color: #00ff6a;
+      color: #00c853;
       text-align: left;
       font-size: 1em;
       font-weight: bold;
       margin-bottom: 2px;
     }
     .modal-status-select, .modal-status-value {
-      background: #181818;
-      color: #00ff6a;
+      background: #f9f9f9;
+      color: #00c853;
       border-radius: 6px;
       padding: 8px 0;
       margin-bottom: 14px;
       font-size: 1.13em;
       font-weight: bold;
-      border: none;
+      border: 1.5px solid #ff9800;
       width: 100%;
       text-align: center;
     }
@@ -261,25 +262,26 @@
       margin-bottom: 12px;
     }
     .servico-edit-item {
-      background: #222;
+      background: #fff;
       border-radius: 10px;
       padding: 10px 10px 8px 10px;
       margin-bottom: 7px;
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      box-shadow: 0 1px 0 #333 inset;
+      box-shadow: 0 1px 0 #e0e0e0 inset;
       position: relative;
+      border: 1.5px solid #00c853;
     }
     .servico-edit-nome {
-      color: #00ff6a;
+      color: #00c853;
       font-weight: bold;
       font-size: 1.08em;
       margin-bottom: 2px;
       text-align: left;
     }
     .servico-edit-preco {
-      color: #fff;
+      color: #222;
       font-size: 1em;
       margin-bottom: 5px;
       text-align: left;
@@ -302,16 +304,16 @@
       background: #c62828;
     }
     .adicionar-servico-bloco {
-      background: #181818;
+      background: #f9f9f9;
       border-radius: 0 0 8px 8px;
       padding: 10px 8px 8px 8px;
       margin-bottom: 10px;
-      border-bottom: 2px solid #00ff6a;
-      box-shadow: 0 2px 0 #00ff6a inset;
+      border-bottom: 2px solid #00c853;
+      box-shadow: 0 2px 0 #00c853 inset;
       text-align: left;
     }
     .adicionar-servico-label {
-      color: #00ff6a;
+      color: #00c853;
       font-size: 1.1em;
       font-weight: bold;
       margin-bottom: 5px;
@@ -321,8 +323,8 @@
     .adicionar-servico-select {
       width: 100%;
       background: #fff;
-      color: #111;
-      border: 1.5px solid #222;
+      color: #222;
+      border: 1.5px solid #ff9800;
       border-radius: 6px;
       padding: 7px 7px;
       font-size: 1em;
@@ -331,11 +333,11 @@
       margin-bottom: 0;
     }
     .adicionar-servico-select:focus {
-      border: 1.5px solid #00ff6a;
+      border: 1.5px solid #00c853;
     }
     .add-servico-btn {
-      background: #00ff6a;
-      color: #222;
+      background: #00c853;
+      color: #fff;
       border: none;
       border-radius: 7px;
       padding: 10px 0;
@@ -348,12 +350,12 @@
       transition: background 0.18s, color 0.18s;
     }
     .add-servico-btn:hover {
-      background: #009e46;
+      background: #ff9800;
       color: #fff;
     }
     .salvar-btn {
-      background: #fff;
-      color: #222;
+      background: #ff9800;
+      color: #fff;
       border: none;
       border-radius: 7px;
       padding: 10px 0;
@@ -363,7 +365,7 @@
       font-weight: bold;
       width: 100%;
       transition: background 0.18s, color 0.18s;
-      box-shadow: 0 1px 0 #333 inset;
+      box-shadow: 0 1px 0 #e0e0e0 inset;
     }
     .salvar-btn:hover {
       background: #00c853;
@@ -390,7 +392,7 @@
       position: absolute;
       right: 10px;
       top: 10px;
-      color: #fff;
+      color: #ff9800;
       background: none;
       border: none;
       cursor: pointer;
@@ -412,7 +414,7 @@
     .modal-msg {
       margin-top: 8px;
       font-size: 1em;
-      color: #b2ff59;
+      color: #00c853;
       min-height: 18px;
     }
     @media (max-width: 500px) {
@@ -454,6 +456,17 @@
         </select>
       </div>
       <div class="filtro-linha">
+        <label class="filtro-label" for="filtroPagamento">Tipo de Pagamento:</label>
+        <select id="filtroPagamento" class="filtro-select" onchange="carregarDetalhes()">
+          <option value="todos">Todos</option>
+          <option value="Débito">Débito</option>
+          <option value="Crédito">Crédito</option>
+          <option value="Pix">Pix</option>
+          <option value="Dinheiro">Dinheiro</option>
+          <option value="Fiado">Fiado</option>
+        </select>
+      </div>
+      <div class="filtro-linha">
         <label class="filtro-label" for="tipoPeriodo">Período:</label>
         <select id="tipoPeriodo" class="filtro-select" onchange="mostrarCampoPeriodo();carregarDetalhes();">
           <option value="dia" selected>Dia</option>
@@ -466,7 +479,7 @@
     </div>
     <div id="periodoSelecionado"></div>
     <div class="solicitacoes-lista" id="solicitacoes-lista">
-      <div style="color: #fff; text-align: center">Carregando...</div>
+      <div style="color: #222; text-align: center">Carregando...</div>
     </div>
   </div>
 
@@ -648,6 +661,15 @@
       return lista.filter(s => (s.status || "pendente").toLowerCase() === status);
     }
 
+    // NOVO: Filtro por tipo de pagamento
+    function filtrarPorPagamento(lista, tipoPag) {
+      if (!tipoPag || tipoPag === "todos") return lista;
+      return lista.filter(s => {
+        if (!Array.isArray(s.pagamentos)) return false;
+        return s.pagamentos.some(p => p.forma === tipoPag);
+      });
+    }
+
     function formatarData(iso) {
       if (!iso) return "";
       const d = new Date(iso);
@@ -677,8 +699,9 @@
       mostrarPeriodoSelecionado();
       const listaDiv = document.getElementById("solicitacoes-lista");
       listaDiv.innerHTML =
-        '<div style="color:#fff;text-align:center;">Carregando...</div>';
+        '<div style="color:#222;text-align:center;">Carregando...</div>';
       const filtroStatus = document.getElementById("filtroStatus")?.value || "todos";
+      const filtroPagamento = document.getElementById("filtroPagamento")?.value || "todos";
       barbeiroAtual = getBarbeiroFromUrl();
       document.getElementById("tituloBarbeiro").textContent = barbeiroAtual
         ? `Solicitações de ${barbeiroAtual}`
@@ -699,13 +722,15 @@
               doc.data().lista.length === 0
             ) {
               listaDiv.innerHTML =
-                '<div style="color:#fff;text-align:center;">Nenhuma solicitação encontrada.</div>';
+                '<div style="color:#222;text-align:center;">Nenhuma solicitação encontrada.</div>';
               return;
             }
             listaSolicitacoes = doc.data().lista;
             let listaSolic = filtrarPorData(listaSolicitacoes);
             listaSolic = filtrarPorStatus(listaSolic, filtroStatus);
-            // AJUSTE: Cancelados não entram em nenhuma soma
+            listaSolic = filtrarPorPagamento(listaSolic, filtroPagamento);
+
+            // Cancelados não entram em nenhuma soma
             let totalGeral = 0, totalConcluido = 0, totalPendente = 0;
             listaSolic.forEach((s) => {
               const status = (s.status || "").toLowerCase();
@@ -722,7 +747,7 @@
                 <div>Concluído: <b style="color:#00c853;">R$ ${totalConcluido.toFixed(
                   2
                 )}</b></div>
-                <div>Pendente: <b style="color:#ffeb3b;">R$ ${totalPendente.toFixed(
+                <div>Pendente: <b style="color:#ff9800;">R$ ${totalPendente.toFixed(
                   2
                 )}</b></div>
               </div>
@@ -761,6 +786,16 @@
                       ? s.status.charAt(0).toUpperCase() + s.status.slice(1)
                       : "Pendente"
                   }
+                </div>
+                <div style="margin-top:6px;">
+                  <span style="font-size:0.95em;color:#888;">Pagamento:</span>
+                  <span style="font-size:0.95em;color:#ff9800;">
+                    ${
+                      Array.isArray(s.pagamentos)
+                        ? s.pagamentos.map(p => p.forma + (p.valor ? ` (R$ ${p.valor})` : "")).join(", ")
+                        : ""
+                    }
+                  </span>
                 </div>
               </div>
             `
@@ -917,7 +952,7 @@
           document.getElementById("modalSolicitacaoMsg").textContent =
             "Solicitação atualizada!";
           document.getElementById("modalSolicitacaoMsg").style.color =
-            "#b2ff59";
+            "#00c853";
           setTimeout(() => {
             fecharModalSolicitacao();
             carregarDetalhes();
