@@ -3,23 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Página Principal - Barbearia Pedro Rodrigues</title>
+  <title>Minhas Solicitações - Barbearia Pedro Rodrigues</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
   <style>
-    :root {
-      --verde: #388e3c;
-      --laranja: #ff9800;
-      --branco: #fff;
-      --cinza-borda: #e0e0e0;
-      --cinza-claro: #f9f9f9;
-      --cinza-escuro: #222;
-      --erro: #ff5252;
-      --sucesso: #43a047;
-    }
     body {
       font-family: Arial, sans-serif;
-      background: var(--branco);
-      color: var(--cinza-escuro);
+      background: #fff;
+      color: #222;
       margin: 0;
       padding: 0;
       display: flex;
@@ -27,293 +18,306 @@
       align-items: center;
       min-height: 100vh;
     }
-    header {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-top: 32px;
-      margin-bottom: 8px;
-      position: relative;
-    }
-    .menu-btn {
-      position: absolute;
-      left: 30px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: var(--branco);
-      border: 2px solid var(--laranja);
-      border-radius: 50%;
-      width: 44px;
-      height: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 2px 8px #1112;
-      transition: background 0.2s;
-      outline: none;
-      z-index: 2;
-    }
-    .menu-btn:hover { background: var(--laranja); }
-    .menu-btn i { color: var(--verde); font-size: 1.5em; }
-    .perfil-btn {
-      position: absolute;
-      right: 30px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: var(--laranja);
-      border: none;
-      border-radius: 50%;
-      width: 48px;
-      height: 48px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 2px 8px #1112;
-      transition: background 0.2s;
-      outline: none;
-    }
-    .perfil-btn:hover { background: var(--verde); }
-    .perfil-btn i { color: var(--branco); font-size: 1.7em; }
-    .titulo-barbearia {
-      color: var(--verde);
-      letter-spacing: 2px;
-      font-size: 2em;
-      font-family: "Arial Black", Arial, sans-serif;
-      text-shadow: 1px 1px 6px #ccc;
-      margin: 0 auto;
-      text-align: center;
-      word-break: break-word;
-    }
-    .bloco-barbeiros, .bloco-cliente {
-      background: var(--branco);
-      border-radius: 10px;
-      margin: 0 0 22px 0;
-      padding: 18px 15px;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      box-shadow: 0 2px 8px #1112;
-      width: 350px;
-      max-width: 95vw;
-      border: 1.5px solid var(--verde);
-    }
-    .bloco-barbeiros label,
-    .bloco-cliente label {
-      font-size: 1.2em;
-      color: var(--verde);
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-    .bloco-barbeiros select,
-    .bloco-cliente input[type="text"] {
-      width: 100%;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1.5px solid var(--laranja);
-      font-size: 1.1em;
-      background: var(--cinza-claro);
-      color: var(--cinza-escuro);
-      outline: none;
-      margin-bottom: 18px;
-      transition: border 0.2s;
-    }
-    .bloco-barbeiros select:focus,
-    .bloco-cliente input[type="text"]:focus {
-      border-color: var(--verde);
-    }
     .container {
-      background: var(--branco);
-      padding: 36px 24px 18px 24px;
-      border-radius: 12px;
-      margin-top: 20px;
-      text-align: center;
-      width: 370px;
-      box-shadow: 0 0 12px #1111;
-      max-width: 97vw;
-      border: 1.5px solid var(--verde);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-    }
-    h1 {
-      color: var(--verde);
-      margin-bottom: 26px;
-      font-size: 1.5em;
-      font-weight: bold;
-      letter-spacing: 1px;
-    }
-    .servico {
-      background: var(--cinza-claro);
+      background: #fff;
+      padding: 40px 30px;
       border-radius: 10px;
-      margin: 14px 0;
-      padding: 16px 12px;
-      display: flex;
-      align-items: center;
-      gap: 18px;
-      box-shadow: 0 2px 8px #1111;
-      transition: background 0.2s, border 0.2s;
-      cursor: pointer;
-      position: relative;
-      border: 1.5px solid var(--verde);
-    }
-    .servico.selected {
-      background: #e8f5e9;
-      border: 2px solid var(--laranja);
-    }
-    .icone-servico {
-      font-size: 2.1em;
-      width: 46px;
+      margin-top: 40px;
       text-align: center;
-      color: var(--verde);
-      flex-shrink: 0;
+      width: 420px;
+      box-shadow: 0 0 10px #1112;
+      max-width: 98vw;
+      border: 1.5px solid #388e3c;
     }
-    .info-servico {
-      text-align: left;
-      flex: 1;
-    }
-    .nome-servico {
-      font-size: 1.15em;
-      font-weight: bold;
-      margin-bottom: 2px;
-      color: var(--verde);
-    }
-    .preco-servico {
-      font-size: 1em;
-      color: var(--laranja);
-    }
-    .checkbox-custom {
-      width: 24px;
-      height: 24px;
-      border: 2px solid var(--verde);
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--branco);
-      cursor: pointer;
-      margin-left: 10px;
-      transition: background 0.2s, border 0.2s;
-      flex-shrink: 0;
-    }
-    .checkbox-custom.checked {
-      background: var(--verde);
-      border-color: var(--laranja);
-    }
-    .checkbox-custom i {
-      color: var(--branco);
-      font-size: 1.1em;
-      display: none;
-    }
-    .checkbox-custom.checked i {
-      display: block;
-    }
-    .botoes {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      margin-top: 30px;
-      flex-wrap: wrap;
-      width: 100%;
-    }
-    button:not(.perfil-btn):not(.menu-btn) {
-      padding: 10px 22px;
-      background: var(--laranja);
-      color: var(--branco);
+    .voltar-btn {
+      background: #ff9800;
+      color: #fff;
       border: none;
       border-radius: 5px;
-      cursor: pointer;
+      padding: 10px 22px;
       font-size: 1em;
+      margin-bottom: 18px;
+      cursor: pointer;
       transition: background 0.2s;
-      margin-bottom: 8px;
+      margin-top: 0;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
       font-weight: bold;
+      box-shadow: 0 2px 8px #1112;
+    }
+    .voltar-btn:hover {
+      background: #388e3c;
+      color: #fff;
+    }
+    h1 {
+      color: #388e3c;
+      margin-bottom: 20px;
+      font-size: 1.6em;
       letter-spacing: 1px;
+      font-weight: bold;
     }
-    button:not(.perfil-btn):not(.menu-btn):hover {
-      background: var(--verde);
-      color: var(--branco);
-    }
-    #mensagem {
-      margin-top: 20px;
-      color: var(--verde);
-      font-size: 1.1em;
-      word-break: break-word;
-    }
-    .bloco-pagamento {
-      background: var(--branco);
-      border-radius: 10px;
-      margin: 0 0 18px 0;
-      padding: 18px 15px 12px 15px;
+    .filtros {
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
-      box-shadow: 0 2px 8px #1111;
-      width: 100%;
-      border: 1.5px solid var(--laranja);
-      position: relative;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
     }
-    .bloco-pagamento label {
-      font-size: 1.2em;
-      color: var(--laranja);
+    .filtro-linha {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      max-width: 400px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .filtro-label {
+      color: #388e3c;
       font-weight: bold;
-      margin-bottom: 10px;
+      font-size: 1.07em;
+      white-space: nowrap;
     }
-    .bloco-pagamento select {
-      width: 100%;
-      padding: 10px;
+    .filtro-select,
+    .filtro-input,
+    #rangeSemana {
+      padding: 7px 10px;
       border-radius: 6px;
-      border: 1.5px solid var(--verde);
-      font-size: 1.1em;
-      background: var(--cinza-claro);
-      color: var(--cinza-escuro);
-      outline: none;
-      margin-bottom: 10px;
-      transition: border 0.2s;
-    }
-    .bloco-pagamento select:focus {
-      border-color: var(--laranja);
-    }
-    .valor-pagamento {
-      width: 120px;
-      padding: 6px;
-      margin-left: 8px;
-      border-radius: 4px;
-      border: 1.5px solid var(--laranja);
-      background: var(--cinza-claro);
-      color: var(--cinza-escuro);
-      transition: border 0.2s;
-    }
-    .valor-pagamento:focus {
-      border-color: var(--verde);
-    }
-    .valor-pagamento-label {
-      color: var(--verde);
-      font-weight: bold;
-    }
-    #valor-total {
-      margin-top:16px;
-      font-size:1.2em;
-      color:var(--laranja);
-      font-weight:bold;
-      text-align:right;
-      width:100%;
-    }
-    #soma-pagamentos {
-      margin-top: 8px;
-      color: var(--verde);
-      font-weight: bold;
+      border: 1.5px solid #388e3c;
       font-size: 1em;
-      width: 100%;
-      text-align: right;
+      background: #fff;
+      color: #388e3c;
+      outline: none;
+      min-width: 130px;
+      box-sizing: border-box;
+      cursor: pointer;
+      margin-bottom: 2px;
+      transition: border 0.2s, background 0.2s, color 0.2s;
     }
-    /* Modais centralizados */
-    .modal, .menu-modal {
+    .filtro-select:focus,
+    .filtro-input:focus,
+    #rangeSemana:focus {
+      border: 2px solid #ff9800;
+      background: #f7fff7;
+      color: #ff9800;
+    }
+    .filtro-label-tipo {
+      color: #ff9800;
+      font-weight: bold;
+      font-size: 1.07em;
+      margin-left: 8px;
+      white-space: nowrap;
+    }
+    .filtro-select-tipo {
+      padding: 7px 10px;
+      border-radius: 6px;
+      border: 1.5px solid #ff9800;
+      font-size: 1em;
+      background: #fff;
+      color: #ff9800;
+      outline: none;
+      min-width: 130px;
+      box-sizing: border-box;
+      cursor: pointer;
+      margin-bottom: 2px;
+      transition: border 0.2s, background 0.2s, color 0.2s;
+    }
+    .filtro-select-tipo:focus {
+      border: 2px solid #388e3c;
+      background: #f7fff7;
+      color: #388e3c;
+    }
+    #periodoSelecionado {
+      color: #388e3c;
+      font-weight: bold;
+      margin-bottom: 8px;
+      font-size: 1em;
+      text-align: left;
+      width: 100%;
+      max-width: 400px;
+      min-height: 20px;
+    }
+    #totaisBarbeiros {
+      margin: 10px 0 18px 0;
+      text-align: left;
+      background: #f7fff7;
+      border-radius: 8px;
+      padding: 14px 14px 10px 14px;
+      color: #222;
+      font-size: 1.09em;
+      box-shadow: 0 2px 8px #1112;
+      border-left: 4px solid #ff9800;
+    }
+    #totaisBarbeiros .total-label {
+      color: #ff9800;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+    #totaisBarbeiros .total-pendente {
+      color: #ffeb3b;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+    #totaisBarbeiros .total-concluido {
+      color: #388e3c;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+    #totaisBarbeiros .total-geral {
+      color: #222;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+    .solicitacoes-lista {
+      margin-top: 12px;
+      text-align: left;
+    }
+    .solicitacao-bloco {
+      background: #f1f1f1;
+      border-radius: 8px;
+      margin-bottom: 18px;
+      padding: 16px 12px;
+      box-shadow: 0 2px 8px #1112;
+      font-size: 1.1em;
+      border-left: 4px solid #388e3c;
+      transition: box-shadow 0.15s;
+    }
+    .solicitacao-bloco.admin-link {
+      cursor: pointer;
+      transition: background 0.18s, box-shadow 0.18s;
+    }
+    .solicitacao-bloco.admin-link:hover {
+      background: #e0f2f1;
+      box-shadow: 0 4px 16px #388e3c33;
+    }
+    .solicitacao-barbeiro {
+      color: #ff9800;
+      font-weight: bold;
+      margin-bottom: 8px;
+      font-size: 1.1em;
+    }
+    .solicitacao-resumo {
+      font-size: 0.97em;
+      color: #388e3c;
+      margin-top: 4px;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+    .solicitacao-resumo div {
+      margin-bottom: 2px;
+    }
+    .solicitacao-item {
+      border-top: 1px solid #388e3c22;
+      margin-top: 8px;
+      padding-top: 8px;
+      padding-bottom: 4px;
+      cursor: pointer;
+      transition: background 0.2s;
+      background: #fff;
+      border-radius: 6px;
+    }
+    .solicitacao-item:hover {
+      background: #e0f2f1;
+    }
+    .solicitacao-servicos {
+      margin: 4px 0 8px 0;
+    }
+    .servico-linha {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 2px;
+      font-size: 1.08em;
+    }
+    .servico-linha:last-child {
+      margin-bottom: 0;
+    }
+    .servico-icone {
+      color: #388e3c;
+      font-size: 1.1em;
+    }
+    .servico-nome {
+      color: #222;
+      font-weight: bold;
+    }
+    .servico-preco {
+      color: #ff9800;
+      font-size: 1em;
+      font-weight: bold;
+      margin-left: 8px;
+    }
+    .solicitacao-total {
+      color: #222;
+      font-weight: bold;
+      margin-top: 3px;
+      margin-bottom: 1px;
+      font-size: 1.07em;
+    }
+    .solicitacao-status {
+      color: #388e3c;
+      font-size: 1em;
+      font-weight: bold;
+    }
+    .solicitacao-pendente {
+      color: #ff9800;
+    }
+    .solicitacao-cancelado {
+      color: #ff5252;
+    }
+    .solicitacao-concluido {
+      color: #388e3c;
+    }
+    .solicitacao-data {
+      color: #888;
+      font-size: 0.97em;
+      margin-bottom: 2px;
+    }
+    .filtro-multiselect {
+      min-width: 130px;
+      padding: 7px 10px;
+      border-radius: 6px;
+      border: 1.5px solid #ff9800;
+      font-size: 1em;
+      background: #fff;
+      color: #ff9800;
+      outline: none;
+      box-sizing: border-box;
+      cursor: pointer;
+      margin-bottom: 2px;
+      transition: border 0.2s, background 0.2s, color 0.2s;
+      height: 36px;
+    }
+    .filtro-multiselect:focus {
+      border: 2px solid #388e3c;
+      background: #f7fff7;
+      color: #388e3c;
+    }
+    .daterangepicker {
+      color: #222;
+    }
+    .daterangepicker .calendar-table {
+      background: #fff;
+      color: #222;
+    }
+    .daterangepicker td.active,
+    .daterangepicker td.active:hover {
+      background-color: #388e3c !important;
+      color: #fff !important;
+    }
+    .daterangepicker .drp-buttons .btn {
+      background: #ff9800;
+      color: #fff;
+      border-radius: 5px;
+      border: none;
+      padding: 4px 12px;
+      font-size: 1em;
+      margin: 0 2px;
+    }
+    .modal {
       display: none;
       position: fixed;
-      z-index: 9999;
+      z-index: 20;
       left: 0;
       top: 0;
       width: 100vw;
@@ -322,34 +326,28 @@
       justify-content: center;
       align-items: center;
     }
-    .modal-content, .menu-modal-content {
-      background: var(--branco);
-      padding: 30px 25px 20px 25px;
-      border-radius: 10px;
+    .modal-content {
+      background: #fff;
+      padding: 28px 18px 18px 18px;
+      border-radius: 16px;
       text-align: center;
       min-width: 300px;
       box-shadow: 0 0 15px #1112;
-      width: 90vw;
-      max-width: 340px;
-      overflow: hidden;
-      border: 1.5px solid var(--verde);
       position: relative;
-      margin: auto;
-      top: 0; left: 0; right: 0; bottom: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      width: 94vw;
+      max-width: 340px;
+      color: #222;
     }
-    .close-modal, .close-menu {
+    .close-modal {
       position: absolute;
-      top: 10px;
       right: 10px;
-      color: var(--laranja);
+      top: 10px;
+      color: #ff9800;
       background: none;
       border: none;
       cursor: pointer;
       font-size: 1em;
-      padding: 0;
+      padding: 0 8px;
       line-height: 1;
       border-radius: 50%;
       height: 20px;
@@ -359,165 +357,113 @@
       justify-content: center;
       transition: color 0.2s, background 0.2s;
     }
-    .close-modal:hover, .close-menu:hover {
-      color: var(--verde);
+    .close-modal:hover {
+      color: #388e3c;
       background: rgba(0, 0, 0, 0.08);
     }
-    .modal-content h3 {
-      color: var(--verde);
-      margin: 32px 0 15px 0;
-      font-size: 1.15em;
-      padding-top: 4px;
-      font-weight: bold;
-    }
-    .perfil-info {
-      margin-bottom: 18px;
-      text-align: left;
-      font-size: 1.07em;
-    }
-    .perfil-info span {
-      color: var(--laranja);
-      font-weight: bold;
-    }
-    .modal-content input[type="password"] {
-      width: 90%;
-      padding: 10px;
-      margin: 10px 0 18px 0;
-      border-radius: 6px;
-      border: 1.5px solid var(--laranja);
-      font-size: 1em;
-      background: var(--cinza-claro);
-      color: var(--cinza-escuro);
-      outline: none;
-    }
-    .modal-content button {
-      width: 100%;
-      margin-top: 0;
-      background: var(--laranja);
-      color: var(--branco);
-      border: none;
-      border-radius: 5px;
-      font-weight: bold;
-    }
-    .modal-content button:hover {
-      background: var(--verde);
-    }
-    #perfil-mensagem {
-      margin-top: 10px;
-      font-size: 1em;
-      word-break: break-word;
-      color: var(--verde);
-    }
-    .menu-modal-content h4 {
-      color: var(--verde);
-      margin-top: 0;
-      margin-bottom: 18px;
-      font-size: 1.15em;
-      font-weight: bold;
-    }
-    .menu-modal-content button {
-      width: 100%;
-      margin: 8px 0;
-      background: var(--branco);
-      color: var(--verde);
-      border: 1.5px solid var(--laranja);
-      border-radius: 6px;
-      padding: 12px 0;
-      font-size: 1.07em;
-      transition: background 0.2s, color 0.2s;
-      font-weight: bold;
-      cursor: pointer;
-      text-align: left;
-      padding-left: 18px;
-    }
-    .menu-modal-content button:hover {
-      background: var(--laranja);
-      color: var(--branco);
+    @media (max-width: 500px) {
+      .container {
+        padding: 18px 2vw;
+        width: 99vw;
+      }
+      .solicitacao-bloco {
+        padding: 10px 7px;
+        font-size: 1em;
+      }
+      .voltar-btn {
+        padding: 8px 10px;
+        font-size: 0.97em;
+      }
+      .filtros,
+      .filtro-linha,
+      #periodoSelecionado {
+        max-width: 99vw;
+      }
+      .filtros {
+        gap: 7px;
+      }
+      .filtro-linha {
+        flex-direction: column;
+        gap: 4px;
+      }
+      .filtro-select,
+      .filtro-input,
+      #rangeSemana,
+      .filtro-multiselect {
+        width: 100%;
+      }
     }
   </style>
-</head>
-<body>
-  <header>
-    <button class="menu-btn" onclick="abrirMenu()" title="Menu">
-      <i class="fa fa-bars"></i>
-    </button>
-    <h2 class="titulo-barbearia">Barbearia Pedro Rodrigues</h2>
-    <button class="perfil-btn" onclick="abrirPerfil()" title="Perfil">
-      <i class="fa-solid fa-user"></i>
-    </button>
-  </header>
-
-  <div class="bloco-barbeiros">
-    <label for="selectBarbeiro">Barbeiros</label>
-    <select id="selectBarbeiro" onfocus="carregarBarbeiros()">
-      <option value="">Selecione o barbeiro</option>
-    </select>
-  </div>
-
-  <div class="bloco-cliente">
-    <label for="nomeCliente">Nome do Cliente</label>
-    <input type="text" id="nomeCliente" placeholder="Digite o nome do cliente">
-  </div>
-
-  <div class="container">
-    <h1>Escolha seu serviço</h1>
-    <div id="servicos-lista"></div>
-    <div id="valor-total"></div>
-    <div class="bloco-pagamento" style="margin-top:18px;">
-      <label for="formasPagamento">Forma(s) de Pagamento</label>
-      <select id="formasPagamento" multiple>
-        <option value="Débito">Débito</option>
-        <option value="Crédito">Crédito</option>
-        <option value="Pix">Pix</option>
-        <option value="Dinheiro">Dinheiro</option>
-        <option value="Fiado">Fiado</option>
-      </select>
-      <div id="valoresPagamento"></div>
-      <div id="soma-pagamentos"></div>
-    </div>
-    <div class="botoes">
-      <button onclick="logout()">Sair</button>
-      <button onclick="enviar()">Enviar</button>
-    </div>
-    <div id="mensagem"></div>
-  </div>
-
-  <!-- Modal do perfil -->
-  <div class="modal" id="modalPerfil">
-    <div class="modal-content">
-      <button class="close-modal" onclick="fecharPerfil()" aria-label="Fechar">&times;</button>
-      <h3>Perfil</h3>
-      <div class="perfil-info">
-        <div><span>Email:</span> <span id="perfil-email"></span></div>
-        <div><span>Nome:</span> <span id="perfil-nome"></span></div>
-      </div>
-      <input type="password" id="novaSenha" placeholder="Nova senha" />
-      <button onclick="alterarSenha()">Alterar Senha</button>
-      <div id="perfil-mensagem"></div>
-    </div>
-  </div>
-
-  <!-- Modal do menu -->
-  <div class="menu-modal" id="menuModal">
-    <div class="menu-modal-content">
-      <button class="close-menu" onclick="fecharMenu()" aria-label="Fechar">&times;</button>
-      <h4>Menu</h4>
-      <button onclick="window.location.href='estatisticas.html'">Estatísticas</button>
-      <button onclick="window.location.href='ver_solicitacoes.html'">Ver Solicitações</button>
-      <div id="menu-admin"></div>
-    </div>
-  </div>
-
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <div class="container">
+    <button class="voltar-btn" onclick="window.history.back()">
+      <i class="fa fa-arrow-left"></i> Voltar
+    </button>
+    <h1>Minhas Solicitações</h1>
+    <div class="filtros">
+      <div class="filtro-linha">
+        <label class="filtro-label" for="filtroStatus">Status:</label>
+        <select id="filtroStatus" class="filtro-select">
+          <option value="todos">Todos</option>
+          <option value="pendente">Pendente</option>
+          <option value="concluido">Concluído</option>
+          <option value="cancelado">Cancelado</option>
+        </select>
+        <label class="filtro-label-tipo" for="filtroTipoPagamento">Tipo de Pagamento:</label>
+        <select id="filtroTipoPagamento" class="filtro-multiselect" multiple>
+          <option value="Débito">Débito</option>
+          <option value="Crédito">Crédito</option>
+          <option value="Pix">Pix</option>
+          <option value="Dinheiro">Dinheiro</option>
+          <option value="Fiado">Fiado</option>
+        </select>
+      </div>
+      <div class="filtro-linha">
+        <label class="filtro-label" for="tipoPeriodo">Período:</label>
+        <select id="tipoPeriodo" class="filtro-select" onchange="mostrarCampoPeriodo();carregarSolicitacoes();">
+          <option value="dia" selected>Dia</option>
+          <option value="semana">Semana</option>
+          <option value="mes">Mês</option>
+          <option value="todos">Todos</option>
+        </select>
+        <span id="campoPeriodo"></span>
+      </div>
+    </div>
+    <div id="periodoSelecionado"></div>
+    <div id="totaisBarbeiros"></div>
+    <div class="solicitacoes-lista" id="solicitacoes-lista">
+      <div style="color: #222; text-align: center">Carregando...</div>
+    </div>
+  </div>
+  <!-- Modal para edição/visualização -->
+  <div class="modal" id="modalSolicitacao">
+    <div class="modal-content">
+      <button class="close-modal" onclick="fecharModalSolicitacao()" aria-label="Fechar">&times;</button>
+      <div class="modal-title" id="modalSolicitacaoTitulo">Solicitação</div>
+      <div class="modal-status-label">Status</div>
+      <div id="statusSolicitacaoArea"></div>
+      <div id="servicosEdit" class="servico-edit-lista"></div>
+      <button class="salvar-btn" id="btnSalvarSolicitacao" onclick="salvarSolicitacaoEditada()">Salvar Alteração</button>
+      <div class="modal-msg" id="modalSolicitacaoMsg"></div>
+    </div>
+  </div>
   <script>
-    // Proteção: só entra se estiver logado pelo localStorage
-    const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
-    if (!usuarioLogado) {
-      window.location.href = "index.html";
+    function getHojeCuiabaISO() {
+      const now = new Date();
+      const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+      const cuiaba = new Date(utc - 4 * 60 * 60000);
+      return cuiaba.toISOString().slice(0, 10);
     }
 
-    // Firebase config
+    const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
+    if (!usuarioLogado) window.location.href = "index.html";
+
     const firebaseConfig = {
       apiKey: "AIzaSyAY-Win6vQEHP1XR_fG3NOg0PAkNPAcxSg",
       authDomain: "banco-de-dados-bd2a6.firebaseapp.com",
@@ -527,348 +473,461 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // Carregar barbeiros do documento barbeiros/barbeiros
-    function carregarBarbeiros() {
-      const select = document.getElementById("selectBarbeiro");
-      select.innerHTML = '<option value="">Selecione o barbeiro</option>';
-      db.collection("barbeiros")
-        .doc("barbeiros")
-        .get()
-        .then((doc) => {
-          if (doc.exists && Array.isArray(doc.data().lista)) {
-            doc.data().lista.forEach((b) => {
-              const option = document.createElement("option");
-              option.value = b.nome;
-              option.textContent = b.nome;
-              select.appendChild(option);
-            });
+    let listaSolicitacoes = [];
+    let solicitacaoEditIdx = null;
 
-            if (usuarioLogado.categoria === "Barbeiro") {
-              select.value = usuarioLogado.nome;
-              select.disabled = true;
-            } else {
-              select.disabled = false;
-            }
-          }
-        });
+    function formatarData(iso) {
+      if (!iso) return "";
+      const d = new Date(iso);
+      return `${d.getDate().toString().padStart(2, "0")}/${(d.getMonth() + 1)
+        .toString()
+        .padStart(2, "0")}/${d.getFullYear()} ${d
+        .getHours()
+        .toString()
+        .padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`;
     }
 
-    // Carregar serviços do documento único servicos/servicos
-    let servicosFirestore = [];
-    let servicosSelecionados = [];
-    function carregarServicos() {
-      const lista = document.getElementById("servicos-lista");
-      lista.innerHTML = "";
-      db.collection("servicos")
-        .doc("servicos")
-        .get()
-        .then((doc) => {
-          if (doc.exists && Array.isArray(doc.data().lista)) {
-            servicosFirestore = doc.data().lista;
-            servicosSelecionados = [];
-            servicosFirestore.forEach((s, idx) => {
-              const div = document.createElement("div");
-              div.className = "servico";
-              div.setAttribute("data-idx", idx);
-              div.onclick = function () {
-                toggleServico(idx);
-              };
-              div.innerHTML = `
-                <span class="icone-servico"><i class="fa-solid fa-scissors"></i></span>
-                <div class="info-servico">
-                  <div class="nome-servico">${s.nome}</div>
-                  <div class="preco-servico">R$ ${s.preco},00</div>
+    function nomeParaId(nome) {
+      return nome
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9]/g, "_");
+    }
+
+    function mostrarCampoPeriodo() {
+      const tipo = document.getElementById("tipoPeriodo").value;
+      const campo = document.getElementById("campoPeriodo");
+      campo.innerHTML = "";
+      if (tipo === "dia") {
+        campo.innerHTML = `<input type="date" id="inputData" class="filtro-input" value="${getHojeCuiabaISO()}" onchange="carregarSolicitacoes()">`;
+      } else if (tipo === "semana") {
+        campo.innerHTML = `<input type="text" id="rangeSemana" class="filtro-input" readonly style="width: 170px;" />`;
+        setTimeout(() => {
+          inicializarRangePickerSemana();
+        }, 50);
+      } else if (tipo === "mes") {
+        const hoje = new Date();
+        campo.innerHTML = `<input type="month" id="inputMes" class="filtro-input" value="${hoje.getFullYear()}-${String(
+          hoje.getMonth() + 1
+        ).padStart(2, "0")}" onchange="carregarSolicitacoes()">`;
+      }
+    }
+
+    function inicializarRangePickerSemana() {
+      const hoje = new Date();
+      const domingo = new Date(hoje);
+      domingo.setDate(hoje.getDate() - hoje.getDay());
+      const sabado = new Date(domingo);
+      sabado.setDate(domingo.getDate() + 6);
+
+      $("#rangeSemana").daterangepicker(
+        {
+          locale: {
+            format: "DD/MM/YYYY",
+            applyLabel: "Aplicar",
+            cancelLabel: "Cancelar",
+            fromLabel: "De",
+            toLabel: "Até",
+            daysOfWeek: ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
+            monthNames: [
+              "Janeiro",
+              "Fevereiro",
+              "Março",
+              "Abril",
+              "Maio",
+              "Junho",
+              "Julho",
+              "Agosto",
+              "Setembro",
+              "Outubro",
+              "Novembro",
+              "Dezembro",
+            ],
+            firstDay: 0,
+          },
+          startDate: moment(domingo),
+          endDate: moment(sabado),
+          opens: "center",
+          autoUpdateInput: true,
+        },
+        function (start, end) {
+          carregarSolicitacoes();
+        }
+      );
+
+      $("#rangeSemana").on("apply.daterangepicker", function (ev, picker) {
+        carregarSolicitacoes();
+      });
+    }
+
+    function mostrarPeriodoSelecionado() {
+      const tipo = document.getElementById("tipoPeriodo").value;
+      const div = document.getElementById("periodoSelecionado");
+      if (tipo === "dia") {
+        const campo = document.getElementById("inputData");
+        if (campo && campo.value) {
+          const [ano, mes, dia] = campo.value.split("-");
+          const dt = new Date(Number(ano), Number(mes) - 1, Number(dia));
+          div.textContent =
+            "Dia: " +
+            dt.toLocaleDateString("pt-BR", {
+              weekday: "long",
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            });
+        } else {
+          div.textContent = "";
+        }
+      } else if (tipo === "semana") {
+        const picker = $("#rangeSemana").data("daterangepicker");
+        if (picker) {
+          div.textContent = `Semana: de ${picker.startDate.format(
+            "DD/MM/YYYY"
+          )} até ${picker.endDate.format("DD/MM/YYYY")}`;
+        } else {
+          div.textContent = "";
+        }
+      } else if (tipo === "mes") {
+        const campo = document.getElementById("inputMes");
+        if (campo && campo.value) {
+          const [ano, mes] = campo.value.split("-");
+          const data = new Date(Number(ano), Number(mes) - 1, 1);
+          let txt = data.toLocaleDateString("pt-BR", {
+            month: "long",
+            year: "numeric",
+          });
+          txt = txt.charAt(0).toUpperCase() + txt.slice(1);
+          div.textContent = "Mês: " + txt;
+        } else {
+          div.textContent = "";
+        }
+      } else {
+        div.textContent = "";
+      }
+    }
+
+    function filtrarPorData(lista) {
+      const tipo = document.getElementById("tipoPeriodo").value;
+      if (tipo === "todos") return lista;
+      if (tipo === "dia") {
+        const campo = document.getElementById("inputData");
+        if (!campo || !campo.value) return lista;
+        const [anoFiltro, mesFiltro, diaFiltro] = campo.value
+          .split("-")
+          .map(Number);
+        return lista.filter((s) => {
+          if (!s.dataCriacao) return false;
+          const data = new Date(s.dataCriacao);
+          return (
+            data.getFullYear() === anoFiltro &&
+            data.getMonth() + 1 === mesFiltro &&
+            data.getDate() === diaFiltro
+          );
+        });
+      }
+      if (tipo === "semana") {
+        const picker = $("#rangeSemana").data("daterangepicker");
+        if (!picker) return lista;
+        const inicio = picker.startDate.startOf("day");
+        const fim = picker.endDate.endOf("day");
+        return lista.filter((s) => {
+          if (!s.dataCriacao) return false;
+          const data = moment(s.dataCriacao);
+          return data.isBetween(inicio, fim, null, "[]");
+        });
+      }
+      if (tipo === "mes") {
+        const campo = document.getElementById("inputMes");
+        if (!campo || !campo.value) return lista;
+        const [anoFiltro, mesFiltro] = campo.value.split("-").map(Number);
+        return lista.filter((s) => {
+          if (!s.dataCriacao) return false;
+          const data = new Date(s.dataCriacao);
+          return (
+            data.getFullYear() === anoFiltro &&
+            data.getMonth() + 1 === mesFiltro
+          );
+        });
+      }
+      return lista;
+    }
+
+    function filtrarPorStatus(lista, status) {
+      if (!status || status === "todos") return lista;
+      return lista.filter(
+        (s) => (s.status || "pendente").toLowerCase() === status
+      );
+    }
+
+    function filtrarPorTipoPagamento(lista, tipos) {
+      if (!tipos || !tipos.length) return lista;
+      return lista.filter((s) => {
+        if (!Array.isArray(s.pagamentos)) return false;
+        // Se qualquer uma das formas selecionadas estiver presente, inclui
+        return tipos.some(tipo => s.pagamentos.some((p) => p.forma === tipo));
+      });
+    }
+
+    function calcularTotais(lista) {
+      let totalGeral = 0, totalConcluido = 0, totalPendente = 0;
+      lista.forEach((s) => {
+        const statusSolic = (s.status || "").toLowerCase();
+        if (statusSolic === "cancelado") return;
+        totalGeral += Number(s.valorTotal || 0);
+        if (statusSolic === "concluido")
+          totalConcluido += Number(s.valorTotal || 0);
+        if (statusSolic === "pendente")
+          totalPendente += Number(s.valorTotal || 0);
+      });
+      return { totalGeral, totalConcluido, totalPendente };
+    }
+
+    async function carregarSolicitacoes() {
+      mostrarPeriodoSelecionado();
+      const listaDiv = document.getElementById("solicitacoes-lista");
+      const totaisDiv = document.getElementById("totaisBarbeiros");
+      listaDiv.innerHTML =
+        '<div style="color:#222;text-align:center;">Carregando...</div>';
+      totaisDiv.innerHTML = "";
+      const status = document.getElementById("filtroStatus").value;
+      // Multi-seleção de tipo de pagamento
+      const tipoPagamentoSel = document.getElementById("filtroTipoPagamento");
+      const tiposPagamento = Array.from(tipoPagamentoSel.selectedOptions).map(opt => opt.value);
+
+      try {
+        if (
+          usuarioLogado.categoria === "Administrador" ||
+          usuarioLogado.categoria === "Proprietario"
+        ) {
+          const snapshot = await db.collection("solicitacoes").get();
+          let solicitacoesPorBarbeiro = {};
+          snapshot.forEach((doc) => {
+            const barbeiro = doc.id;
+            const lista = Array.isArray(doc.data().lista)
+              ? doc.data().lista
+              : [];
+            if (lista.length) solicitacoesPorBarbeiro[barbeiro] = lista;
+          });
+          let html = "";
+          let totalGeralTodos = 0, totalConcluidoTodos = 0, totalPendenteTodos = 0;
+          const barbeiros = Object.keys(solicitacoesPorBarbeiro);
+          if (barbeiros.length === 0) {
+            html =
+              '<div style="color:#222;text-align:center;">Nenhuma solicitação encontrada.</div>';
+          } else {
+            barbeiros.forEach((barbeiro) => {
+              let listaSolic = filtrarPorData(solicitacoesPorBarbeiro[barbeiro]);
+              listaSolic = filtrarPorStatus(listaSolic, status);
+              listaSolic = filtrarPorTipoPagamento(listaSolic, tiposPagamento);
+              const { totalGeral, totalConcluido, totalPendente } = calcularTotais(listaSolic);
+              totalGeralTodos += totalGeral;
+              totalConcluidoTodos += totalConcluido;
+              totalPendenteTodos += totalPendente;
+              html += `<div class="solicitacao-bloco admin-link" onclick="window.location.href='detalhes_solicitacoes.html?barbeiro=${encodeURIComponent(
+                barbeiro
+              )}'">
+                <div class="solicitacao-barbeiro">${barbeiro}
+                  <div class="solicitacao-resumo">
+                    <div><span class="total-label">Valor Total:</span> <b>R$ ${totalGeral.toFixed(2)}</b></div>
+                    <div><span class="total-concluido">Concluído:</span> <b>R$ ${totalConcluido.toFixed(2)}</b></div>
+                    <div><span class="total-pendente">Pendente:</span> <b>R$ ${totalPendente.toFixed(2)}</b></div>
+                  </div>
                 </div>
-                <div class="checkbox-custom" id="check-${idx}">
-                  <i class="fa-solid fa-check"></i>
+              </div>`;
+            });
+            if (barbeiros.length > 1) {
+              totaisDiv.innerHTML = `
+                <div>
+                  <span class="total-label">Total de Todos:</span>
+                  <span class="total-geral">R$ ${totalGeralTodos.toFixed(2)}</span>
+                  <span class="total-concluido">Concluído: R$ ${totalConcluidoTodos.toFixed(2)}</span>
+                  <span class="total-pendente">Pendente: R$ ${totalPendenteTodos.toFixed(2)}</span>
                 </div>
               `;
-              lista.appendChild(div);
-            });
-            atualizarValorTotal();
-            atualizarPagamentos();
-          } else {
-            lista.innerHTML =
-              '<div style="color:#ff5252;">Nenhum serviço cadastrado!</div>';
-            atualizarValorTotal();
-            atualizarPagamentos();
+            }
           }
-        });
-    }
-
-    function toggleServico(idx) {
-      const div = document.querySelector(`.servico[data-idx="${idx}"]`);
-      const checkbox = document.getElementById("check-" + idx);
-      if (servicosSelecionados.includes(idx)) {
-        servicosSelecionados = servicosSelecionados.filter((i) => i !== idx);
-        div.classList.remove("selected");
-        checkbox.classList.remove("checked");
-      } else {
-        servicosSelecionados.push(idx);
-        div.classList.add("selected");
-        checkbox.classList.add("checked");
-      }
-      atualizarValorTotal();
-      atualizarPagamentos();
-    }
-
-    function atualizarValorTotal() {
-      const selecionados = servicosSelecionados.map((idx) => servicosFirestore[idx]);
-      const valorTotal = selecionados.reduce((acc, s) => acc + s.preco, 0);
-      document.getElementById("valor-total").textContent =
-        "Valor Total: R$ " + valorTotal.toFixed(2).replace(".", ",");
-    }
-
-    // Atualiza os campos de pagamento quando muda valor total ou formas de pagamento
-    function atualizarPagamentos() {
-      const formasSelect = document.getElementById("formasPagamento");
-      const selecionadas = Array.from(formasSelect.selectedOptions).map(opt => opt.value);
-      const valoresDiv = document.getElementById("valoresPagamento");
-      valoresDiv.innerHTML = "";
-      if (selecionadas.length > 1) {
-        const selecionados = servicosSelecionados.map((idx) => servicosFirestore[idx]);
-        const valorTotal = selecionados.reduce((acc, s) => acc + s.preco, 0);
-        selecionadas.forEach((forma, idx) => {
-          valoresDiv.innerHTML += `
-            <div style="margin:8px 0;">
-              <span class="valor-pagamento-label">${forma}:</span>
-              <input type="number" min="0" step="0.01" class="valor-pagamento" data-forma="${forma}" placeholder="Valor em R$" oninput="validarSomaPagamentos()">
+          listaDiv.innerHTML = html;
+        } else {
+          const meuDocId = nomeParaId(usuarioLogado.nome);
+          const doc = await db.collection("solicitacoes").doc(meuDocId).get();
+          if (
+            !doc.exists ||
+            !Array.isArray(doc.data().lista) ||
+            doc.data().lista.length === 0
+          ) {
+            listaDiv.innerHTML =
+              '<div style="color:#222;text-align:center;">Nenhuma solicitação encontrada.</div>';
+            totaisDiv.innerHTML = "";
+            return;
+          }
+          listaSolicitacoes = doc.data().lista;
+          let listaFiltrada = filtrarPorData(listaSolicitacoes);
+          listaFiltrada = filtrarPorStatus(listaFiltrada, status);
+          listaFiltrada = filtrarPorTipoPagamento(listaFiltrada, tiposPagamento);
+          const { totalGeral, totalConcluido, totalPendente } = calcularTotais(listaFiltrada);
+          totaisDiv.innerHTML = `
+            <div>
+              <span class="total-label">Total:</span>
+              <span class="total-geral">R$ ${totalGeral.toFixed(2)}</span>
+              <span class="total-concluido">Concluído: R$ ${totalConcluido.toFixed(2)}</span>
+              <span class="total-pendente">Pendente: R$ ${totalPendente.toFixed(2)}</span>
             </div>
           `;
-        });
+          let html = `<div class="solicitacao-bloco">
+            <div class="solicitacao-barbeiro"><i class="fa fa-user"></i> ${
+              usuarioLogado.nome
+            }
+              <div class="solicitacao-resumo">
+                <div><span class="total-label">Valor Total:</span> <b>R$ ${totalGeral.toFixed(2)}</b></div>
+                <div><span class="total-concluido">Concluído:</span> <b>R$ ${totalConcluido.toFixed(2)}</b></div>
+                <div><span class="total-pendente">Pendente:</span> <b>R$ ${totalPendente.toFixed(2)}</b></div>
+              </div>
+            </div>
+            ${listaFiltrada
+              .map((sFiltrada) => {
+                const idxReal = listaSolicitacoes.findIndex(
+                  (s) => s.dataCriacao === sFiltrada.dataCriacao
+                );
+                const statusLower = (
+                  sFiltrada.status || "pendente"
+                ).toLowerCase();
+                return `
+                  <div class="solicitacao-item" style="cursor:pointer;" onclick="abrirModalSolicitacao(${idxReal})">
+                    <div class="solicitacao-data"><i class="fa fa-calendar"></i> ${formatarData(
+                      sFiltrada.dataCriacao
+                    )}</div>
+                    <div class="solicitacao-servicos">
+                      ${
+                        Array.isArray(sFiltrada.servicos)
+                          ? sFiltrada.servicos
+                              .map(
+                                (sv) => `
+                              <div class="servico-linha">
+                                <span class="servico-icone"><i class="fa fa-scissors"></i></span>
+                                <span class="servico-nome">${sv.nome}</span>
+                                <span class="servico-preco">R$ ${sv.preco}</span>
+                              </div>
+                            `
+                              )
+                              .join("")
+                          : ""
+                      }
+                    </div>
+                    <div class="solicitacao-total">Total: <b>R$ ${
+                      sFiltrada.valorTotal
+                    }</b></div>
+                    <div class="solicitacao-status solicitacao-${statusLower}">
+                      Status: ${
+                        sFiltrada.status
+                          ? sFiltrada.status.charAt(0).toUpperCase() +
+                            sFiltrada.status.slice(1)
+                          : "Pendente"
+                      }
+                    </div>
+                  </div>
+                `;
+              })
+              .join("")}
+          </div>`;
+          listaDiv.innerHTML = html;
+        }
+      } catch (error) {
+        listaDiv.innerHTML = `<div style="color:#ff5252;">Erro ao carregar solicitações: ${error.message}</div>`;
+        totaisDiv.innerHTML = "";
       }
-      validarSomaPagamentos();
     }
 
-    document.getElementById("formasPagamento").addEventListener("change", function() {
-      atualizarPagamentos();
-    });
-
-    // Validação dos valores de pagamento
-    window.validarSomaPagamentos = function() {
-      const selecionados = servicosSelecionados.map((idx) => servicosFirestore[idx]);
-      const valorTotal = selecionados.reduce((acc, s) => acc + s.preco, 0);
-      let soma = 0;
-      let inputs = document.querySelectorAll('.valor-pagamento');
-      inputs.forEach(input => {
-        let v = parseFloat(input.value.replace(",", ".")) || 0;
-        soma += v;
-      });
-      // Limita o valor máximo em cada campo para não ultrapassar o valor total restante
-      let restante = valorTotal;
-      inputs.forEach((input, idx) => {
-        let outros = 0;
-        inputs.forEach((inp2, j) => {
-          if (j !== idx) {
-            outros += parseFloat(inp2.value.replace(",", ".")) || 0;
-          }
-        });
-        let max = Math.max(0, valorTotal - outros);
-        if (parseFloat(input.value.replace(",", ".")) > max) {
-          input.value = max.toFixed(2);
-        }
-      });
-      // Mostra aviso visual se a soma passar do total
-      let valoresDiv = document.getElementById("valoresPagamento");
-      let aviso = valoresDiv.querySelector('.aviso-soma');
-      if (!aviso) {
-        aviso = document.createElement('div');
-        aviso.className = 'aviso-soma';
-        aviso.style.color = '#ff5252';
-        aviso.style.fontWeight = 'bold';
-        aviso.style.marginTop = '6px';
-        valoresDiv.appendChild(aviso);
-      }
-      if (Math.abs(soma - valorTotal) > 0.01) {
-        aviso.textContent = "A soma deve ser igual ao valor total!";
-      } else {
-        aviso.textContent = "";
-      }
-      // Atualiza a soma dos pagamentos embaixo dos campos
-      document.getElementById("soma-pagamentos").textContent =
-        selecionados.length > 0 && document.querySelectorAll('.valor-pagamento').length > 0
-        ? "Soma dos pagamentos: R$ " + soma.toFixed(2).replace(".", ",")
-        : "";
-    };
-
-    // Função para gerar o ID do documento de solicitações
-    function barbeiroNomeParaId(nome) {
-      return nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
+    function abrirModalSolicitacao(idx) {
+      const s = listaSolicitacoes[idx];
+      solicitacaoEditIdx = idx;
+      const statusLower = (s.status || "pendente").toLowerCase();
+      document.getElementById("modalSolicitacaoTitulo").textContent =
+        "Solicitação";
+      document.getElementById(
+        "statusSolicitacaoArea"
+      ).innerHTML = `<div class="modal-status-value">${
+        s.status
+          ? s.status.charAt(0).toUpperCase() + s.status.slice(1)
+          : "Pendente"
+      }</div>`;
+      document.getElementById("modalSolicitacaoMsg").textContent = "";
+      renderServicosEdit(s.servicos || [], statusLower === "pendente");
+      document.getElementById("btnSalvarSolicitacao").style.display =
+        statusLower === "pendente" ? "block" : "none";
+      document.getElementById("modalSolicitacao").style.display = "flex";
     }
 
-    function enviar() {
-      const mensagem = document.getElementById("mensagem");
-      const selectBarbeiro = document.getElementById("selectBarbeiro");
-      let barbeiro = selectBarbeiro.value;
+    function fecharModalSolicitacao() {
+      document.getElementById("modalSolicitacao").style.display = "none";
+    }
 
-      if (usuarioLogado.categoria === "Barbeiro") {
-        barbeiro = usuarioLogado.nome;
-      }
-
-      if (!barbeiro) {
-        mensagem.textContent = "Selecione o barbeiro!";
-        mensagem.style.color = "#ff5252";
-        return;
-      }
-      if (servicosSelecionados.length === 0) {
-        mensagem.textContent = "Selecione pelo menos um serviço!";
-        mensagem.style.color = "#ff5252";
-        return;
-      }
-
-      // Nome do cliente
-      const nomeCliente = document.getElementById("nomeCliente").value.trim();
-      if (!nomeCliente) {
-        mensagem.textContent = "Insira o nome do cliente!";
-        mensagem.style.color = "#ff5252";
-        return;
-      }
-
-      // Captura formas e valores
-      const formasSelect = document.getElementById("formasPagamento");
-      const selecionadas = Array.from(formasSelect.selectedOptions).map(opt => opt.value);
-      let pagamentos = [];
-      let somaPagamentos = 0;
-
-      if (selecionadas.length === 0) {
-        mensagem.textContent = "Selecione pelo menos uma forma de pagamento!";
-        mensagem.style.color = "#ff5252";
-        return;
-      }
-
-      const selecionados = servicosSelecionados.map((idx) => servicosFirestore[idx]);
-      const valorTotal = selecionados.reduce((acc, s) => acc + s.preco, 0);
-
-      if (selecionadas.length === 1) {
-        pagamentos = [{ forma: selecionadas[0], valor: valorTotal }];
-      } else {
-        document.querySelectorAll('.valor-pagamento').forEach(input => {
-          const forma = input.getAttribute('data-forma');
-          const valor = parseFloat(input.value.replace(",", ".")) || 0;
-          if (valor > 0) {
-            pagamentos.push({ forma, valor });
-            somaPagamentos += valor;
+    function renderServicosEdit(servicos, podeEditar) {
+      const div = document.getElementById("servicosEdit");
+      let html = "";
+      servicos.forEach((sv, idx) => {
+        html += `
+        <div class="servico-edit-item" data-idx="${idx}">
+          <div class="servico-edit-nome">${sv.nome}</div>
+          <div class="servico-edit-preco">R$ ${sv.preco}</div>
+          ${
+            podeEditar
+              ? `<button type="button" class="remover-servico-btn" onclick="removerServicoEdit(${idx});event.stopPropagation();">Remover</button>`
+              : ""
           }
-        });
-        if (pagamentos.length === 0) {
-          mensagem.textContent = "Informe o valor para cada forma de pagamento!";
-          mensagem.style.color = "#ff5252";
-          return;
-        }
-        if (Math.abs(somaPagamentos - valorTotal) > 0.01) {
-          mensagem.textContent = "A soma dos pagamentos deve ser igual ao valor total dos serviços!";
-          mensagem.style.color = "#ff5252";
-          return;
-        }
-      }
+        </div>
+      `;
+      });
+      div.innerHTML = html;
+    }
 
-      const emailUsuario = usuarioLogado.email;
-      const dataCriacao = new Date().toISOString();
+    function removerServicoEdit(idx) {
+      if (solicitacaoEditIdx === null) return;
+      const s = listaSolicitacoes[solicitacaoEditIdx];
+      if (!Array.isArray(s.servicos)) s.servicos = [];
+      s.servicos.splice(idx, 1);
+      renderServicosEdit(s.servicos, true);
+    }
 
-      const solicitacao = {
-        email: emailUsuario,
-        barbeiro: barbeiro,
-        nomeCliente: nomeCliente,
-        servicos: selecionados.map((s) => ({ nome: s.nome, preco: s.preco })),
-        valorTotal: valorTotal,
-        pagamentos: pagamentos,
-        status: "pendente",
-        dataCriacao: dataCriacao,
-      };
-
-      const docId = barbeiroNomeParaId(barbeiro);
-
+    function salvarSolicitacaoEditada() {
+      if (solicitacaoEditIdx === null) return;
+      const s = listaSolicitacoes[solicitacaoEditIdx];
+      s.valorTotal = Array.isArray(s.servicos)
+        ? s.servicos.reduce((acc, sv) => acc + sv.preco, 0)
+        : 0;
+      const meuDocId = nomeParaId(usuarioLogado.nome);
       db.collection("solicitacoes")
-        .doc(docId)
-        .get()
-        .then((doc) => {
-          let lista = [];
-          if (doc.exists && Array.isArray(doc.data().lista)) {
-            lista = doc.data().lista;
-          }
-          lista.push(solicitacao);
-          db.collection("solicitacoes")
-            .doc(docId)
-            .set({ lista })
-            .then(() => {
-              mensagem.textContent = "Solicitação enviada com sucesso!";
-              mensagem.style.color = "#388e3c";
-              servicosSelecionados = [];
-              carregarServicos();
-              document.getElementById("nomeCliente").value = "";
-              formasSelect.selectedIndex = -1;
-              document.getElementById("valoresPagamento").innerHTML = "";
-              document.getElementById("valor-total").textContent = "";
-              document.getElementById("soma-pagamentos").textContent = "";
-              if (usuarioLogado.categoria !== "Barbeiro") {
-                selectBarbeiro.selectedIndex = 0;
-              }
-            })
-            .catch((error) => {
-              mensagem.textContent =
-                "Erro ao enviar solicitação: " + error.message;
-              mensagem.style.color = "#ff5252";
-            });
+        .doc(meuDocId)
+        .set({ lista: listaSolicitacoes })
+        .then(() => {
+          document.getElementById("modalSolicitacaoMsg").textContent =
+            "Solicitação atualizada!";
+          document.getElementById("modalSolicitacaoMsg").style.color =
+            "#388e3c";
+          setTimeout(() => {
+            fecharModalSolicitacao();
+            carregarSolicitacoes();
+          }, 800);
+        })
+        .catch((error) => {
+          document.getElementById("modalSolicitacaoMsg").textContent =
+            "Erro ao salvar: " + error.message;
+          document.getElementById("modalSolicitacaoMsg").style.color =
+            "#ff5252";
         });
     }
 
-    // Modal perfil dinâmico
-    function abrirPerfil() {
-      document.getElementById("modalPerfil").style.display = "flex";
-      document.getElementById("perfil-mensagem").textContent = "";
-      document.getElementById("perfil-email").textContent = usuarioLogado.email || "";
-      document.getElementById("perfil-nome").textContent = usuarioLogado.nome || "";
-      document.getElementById("novaSenha").value = "";
-    }
-
-    function fecharPerfil() {
-      document.getElementById("modalPerfil").style.display = "none";
-    }
-
-    // Modal menu dinâmico
-    function abrirMenu() {
-      document.getElementById("menuModal").style.display = "flex";
-    }
-    function fecharMenu() {
-      document.getElementById("menuModal").style.display = "none";
-    }
-
-    // Fechar modais ao clicar fora do conteúdo
-    window.onclick = function(event) {
-      const modalPerfil = document.getElementById("modalPerfil");
-      const menuModal = document.getElementById("menuModal");
-      if (event.target === modalPerfil) {
-        fecharPerfil();
-      }
-      if (event.target === menuModal) {
-        fecharMenu();
-      }
-    };
-
-    function logout() {
-      localStorage.removeItem("usuarioLogado");
-      window.location.href = "index.html";
-    }
-
-    // Menu lateral dinâmico por categoria
-    window.addEventListener("DOMContentLoaded", function() {
-      const menuAdmin = document.getElementById("menu-admin");
-      if (!menuAdmin) return;
-      if (
-        usuarioLogado.categoria === "Administrador" ||
-        usuarioLogado.categoria === "Proprietario"
-      ) {
-        menuAdmin.innerHTML = `
-          <button onclick="window.location.href='alterar_barbeiros.html'">Alterar Barbeiros</button>
-          <button onclick="window.location.href='alterar_servicos.html'">Alterar Serviços</button>
-          <button onclick="window.location.href='alterar_usuarios.html'">Alterar Usuários</button>
-        `;
-      } else {
-        menuAdmin.innerHTML = "";
-      }
+    // Inicialização
+    $(function () {
+      mostrarCampoPeriodo();
+      $("#filtroStatus").on("change", carregarSolicitacoes);
+      $("#filtroTipoPagamento").on("change", carregarSolicitacoes);
+      setTimeout(carregarSolicitacoes, 100);
     });
 
-    window.onload = carregarServicos;
+    window.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") fecharModalSolicitacao();
+    });
   </script>
 </body>
 </html>
