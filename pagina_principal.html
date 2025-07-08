@@ -305,7 +305,6 @@
       min-width: 0;
       max-width: 100%;
     }
-    /* Modais centralizados */
     .modal, .menu-modal {
       display: none;
       position: fixed;
@@ -618,7 +617,7 @@
           input.value = max.toFixed(2);
         }
       });
-      // Mostra aviso visual se a soma passar do total
+      // Mostra aviso visual SOMENTE SE houver erro de soma e mais de uma forma selecionada
       let valoresDiv = document.getElementById("valoresPagamento");
       let aviso = valoresDiv.querySelector('.aviso-soma');
       if (!aviso) {
@@ -629,7 +628,7 @@
         aviso.style.marginTop = '6px';
         valoresDiv.appendChild(aviso);
       }
-      if (Math.abs(soma - valorTotal) > 0.01) {
+      if (inputs.length > 1 && Math.abs(soma - valorTotal) > 0.01) {
         aviso.textContent = "A soma deve ser igual ao valor total!";
       } else {
         aviso.textContent = "";
@@ -764,6 +763,7 @@
       document.getElementById("perfil-nome").textContent = usuarioLogado.nome || "";
       document.getElementById("novaSenha").value = "";
     }
+
     function fecharPerfil() {
       document.getElementById("modalPerfil").style.display = "none";
     }
@@ -788,6 +788,8 @@
       }
     };
 
+    window.onload = carregarServicos;
+
     // Menu lateral dinâmico por categoria
     window.addEventListener("DOMContentLoaded", function() {
       const menuAdmin = document.getElementById("menu-admin");
@@ -805,8 +807,6 @@
         menuAdmin.innerHTML = "";
       }
     });
-
-    window.onload = carregarServicos;
   </script>
 </body>
 </html>
