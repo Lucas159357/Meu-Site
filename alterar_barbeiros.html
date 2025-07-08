@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Alterar Barbeiros - Barbearia Pedro Rodrigues</title>
+  <title>Alterar Serviços - Barbearia Pedro Rodrigues</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <style>
     body {
@@ -35,11 +35,11 @@
       letter-spacing: 1px;
       text-shadow: 1px 1px 6px #ccc;
     }
-    .barbeiros-lista {
+    .servicos-lista {
       margin-top: 20px;
       text-align: left;
     }
-    .barbeiro-item {
+    .servico-item {
       background: #fff;
       border-radius: 8px;
       margin-bottom: 15px;
@@ -53,14 +53,19 @@
       transition: background 0.2s, border 0.2s;
       border: 1.5px solid #388e3c;
     }
-    .barbeiro-item:hover {
+    .servico-item:hover {
       background: #e8f5e9;
       border: 2px solid #ff9800;
     }
-    .barbeiro-nome {
+    .servico-nome {
       color: #388e3c;
       font-weight: bold;
       word-break: break-all;
+    }
+    .servico-preco {
+      color: #ff9800;
+      font-size: 1em;
+      font-weight: bold;
     }
     .voltar-btn,
     .novo-btn {
@@ -72,7 +77,7 @@
       font-size: 1em;
       margin-bottom: 25px;
       cursor: pointer;
-      transition: background 0.2s, color 0.2s;
+      transition: background 0.2s, color 0.2s, border 0.2s;
       font-weight: bold;
       box-shadow: 0 2px 8px #1112;
       border: 1.5px solid #ff9800;
@@ -216,7 +221,7 @@
         padding: 18px 2vw;
         width: 99vw;
       }
-      .barbeiro-item {
+      .servico-item {
         padding: 10px 7px;
         font-size: 1em;
       }
@@ -245,38 +250,45 @@
     <button class="voltar-btn" onclick="voltar()">
       <i class="fa fa-arrow-left"></i> Voltar
     </button>
-    <h1>Alterar Barbeiros</h1>
-    <div class="barbeiros-lista" id="barbeiros-lista">
+    <h1>Alterar Serviços</h1>
+    <div class="servicos-lista" id="servicos-lista">
       <div style="color: #388e3c; text-align: center">Carregando...</div>
     </div>
-    <button class="novo-btn" onclick="abrirNovoBarbeiro()">
-      Novo Barbeiro
+    <button class="novo-btn" onclick="abrirNovoServico()">
+      Novo Serviço
     </button>
   </div>
 
-  <!-- Modal Editar/Criar Barbeiro -->
-  <div class="modal" id="modalBarbeiro">
+  <!-- Modal Editar/Criar Serviço -->
+  <div class="modal" id="modalServico">
     <div class="modal-content">
       <button
         class="close-menu"
-        onclick="fecharModalBarbeiro()"
+        onclick="fecharModalServico()"
         aria-label="Fechar"
       >
         &times;
       </button>
-      <div class="modal-title" id="modalBarbeiroTitulo">Editar Barbeiro</div>
-      <label for="barbeiroNome">Nome</label>
+      <div class="modal-title" id="modalServicoTitulo">Editar Serviço</div>
+      <label for="servicoNome">Nome</label>
       <input
         type="text"
-        id="barbeiroNome"
-        placeholder="Nome do barbeiro"
+        id="servicoNome"
+        placeholder="Nome do serviço"
         autocomplete="off"
       />
-      <button id="btnSalvarBarbeiro" onclick="salvarBarbeiro()">
-        Salvar
-      </button>
-      <button id="btnExcluirBarbeiro" class="btn-excluir" style="display:none;" onclick="excluirBarbeiro()">Excluir</button>
-      <div class="modal-msg" id="modalBarbeiroMsg"></div>
+      <label for="servicoPreco">Preço (R$)</label>
+      <input
+        type="number"
+        id="servicoPreco"
+        placeholder="Preço"
+        min="0"
+        step="1"
+        autocomplete="off"
+      />
+      <button id="btnSalvarServico" onclick="salvarServico()">Salvar</button>
+      <button id="btnExcluirServico" class="btn-excluir" style="display:none;" onclick="excluirServico()">Excluir</button>
+      <div class="modal-msg" id="modalServicoMsg"></div>
     </div>
   </div>
 
@@ -284,7 +296,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script>
-    // ... Seu JS permanece igual ...
     const firebaseConfig = {
       apiKey: "AIzaSyAY-Win6vQEHP1XR_fG3NOg0PAkNPAcxSg",
       authDomain: "banco-de-dados-bd2a6.firebaseapp.com",
@@ -294,214 +305,144 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    let barbeiros = [];
-    let barbeiroEditIdx = null;
+    let servicos = [];
+    let servicoEditIdx = null;
 
     function voltar() {
       window.history.back();
     }
 
-    function carregarBarbeiros() {
-      const lista = document.getElementById("barbeiros-lista");
+    function carregarServicos() {
+      const lista = document.getElementById("servicos-lista");
       lista.innerHTML =
         '<div style="color:#388e3c;text-align:center;">Carregando...</div>';
 
-      db.collection("barbeiros")
-        .doc("barbeiros")
+      db.collection("servicos")
+        .doc("servicos")
         .get()
         .then((doc) => {
           if (doc.exists && Array.isArray(doc.data().lista)) {
-            barbeiros = doc.data().lista;
-            if (barbeiros.length === 0) {
+            servicos = doc.data().lista;
+            if (servicos.length === 0) {
               lista.innerHTML =
-                '<div style="color:#388e3c;text-align:center;">Nenhum barbeiro encontrado.</div>';
+                '<div style="color:#388e3c;text-align:center;">Nenhum serviço encontrado.</div>';
               return;
             }
             let html = "";
-            barbeiros.forEach((b, idx) => {
+            servicos.forEach((s, idx) => {
               html += `
-              <div class="barbeiro-item" onclick="abrirEditarBarbeiro(${idx})">
-                <div class="barbeiro-nome"><i class="fa fa-user"></i> ${
-                  b.nome || "(sem nome)"
+              <div class="servico-item" onclick="abrirEditarServico(${idx})">
+                <div class="servico-nome"><i class="fa fa-cut"></i> ${
+                  s.nome || "(sem nome)"
+                }</div>
+                <div class="servico-preco">R$ ${
+                  s.preco != null ? s.preco : "(sem preço)"
                 }</div>
               </div>
             `;
             });
             lista.innerHTML = html;
           } else {
-            barbeiros = [];
+            servicos = [];
             lista.innerHTML =
-              '<div style="color:#388e3c;text-align:center;">Nenhum barbeiro encontrado.</div>';
+              '<div style="color:#388e3c;text-align:center;">Nenhum serviço encontrado.</div>';
           }
         })
         .catch((error) => {
           lista.innerHTML =
-            '<div style="color:#ff5252;">Erro ao carregar barbeiros: ' +
+            '<div style="color:#ff5252;">Erro ao carregar serviços: ' +
             error.message +
             "</div>";
         });
     }
 
-    function abrirEditarBarbeiro(idx) {
-      barbeiroEditIdx = idx;
-      const b = barbeiros[idx];
-      document.getElementById("modalBarbeiroTitulo").textContent =
-        "Editar Barbeiro";
-      document.getElementById("barbeiroNome").value = b.nome || "";
-      document.getElementById("modalBarbeiroMsg").textContent = "";
-      document.getElementById("modalBarbeiro").style.display = "flex";
-      document.getElementById("btnSalvarBarbeiro").textContent = "Salvar";
-      document.getElementById("btnExcluirBarbeiro").style.display = "block";
+    function abrirEditarServico(idx) {
+      servicoEditIdx = idx;
+      const s = servicos[idx];
+      document.getElementById("modalServicoTitulo").textContent =
+        "Editar Serviço";
+      document.getElementById("servicoNome").value = s.nome || "";
+      document.getElementById("servicoPreco").value =
+        s.preco != null ? s.preco : "";
+      document.getElementById("modalServicoMsg").textContent = "";
+      document.getElementById("modalServico").style.display = "flex";
+      document.getElementById("btnSalvarServico").textContent = "Salvar";
+      document.getElementById("btnExcluirServico").style.display = "block";
     }
 
-    function abrirNovoBarbeiro() {
-      barbeiroEditIdx = null;
-      document.getElementById("modalBarbeiroTitulo").textContent =
-        "Novo Barbeiro";
-      document.getElementById("barbeiroNome").value = "";
-      document.getElementById("modalBarbeiroMsg").textContent = "";
-      document.getElementById("modalBarbeiro").style.display = "flex";
-      document.getElementById("btnSalvarBarbeiro").textContent = "Adicionar";
-      document.getElementById("btnExcluirBarbeiro").style.display = "none";
+    function abrirNovoServico() {
+      servicoEditIdx = null;
+      document.getElementById("modalServicoTitulo").textContent =
+        "Novo Serviço";
+      document.getElementById("servicoNome").value = "";
+      document.getElementById("servicoPreco").value = "";
+      document.getElementById("modalServicoMsg").textContent = "";
+      document.getElementById("modalServico").style.display = "flex";
+      document.getElementById("btnSalvarServico").textContent = "Adicionar";
+      document.getElementById("btnExcluirServico").style.display = "none";
     }
 
-    function fecharModalBarbeiro() {
-      document.getElementById("modalBarbeiro").style.display = "none";
+    function fecharModalServico() {
+      document.getElementById("modalServico").style.display = "none";
     }
 
-    // Função para limpar nome para ID do documento
-    function barbeiroNomeParaId(nome) {
-      return nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "_");
-    }
+    function salvarServico() {
+      const nome = document.getElementById("servicoNome").value.trim();
+      const precoStr = document.getElementById("servicoPreco").value.trim();
+      const msg = document.getElementById("modalServicoMsg");
 
-    // Atualiza nome do barbeiro na lista de usuários (se houver)
-    async function atualizarNomeUsuarioBarbeiro(nomeAntigo, nomeNovo) {
-      const usuariosDoc = await db.collection("usuarios").doc("usuarios").get();
-      if (usuariosDoc.exists && Array.isArray(usuariosDoc.data().lista)) {
-        let lista = usuariosDoc.data().lista;
-        let alterado = false;
-        lista.forEach(u => {
-          if (u.nome === nomeAntigo) {
-            u.nome = nomeNovo;
-            alterado = true;
-          }
-        });
-        if (alterado) {
-          await db.collection("usuarios").doc("usuarios").set({ lista });
-        }
-      }
-    }
-
-    // Remove barbeiro da lista de usuários (se houver)
-    async function removerUsuarioBarbeiro(nome) {
-      const usuariosDoc = await db.collection("usuarios").doc("usuarios").get();
-      if (usuariosDoc.exists && Array.isArray(usuariosDoc.data().lista)) {
-        let lista = usuariosDoc.data().lista;
-        const novaLista = lista.filter(u => u.nome !== nome);
-        if (novaLista.length !== lista.length) {
-          await db.collection("usuarios").doc("usuarios").set({ lista: novaLista });
-        }
-      }
-    }
-
-    function salvarBarbeiro() {
-      const nome = document.getElementById("barbeiroNome").value.trim();
-      const msg = document.getElementById("modalBarbeiroMsg");
-
-      if (!nome) {
-        msg.textContent = "Preencha o nome!";
+      if (!nome || precoStr === "") {
+        msg.textContent = "Preencha todos os campos!";
         msg.style.color = "#ff5252";
         return;
       }
 
-      const barbeiroId = barbeiroNomeParaId(nome);
-
-      if (barbeiroEditIdx !== null) {
-        const nomeAntigo = barbeiros[barbeiroEditIdx].nome;
-        const barbeiroIdAntigo = barbeiroNomeParaId(nomeAntigo);
-
-        barbeiros[barbeiroEditIdx] = { nome };
-
-        db.collection("barbeiros")
-          .doc("barbeiros")
-          .set({ lista: barbeiros })
-          .then(async () => {
-            // Se o nome mudou, renomeia o documento em solicitacoes e atualiza em usuarios
-            if (barbeiroIdAntigo !== barbeiroId) {
-              const solicitacoesRef = db.collection("solicitacoes");
-              const docAntigo = await solicitacoesRef.doc(barbeiroIdAntigo).get();
-              if (docAntigo.exists) {
-                await solicitacoesRef.doc(barbeiroId).set(docAntigo.data());
-                await solicitacoesRef.doc(barbeiroIdAntigo).delete();
-              } else {
-                await solicitacoesRef.doc(barbeiroId).set({ lista: [] });
-              }
-              // Atualiza na lista de usuários
-              await atualizarNomeUsuarioBarbeiro(nomeAntigo, nome);
-            }
-            msg.textContent = "Barbeiro salvo com sucesso!";
-            msg.style.color = "#388e3c";
-            setTimeout(() => {
-              fecharModalBarbeiro();
-              carregarBarbeiros();
-            }, 800);
-          })
-          .catch((error) => {
-            msg.textContent = "Erro ao salvar: " + error.message;
-            msg.style.color = "#ff5252";
-          });
-
-      } else {
-        // Novo barbeiro
-        barbeiros.push({ nome });
-
-        db.collection("barbeiros")
-          .doc("barbeiros")
-          .set({ lista: barbeiros })
-          .then(() => {
-            db.collection("solicitacoes").doc(barbeiroId).get().then((doc) => {
-              if (!doc.exists) {
-                db.collection("solicitacoes").doc(barbeiroId).set({ lista: [] });
-              }
-            });
-            msg.textContent = "Barbeiro salvo com sucesso!";
-            msg.style.color = "#388e3c";
-            setTimeout(() => {
-              fecharModalBarbeiro();
-              carregarBarbeiros();
-            }, 800);
-          })
-          .catch((error) => {
-            msg.textContent = "Erro ao salvar: " + error.message;
-            msg.style.color = "#ff5252";
-          });
+      const preco = Number(precoStr);
+      if (isNaN(preco) || preco < 0) {
+        msg.textContent = "Preço inválido!";
+        msg.style.color = "#ff5252";
+        return;
       }
-    }
 
-    function excluirBarbeiro() {
-      if (barbeiroEditIdx === null) return;
-      const msg = document.getElementById("modalBarbeiroMsg");
-      if (!confirm("Tem certeza que deseja excluir este barbeiro?")) return;
+      if (servicoEditIdx !== null) {
+        servicos[servicoEditIdx] = { nome, preco };
+      } else {
+        servicos.push({ nome, preco });
+      }
 
-      const nomeAntigo = barbeiros[barbeiroEditIdx].nome;
-      const barbeiroIdAntigo = barbeiroNomeParaId(nomeAntigo);
-
-      // Remove barbeiro da lista
-      barbeiros.splice(barbeiroEditIdx, 1);
-
-      db.collection("barbeiros")
-        .doc("barbeiros")
-        .set({ lista: barbeiros })
-        .then(async () => {
-          // Remove documento em solicitacoes
-          await db.collection("solicitacoes").doc(barbeiroIdAntigo).delete();
-          // Remove também da lista de usuários
-          await removerUsuarioBarbeiro(nomeAntigo);
-          msg.textContent = "Barbeiro excluído com sucesso!";
+      db.collection("servicos")
+        .doc("servicos")
+        .set({ lista: servicos })
+        .then(() => {
+          msg.textContent = "Serviço salvo com sucesso!";
           msg.style.color = "#388e3c";
           setTimeout(() => {
-            fecharModalBarbeiro();
-            carregarBarbeiros();
+            fecharModalServico();
+            carregarServicos();
+          }, 800);
+        })
+        .catch((error) => {
+          msg.textContent = "Erro ao salvar: " + error.message;
+          msg.style.color = "#ff5252";
+        });
+    }
+
+    function excluirServico() {
+      if (servicoEditIdx === null) return;
+      const msg = document.getElementById("modalServicoMsg");
+      if (!confirm("Tem certeza que deseja excluir este serviço?")) return;
+
+      servicos.splice(servicoEditIdx, 1);
+
+      db.collection("servicos")
+        .doc("servicos")
+        .set({ lista: servicos })
+        .then(() => {
+          msg.textContent = "Serviço excluído com sucesso!";
+          msg.style.color = "#388e3c";
+          setTimeout(() => {
+            fecharModalServico();
+            carregarServicos();
           }, 800);
         })
         .catch((error) => {
@@ -510,9 +451,9 @@
         });
     }
 
-    window.onload = carregarBarbeiros;
+    window.onload = carregarServicos;
     window.addEventListener("keydown", function (e) {
-      if (e.key === "Escape") fecharModalBarbeiro();
+      if (e.key === "Escape") fecharModalServico();
     });
   </script>
 </body>
