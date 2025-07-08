@@ -267,15 +267,47 @@
       font-weight: bold;
     }
     #valor-total {
-      margin-top:16px;
-      font-size:1.2em;
-      color:#ff9800;
-      font-weight:bold;
-      text-align:right;
-      width:100%;
+      margin-top: 16px;
+      font-size: 1.2em;
+      color: #ff9800;
+      font-weight: bold;
+      text-align: right;
+      width: 100%;
     }
-    /* Modais centralizados */
-    .modal, .menu-modal {
+    @media (max-width: 500px) {
+      .bloco-barbeiros,
+      .bloco-cliente,
+      .bloco-pagamento,
+      .container {
+        width: 98vw;
+        max-width: 99vw;
+        padding: 12px 2vw;
+      }
+      .bloco-barbeiros label,
+      .bloco-cliente label,
+      .bloco-pagamento label {
+        font-size: 1em;
+      }
+      .bloco-barbeiros select,
+      .bloco-pagamento select,
+      .bloco-cliente input[type="text"] {
+        font-size: 1em;
+      }
+      .modal-content,
+      .menu-modal-content {
+        padding: 16px 4vw 12px 4vw;
+        min-width: unset;
+        max-width: 99vw;
+      }
+    }
+    .bloco-cliente input[type="text"] {
+      width: 100%;
+      box-sizing: border-box;
+      min-width: 0;
+      max-width: 100%;
+    }
+    .modal,
+    .menu-modal {
       display: none;
       position: fixed;
       z-index: 9999;
@@ -287,7 +319,8 @@
       justify-content: center;
       align-items: center;
     }
-    .modal-content, .menu-modal-content {
+    .modal-content,
+    .menu-modal-content {
       background: #fff;
       padding: 30px 25px 20px 25px;
       border-radius: 10px;
@@ -300,33 +333,39 @@
       border: 1.5px solid #388e3c;
       position: relative;
       margin: auto;
-      top: 0; left: 0; right: 0; bottom: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
-    .close-modal, .close-menu {
+    .close-modal {
       position: absolute;
       top: 10px;
       right: 10px;
       color: #ff9800;
-      background: none;
-      border: none;
+      background: #fff;
+      border: 1.5px solid #ff9800;
       cursor: pointer;
       font-size: 1em;
       padding: 0;
       line-height: 1;
       border-radius: 50%;
-      height: 20px;
-      width: 20px;
+      height: 22px;
+      width: 22px;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: color 0.2s, background 0.2s;
+      transition: color 0.2s, background 0.2s, border 0.2s;
+      box-shadow: 0 1px 2px #1112;
+      z-index: 2;
     }
-    .close-modal:hover, .close-menu:hover {
-      color: #388e3c;
-      background: rgba(0, 0, 0, 0.08);
+    .close-modal:hover {
+      color: #fff;
+      background: #ff9800;
+      border: 1.5px solid #388e3c;
     }
     .menu-modal-content h4 {
       color: #388e3c;
@@ -354,6 +393,35 @@
       background: #ff9800;
       color: #fff;
     }
+    /* CORREÇÃO: botão de fechar do menu pequeno */
+    .menu-modal-content .close-menu {
+      width: 22px !important;
+      height: 22px !important;
+      min-width: 0 !important;
+      min-height: 0 !important;
+      max-width: 22px !important;
+      max-height: 22px !important;
+      font-size: 1em !important;
+      padding: 0 !important;
+      background: #fff !important;
+      color: #ff9800 !important;
+      border: 1.5px solid #ff9800 !important;
+      border-radius: 50% !important;
+      position: absolute !important;
+      top: 10px !important;
+      right: 10px !important;
+      box-shadow: 0 1px 2px #1112 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      z-index: 2 !important;
+      transition: color 0.2s, background 0.2s, border 0.2s !important;
+    }
+    .menu-modal-content .close-menu:hover {
+      background: #ff9800 !important;
+      color: #fff !important;
+      border: 1.5px solid #388e3c !important;
+    }
   </style>
 </head>
 <body>
@@ -376,14 +444,14 @@
 
   <div class="bloco-cliente">
     <label for="nomeCliente">Nome do Cliente</label>
-    <input type="text" id="nomeCliente" placeholder="Digite o nome do cliente">
+    <input type="text" id="nomeCliente" placeholder="Digite o nome do cliente" />
   </div>
 
   <div class="container">
     <h1>Escolha seu serviço</h1>
     <div id="servicos-lista"></div>
     <div id="valor-total"></div>
-    <div class="bloco-pagamento" style="margin-top:18px;">
+    <div class="bloco-pagamento" style="margin-top: 18px">
       <label for="formasPagamento">Forma(s) de Pagamento</label>
       <select id="formasPagamento" multiple>
         <option value="Débito">Débito</option>
@@ -587,7 +655,7 @@
           input.value = max.toFixed(2);
         }
       });
-      // Mostra aviso visual se a soma passar do total
+      // Mostra aviso visual SOMENTE SE houver erro de soma e mais de uma forma selecionada
       let valoresDiv = document.getElementById("valoresPagamento");
       let aviso = valoresDiv.querySelector('.aviso-soma');
       if (!aviso) {
@@ -598,7 +666,7 @@
         aviso.style.marginTop = '6px';
         valoresDiv.appendChild(aviso);
       }
-      if (Math.abs(soma - valorTotal) > 0.01) {
+      if (inputs.length > 1 && Math.abs(soma - valorTotal) > 0.01) {
         aviso.textContent = "A soma deve ser igual ao valor total!";
       } else {
         aviso.textContent = "";
@@ -757,6 +825,8 @@
       }
     };
 
+    window.onload = carregarServicos;
+
     // Menu lateral dinâmico por categoria
     window.addEventListener("DOMContentLoaded", function() {
       const menuAdmin = document.getElementById("menu-admin");
@@ -774,8 +844,6 @@
         menuAdmin.innerHTML = "";
       }
     });
-
-    window.onload = carregarServicos;
   </script>
 </body>
 </html>
