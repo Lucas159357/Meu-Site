@@ -9,8 +9,8 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #222;
-      color: #fff;
+      background: #fff;
+      color: #222;
       margin: 0;
       padding: 0;
       display: flex;
@@ -19,17 +19,18 @@
       min-height: 100vh;
     }
     .container {
-      background: #333;
+      background: #fff;
       padding: 40px 30px;
       border-radius: 10px;
       margin-top: 40px;
       text-align: center;
       width: 400px;
-      box-shadow: 0 0 10px #111;
+      box-shadow: 0 0 10px #1112;
       max-width: 98vw;
+      border: 1.5px solid #388e3c;
     }
     .voltar-btn {
-      background: #007acc;
+      background: #ff9800;
       color: #fff;
       border: none;
       border-radius: 5px;
@@ -37,21 +38,27 @@
       font-size: 1em;
       margin-bottom: 18px;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: background 0.2s, color 0.2s, border 0.2s;
       margin-top: 0;
       display: block;
       margin-left: auto;
       margin-right: auto;
+      font-weight: bold;
+      box-shadow: 0 2px 8px #1112;
+      border: 1.5px solid #ff9800;
     }
     .voltar-btn:hover {
-      background: #005fa3;
+      background: #388e3c;
+      color: #fff;
+      border: 1.5px solid #388e3c;
     }
     h1 {
-      color: #00c853;
+      color: #388e3c;
       margin-bottom: 20px;
       font-size: 1.5em;
       letter-spacing: 1px;
       font-weight: bold;
+      text-shadow: 1px 1px 6px #ccc;
     }
     .filtros {
       display: flex;
@@ -70,7 +77,7 @@
       justify-content: center;
     }
     .filtro-label {
-      color: #00c853;
+      color: #388e3c;
       font-weight: bold;
       font-size: 1.07em;
       white-space: nowrap;
@@ -78,24 +85,23 @@
     .filtro-select, .filtro-input, #rangeSemana {
       padding: 6px 10px;
       border-radius: 6px;
-      border: none;
+      border: 1.5px solid #388e3c;
       font-size: 1em;
-      background: #181818;
-      color: #00c853;
+      background: #fff;
+      color: #388e3c;
       outline: none;
       min-width: 130px;
-      border: 1.5px solid #00c853;
       transition: border 0.2s;
       box-sizing: border-box;
       cursor: pointer;
       margin-bottom: 2px;
     }
     .filtro-select:focus, .filtro-input:focus, #rangeSemana:focus {
-      border: 2px solid #00c853;
-      background: #222;
+      border: 2px solid #ff9800;
+      background: #e8f5e9;
     }
     #periodoSelecionado {
-      color: #00c853;
+      color: #388e3c;
       font-weight: bold;
       margin-bottom: 8px;
       font-size: 1em;
@@ -104,34 +110,67 @@
       max-width: 400px;
       min-height: 20px;
     }
+    .valores-pagamento-bloco {
+      background: #fffbe7;
+      border: 1.5px solid #ff9800;
+      border-radius: 8px;
+      margin: 10px 0 18px 0;
+      padding: 10px 14px 8px 14px;
+      text-align: left;
+      font-size: 1.07em;
+      color: #388e3c;
+      box-shadow: 0 2px 8px #1111;
+    }
+    .valores-pagamento-bloco b {
+      color: #ff9800;
+      font-weight: bold;
+    }
+    .valores-pagamento-titulo {
+      color: #388e3c;
+      font-weight: bold;
+      margin-bottom: 4px;
+      font-size: 1.08em;
+    }
+    .valores-pagamento-linha {
+      margin-bottom: 3px;
+    }
+    .valores-pagamento-total {
+      color: #388e3c;
+      font-weight: bold;
+      margin-top: 7px;
+      font-size: 1.13em;
+      border-top: 1px solid #ff9800;
+      padding-top: 4px;
+    }
     .solicitacoes-lista {
       margin-top: 12px;
       text-align: left;
     }
     .solicitacao-bloco {
-      background: #444;
+      background: #fff;
       border-radius: 8px;
       margin-bottom: 18px;
       padding: 16px 12px;
-      box-shadow: 0 2px 8px #1118;
+      box-shadow: 0 2px 8px #1112;
       font-size: 1.1em;
+      border: 1.5px solid #388e3c;
     }
     .solicitacao-bloco.admin-link {
       cursor: pointer;
       transition: background 0.18s;
     }
     .solicitacao-bloco.admin-link:hover {
-      background: #555;
+      background: #e8f5e9;
     }
     .solicitacao-barbeiro {
-      color: #b2ff59;
+      color: #388e3c;
       font-weight: bold;
       margin-bottom: 8px;
       font-size: 1.1em;
     }
     .solicitacao-resumo {
       font-size:0.97em;
-      color:#b2ff59;
+      color:#388e3c;
       margin-top:4px;
       margin-bottom: 8px;
       line-height: 1.4;
@@ -140,15 +179,17 @@
       margin-bottom: 2px;
     }
     .solicitacao-item {
-      border-top: 1px solid #444a;
+      border-top: 1px solid #388e3c44;
       margin-top: 8px;
       padding-top: 8px;
       padding-bottom: 4px;
       cursor: pointer;
       transition: background 0.2s;
+      background: #fff;
+      border-radius: 6px;
     }
     .solicitacao-item:hover {
-      background: #555;
+      background: #e8f5e9;
     }
     .solicitacao-servicos {
       margin: 4px 0 8px 0;
@@ -164,66 +205,45 @@
       margin-bottom: 0;
     }
     .servico-icone {
-      color: #00c853;
+      color: #388e3c;
       font-size: 1.1em;
     }
     .servico-nome {
-      color: #fff;
+      color: #222;
       font-weight: bold;
     }
     .servico-preco {
-      color: #b2ff59;
+      color: #ff9800;
       font-size: 1em;
       font-weight: bold;
       margin-left: 8px;
     }
     .solicitacao-total {
-      color: #fff;
+      color: #222;
       font-weight: bold;
       margin-top: 3px;
       margin-bottom: 1px;
       font-size: 1.07em;
     }
     .solicitacao-status {
-      color: #00c853;
+      color: #388e3c;
       font-size: 1em;
       font-weight: bold;
     }
     .solicitacao-pendente {
-      color: #ffeb3b;
+      color: #ff9800;
     }
     .solicitacao-cancelado {
       color: #ff5252;
     }
     .solicitacao-concluido {
-      color: #00c853;
+      color: #388e3c;
     }
     .solicitacao-data {
       color: #aaa;
       font-size: 0.97em;
       margin-bottom: 2px;
     }
-    .daterangepicker {
-      color: #222;
-    }
-    .daterangepicker .calendar-table {
-      background: #fff;
-      color: #222;
-    }
-    .daterangepicker td.active, .daterangepicker td.active:hover {
-      background-color: #00c853 !important;
-      color: #fff !important;
-    }
-    .daterangepicker .drp-buttons .btn {
-      background: #007acc;
-      color: #fff;
-      border-radius: 5px;
-      border: none;
-      padding: 4px 12px;
-      font-size: 1em;
-      margin: 0 2px;
-    }
-    /* Modal */
     .modal {
       display: none;
       position: fixed;
@@ -237,18 +257,19 @@
       align-items: center;
     }
     .modal-content {
-      background: #181818;
+      background: #fff;
       padding: 28px 18px 18px 18px;
       border-radius: 16px;
       text-align: center;
       min-width: 300px;
-      box-shadow: 0 0 15px #111;
+      box-shadow: 0 0 15px #1112;
       position: relative;
       width: 94vw;
       max-width: 340px;
+      border: 1.5px solid #388e3c;
     }
     .modal-title {
-      color: #00c853;
+      color: #388e3c;
       font-size: 1.3em;
       margin-bottom: 18px;
       margin-top: 0;
@@ -257,7 +278,7 @@
     }
     .modal-content label {
       display: block;
-      color: #00ff6a;
+      color: #388e3c;
       text-align: left;
       margin-top: 12px;
       margin-bottom: 3px;
@@ -265,7 +286,7 @@
       font-weight: bold;
     }
     .modal-status-label {
-      color: #00ff6a;
+      color: #388e3c;
       text-align: left;
       font-size: 1em;
       font-weight: bold;
@@ -273,8 +294,8 @@
     }
     .modal-status-value,
     .modal-status-select {
-      background: #181818;
-      color: #00ff6a;
+      background: #fff;
+      color: #388e3c;
       border-radius: 6px;
       padding: 8px 0;
       margin-bottom: 14px;
@@ -286,11 +307,11 @@
       text-align: center;
     }
     .modal-status-select {
-      color: #00ff6a;
-      background: #222;
+      color: #388e3c;
+      background: #e8f5e9;
       font-size: 1em;
       font-weight: bold;
-      border: 2px solid #00ff6a;
+      border: 2px solid #388e3c;
       outline: none;
       margin-bottom: 14px;
       padding: 8px 0;
@@ -300,18 +321,18 @@
       margin-bottom: 12px;
     }
     .servico-edit-item {
-      background: #222;
+      background: #e8f5e9;
       border-radius: 10px;
       padding: 14px 14px 10px 14px;
       margin-bottom: 15px;
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      box-shadow: 0 1px 0 #333 inset;
+      box-shadow: 0 1px 0 #388e3c22 inset;
       position: relative;
     }
     .servico-edit-nome {
-      color: #00ff6a;
+      color: #388e3c;
       font-weight: bold;
       font-size: 1.12em;
       margin-bottom: 2px;
@@ -319,7 +340,7 @@
       letter-spacing: 0.2px;
     }
     .servico-edit-preco {
-      color: #fff;
+      color: #ff9800;
       font-size: 1.04em;
       margin-bottom: 10px;
       text-align: left;
@@ -341,59 +362,9 @@
     .remover-servico-btn:hover {
       background: #c62828;
     }
-    .adicionar-servico-bloco {
-      background: #111;
-      border-radius: 0 0 8px 8px;
-      padding: 16px 8px 12px 8px;
-      margin-bottom: 14px;
-      border-bottom: 3px solid #00ff6a;
-      box-shadow: 0 2px 0 #00ff6a inset;
-      text-align: left;
-    }
-    .adicionar-servico-label {
-      color: #00ff6a;
-      font-size: 1.17em;
-      font-weight: bold;
-      margin-bottom: 7px;
-      margin-left: 2px;
-      letter-spacing: 0.2px;
-    }
-    .adicionar-servico-select {
-      width: 100%;
-      background: #fff;
-      color: #111;
-      border: 1.5px solid #222;
-      border-radius: 6px;
-      padding: 8px 7px;
-      font-size: 1.07em;
-      transition: border 0.18s;
-      outline: none;
-      margin-bottom: 0;
-    }
-    .adicionar-servico-select:focus {
-      border: 1.5px solid #00ff6a;
-    }
-    .add-servico-btn {
-      background: #00ff6a;
-      color: #222;
-      border: none;
-      border-radius: 7px;
-      padding: 12px 0;
-      font-size: 1.12em;
-      cursor: pointer;
-      margin-top: 10px;
-      margin-bottom: 10px;
-      font-weight: bold;
-      width: 100%;
-      transition: background 0.18s, color 0.18s;
-    }
-    .add-servico-btn:hover {
-      background: #009e46;
-      color: #fff;
-    }
     .salvar-btn {
-      background: #fff;
-      color: #222;
+      background: #ff9800;
+      color: #fff;
       border: none;
       border-radius: 7px;
       padding: 12px 0;
@@ -403,39 +374,44 @@
       font-weight: bold;
       width: 100%;
       transition: background 0.18s, color 0.18s;
-      box-shadow: 0 1px 0 #333 inset;
+      box-shadow: 0 1px 0 #388e3c22 inset;
+      border: 1.5px solid #ff9800;
     }
     .salvar-btn:hover {
-      background: #00c853;
+      background: #388e3c;
       color: #fff;
+      border: 1.5px solid #388e3c;
     }
     .close-modal {
       position: absolute;
       right: 10px;
       top: 10px;
-      color: #fff;
-      background: none;
-      border: none;
+      color: #ff9800;
+      background: #fff;
+      border: 1.5px solid #ff9800;
       cursor: pointer;
-      font-size: 1.3em;
-      padding: 0 8px;
+      font-size: 1em;
+      padding: 0;
       line-height: 1;
       border-radius: 50%;
-      height: 32px;
-      width: 32px;
+      height: 22px;
+      width: 22px;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: color 0.2s, background 0.2s;
+      transition: color 0.2s, background 0.2s, border 0.2s;
+      box-shadow: 0 1px 2px #1112;
+      z-index: 2;
     }
     .close-modal:hover {
-      color: #00c853;
-      background: rgba(0, 0, 0, 0.08);
+      color: #fff;
+      background: #ff9800;
+      border: 1.5px solid #388e3c;
     }
     .modal-msg {
       margin-top: 8px;
       font-size: 1em;
-      color: #b2ff59;
+      color: #388e3c;
       min-height: 18px;
     }
     @media (max-width: 500px) {
@@ -491,8 +467,9 @@
       </div>
     </div>
     <div id="periodoSelecionado"></div>
+    <div id="valoresPagamentos"></div>
     <div class="solicitacoes-lista" id="solicitacoes-lista">
-      <div style="color:#fff;text-align:center;">Carregando...</div>
+      <div style="color:#388e3c;text-align:center;">Carregando...</div>
     </div>
   </div>
 
@@ -548,7 +525,10 @@
       const campo = document.getElementById('campoPeriodo');
       campo.innerHTML = "";
       if (tipo === "dia") {
-        campo.innerHTML = `<input type="date" id="inputData" class="filtro-input" value="${new Date().toISOString().slice(0,10)}" onchange="carregarSolicitacoes()">`;
+        // Sempre data atual ao trocar para "Dia"
+        const hoje = new Date();
+        const dataHoje = hoje.toISOString().slice(0,10);
+        campo.innerHTML = `<input type="date" id="inputData" class="filtro-input" value="${dataHoje}" onchange="carregarSolicitacoes()">`;
       } else if (tipo === "semana") {
         campo.innerHTML = `<input type="text" id="rangeSemana" class="filtro-input" readonly style="width: 170px;" />`;
         setTimeout(() => {
@@ -675,10 +655,38 @@
       return lista.filter(s => (s.status || "pendente").toLowerCase() === status);
     }
 
+    // Soma valores por tipo de pagamento
+    function calcularValoresPagamentos(lista) {
+      const totais = {};
+      let valorTotal = 0;
+      lista.forEach(s => {
+        if (!Array.isArray(s.pagamentos)) return;
+        s.pagamentos.forEach(p => {
+          if (!p.forma || isNaN(p.valor)) return;
+          if (!totais[p.forma]) totais[p.forma] = 0;
+          totais[p.forma] += Number(p.valor);
+        });
+        valorTotal += Number(s.valorTotal || 0);
+      });
+      return { totais, valorTotal };
+    }
+
+    // Exibe o bloco de totais por tipo de pagamento
+    function exibirValoresPagamentos(lista) {
+      const { totais, valorTotal } = calcularValoresPagamentos(lista);
+      let html = `<div class="valores-pagamento-bloco">
+        <div class="valores-pagamento-titulo"><i class="fa fa-cash-register"></i> Valores por Tipo de Pagamento:</div>`;
+      for (const forma in totais) {
+        html += `<div class="valores-pagamento-linha">${forma}: <b>R$ ${totais[forma].toFixed(2)}</b></div>`;
+      }
+      html += `<div class="valores-pagamento-total">Valor Total: <b>R$ ${valorTotal.toFixed(2)}</b></div></div>`;
+      document.getElementById("valoresPagamentos").innerHTML = html;
+    }
+
     async function carregarSolicitacoes() {
       mostrarPeriodoSelecionado();
       const listaDiv = document.getElementById("solicitacoes-lista");
-      listaDiv.innerHTML = '<div style="color:#fff;text-align:center;">Carregando...</div>';
+      listaDiv.innerHTML = '<div style="color:#388e3c;text-align:center;">Carregando...</div>';
       const status = document.getElementById('filtroStatus').value;
 
       try {
@@ -693,8 +701,11 @@
           let html = "";
           const barbeiros = Object.keys(solicitacoesPorBarbeiro);
           if (barbeiros.length === 0) {
-            html = '<div style="color:#fff;text-align:center;">Nenhuma solicitação encontrada.</div>';
+            html = '<div style="color:#388e3c;text-align:center;">Nenhuma solicitação encontrada.</div>';
+            document.getElementById("valoresPagamentos").innerHTML = "";
           } else {
+            // Para admin, não mostra totais por tipo de pagamento (mas pode adaptar se quiser)
+            html += "<div style='color:#388e3c;text-align:center;'>Selecione um barbeiro para ver detalhes.</div>";
             barbeiros.forEach(barbeiro => {
               let listaSolic = filtrarPorData(solicitacoesPorBarbeiro[barbeiro]);
               listaSolic = filtrarPorStatus(listaSolic, status);
@@ -711,12 +722,13 @@
                 <div class="solicitacao-barbeiro">${barbeiro}
                   <div class="solicitacao-resumo">
                     <div>Valor Total: <b>R$ ${totalGeral.toFixed(2)}</b></div>
-                    <div>Concluído: <b style="color:#00c853;">R$ ${totalConcluido.toFixed(2)}</b></div>
-                    <div>Pendente: <b style="color:#ffeb3b;">R$ ${totalPendente.toFixed(2)}</b></div>
+                    <div>Concluído: <b style="color:#388e3c;">R$ ${totalConcluido.toFixed(2)}</b></div>
+                    <div>Pendente: <b style="color:#ff9800;">R$ ${totalPendente.toFixed(2)}</b></div>
                   </div>
                 </div>
               </div>`;
             });
+            document.getElementById("valoresPagamentos").innerHTML = "";
           }
           listaDiv.innerHTML = html;
         } else {
@@ -724,12 +736,17 @@
           const meuDocId = nomeParaId(usuarioLogado.nome);
           const doc = await db.collection("solicitacoes").doc(meuDocId).get();
           if (!doc.exists || !Array.isArray(doc.data().lista) || doc.data().lista.length === 0) {
-            listaDiv.innerHTML = '<div style="color:#fff;text-align:center;">Nenhuma solicitação encontrada.</div>';
+            listaDiv.innerHTML = '<div style="color:#388e3c;text-align:center;">Nenhuma solicitação encontrada.</div>';
+            document.getElementById("valoresPagamentos").innerHTML = "";
             return;
           }
           listaSolicitacoes = doc.data().lista;
           let listaFiltrada = filtrarPorData(listaSolicitacoes);
           listaFiltrada = filtrarPorStatus(listaFiltrada, status);
+
+          // Exibir totais por tipo de pagamento e valor total
+          exibirValoresPagamentos(listaFiltrada);
+
           // AJUSTE: Ignorar cancelados nas somas
           let totalGeral = 0, totalConcluido = 0, totalPendente = 0;
           listaFiltrada.forEach(s => {
@@ -743,8 +760,8 @@
             <div class="solicitacao-barbeiro"><i class="fa fa-user"></i> ${usuarioLogado.nome}
               <div class="solicitacao-resumo">
                 <div>Valor Total: <b>R$ ${totalGeral.toFixed(2)}</b></div>
-                <div>Concluído: <b style="color:#00c853;">R$ ${totalConcluido.toFixed(2)}</b></div>
-                <div>Pendente: <b style="color:#ffeb3b;">R$ ${totalPendente.toFixed(2)}</b></div>
+                <div>Concluído: <b style="color:#388e3c;">R$ ${totalConcluido.toFixed(2)}</b></div>
+                <div>Pendente: <b style="color:#ff9800;">R$ ${totalPendente.toFixed(2)}</b></div>
               </div>
             </div>
             ${
@@ -780,6 +797,7 @@
         }
       } catch (error) {
         listaDiv.innerHTML = `<div style="color:#ff5252;">Erro ao carregar solicitações: ${error.message}</div>`;
+        document.getElementById("valoresPagamentos").innerHTML = "";
       }
     }
 
@@ -836,7 +854,7 @@
         .set({ lista: listaSolicitacoes })
         .then(() => {
           document.getElementById("modalSolicitacaoMsg").textContent = "Solicitação atualizada!";
-          document.getElementById("modalSolicitacaoMsg").style.color = "#b2ff59";
+          document.getElementById("modalSolicitacaoMsg").style.color = "#388e3c";
           setTimeout(() => {
             fecharModalSolicitacao();
             carregarSolicitacoes();
